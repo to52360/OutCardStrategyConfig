@@ -5,14 +5,14 @@ import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.Player
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
+import club.xiaojiawei.data.CARD_WEIGHT_TRIE
 
 import club.xiaojiawei.enums.RunModeEnum
 import club.xiaojiawei.status.WAR
 import club.xiaojiawei.strategy.HsCommonDeckStrategy
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
-import lin.d.ComboWeightGroup
-import lin.d.defaultOutCardLambda
-import lin.util.StrategyUtil
+import lin.dao.ComboWeightGroup
+import lin.dao.defaultOutCardLambda
 
 
 /**
@@ -20,13 +20,15 @@ import lin.util.StrategyUtil
  * @see club.xiaojiawei.bean.Player
  * 插件管理
  *
+ * 参考[HsRadicalDeckStrategy]
+ * 权重表[CARD_WEIGHT_TRIE]
  */
 class CustomiseRadicalStrategy : DeckStrategy() {
     private var deckStrategy: (War) -> Unit
 
 
     init {
-         val comboWeightGroup  = ComboWeightGroup(StrategyUtil.readWeightConfig())
+         val comboWeightGroup  = ComboWeightGroup(CARD_WEIGHT_TRIE.data())
          deckStrategy = comboWeightGroup.getOutCardLambda()
     }
 

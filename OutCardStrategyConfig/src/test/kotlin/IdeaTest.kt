@@ -1,3 +1,4 @@
+import lin.ComboStrategyConfigFactory
 import kotlin.math.absoluteValue
 import kotlin.test.Test
 
@@ -23,5 +24,9 @@ class IdeaTest {
         if (decimalStr.size > 1) {
             println("小数点后第一位数字(字符串方法)是: ${decimalStr[1][0]}")
         }
+    }
+    @Test
+    fun configLoad(){
+        println(ComboStrategyConfigFactory.loadConfig())
     }
 }

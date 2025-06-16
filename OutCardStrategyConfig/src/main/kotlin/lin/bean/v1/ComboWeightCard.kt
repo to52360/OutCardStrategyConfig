@@ -2,10 +2,11 @@ package lin.bean.v1
 
 import club.xiaojiawei.bean.Card
 
+
 /**
- * [ComboWeightInfo]权重补充卡牌信息
+ * [ComboWeightInfoV1]权重补充卡牌信息
  */
-class ComboWeightCard(val comboWeightInfo: ComboWeightInfo,
+class ComboWeightCard(val comboWeightInfo: ComboWeightInfoV1,
                       val card : Card
 ){
 

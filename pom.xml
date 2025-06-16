@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.xjw580.Hearthstone-Script</groupId>
         <artifactId>hs-script-parent</artifactId>
-        <version>v4.6.0-GA</version>
+        <version>v4.7.0-GA</version>
     </parent>
 
     <groupId>club.xiaojiawei</groupId>
@@ -37,7 +37,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <kt-version>2.0.20</kt-version>
-        <sdk-version>v4.6.0-GA</sdk-version>
+        <sdk-version>v4.7.0-GA</sdk-version>
     </properties>
 
 
