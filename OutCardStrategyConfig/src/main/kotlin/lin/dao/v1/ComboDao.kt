@@ -1,17 +1,14 @@
 package lin.dao.v1
 
-import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
-import club.xiaojiawei.config.log
 
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
-import lin.bean.v2.ComboWeightGroup
+import lin.bean.v2.ComboGroup
 import lin.strategy.ComboStrategy
 
 import lin.bean.v2.ComboWeightInfo
-import lin.dao.v1.bean.ComBoCard
 
 
 /**
@@ -24,20 +21,30 @@ import lin.dao.v1.bean.ComBoCard
  * []
  * 出牌条件 先打出组里 16.1   .1策略先打出条件为16.0卡
  */
- class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>) {
+ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,private val war: War) {
     //存储转化权重信息
-    private val infoMap : Map<String, ComboWeightInfo> = emptyMap()
+    private  val warManage :WarManage
     //存储策略分组
-    private val strategyMap : Map<String, ComboStrategy> = emptyMap()
+    init {
 
-    private val groupMap : Map<String,ComboWeightGroup> = emptyMap()
+        val  infoMap : Map<String, ComboWeightInfo>   = parse(weightConfigs)
+        warManage= WarManage(war,infoMap)
+
+    }
+
+    private fun parse(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>):Map<String, ComboWeightInfo>{
+        val strategyMap : Map<String, ComboStrategy> = emptyMap()
+        val  groupMap : Map<String,ComboGroup> = emptyMap()
+        TODO()
+    }
+    var initResult : Boolean = false
 
 
     /**
      * 没有权重信息或者没有匹配对应策略
      */
     private fun hasValidStrategy() : Boolean{
-        return infoMap.isNotEmpty() && strategyMap.isNotEmpty()
+        TODO()
     }
 
     /**
@@ -50,7 +57,7 @@ import lin.dao.v1.bean.ComBoCard
 
     private fun executeOutCardStrategy(war :War) {
 
-         val warManage = WarManage(war)//这里依赖局部变量,还是全局war属性呢?
+        //这里依赖局部变量,还是全局war属性呢?
           warManage.getCanUseCards()
 
 

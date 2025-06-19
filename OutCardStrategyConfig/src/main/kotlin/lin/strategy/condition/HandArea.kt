@@ -1,45 +1,60 @@
 package lin.strategy.condition
 
 import club.xiaojiawei.bean.Card
-import club.xiaojiawei.bean.DBCard
+import club.xiaojiawei.config.log
 import club.xiaojiawei.enums.CardRaceEnum
 import club.xiaojiawei.util.CardDBUtil
 import lin.bean.v2.ComboWeightInfo
 
 /**
- *  [club.xiaojiawei.util.CardDBUtil]
- *  [DBCard]
- *  [club.xiaojiawei.bean.BaseCard]
- *  [club.xiaojiawei.enums.CardRaceEnum.fromString]
- *  []
+ * 手牌区域为条件
+ *
  */
-class HandArea<T> {
-    val cache: Map<String,T> = emptyMap()
-    var card: Card? = null
+abstract class HandArea :  OutCardCondition(),DepByWeightCards{
+    abstract fun  canUse(handCards: List<Card>) : Double
 }
 
 /**
- * 以种族作为跳跳
+ * 以种族作为打出条件
  */
-class HandAreaByRace(comboWeightInfoList: Map<String,ComboWeightInfo>){
+class HandAreaByRace:HandArea() {
 
-    private val cache: List<CardRaceEnum> = comboWeightInfoList.map{
-        parse(it.key)
-    }
-    fun canUse(handCards: List<Card>): Boolean {
-        return handCards.any{
-            cache.any{cardRaceEnum -> it.cardRace == cardRaceEnum }
+
+    private var cache: List<CardRaceEnum> = emptyList()
+
+    override fun canUse(handCards: List<Card>): Double {
+        if(cache.isEmpty()) {
+            val msg = "条件组件没有初始化或者没有条件组信息"
+            log.warn { msg }
+            throw ConditionException(this,msg)
         }
-
+        return if(handCards.any {
+                cache.any { cardRaceEnum -> it.cardRace == cardRaceEnum }
+            }
+        ){
+            notConditionWeight
+        }else{
+            defaultConditionWeight
+        }
     }
-    private fun  parse(key:String): CardRaceEnum{
+
+    private fun parse(key: String): CardRaceEnum {
         CardDBUtil.queryCardById(key).let {
             if (it.isNotEmpty()) {
-                return  CardRaceEnum.fromString(it.first().type)
-            }else {
+                return CardRaceEnum.fromString(it.first().type)
+            } else {
                 return CardRaceEnum.UNKNOWN
             }
 
         }
+    }
+
+    override fun id() = 13
+
+    override fun setWeightCardsById(comboWeightInfoList: Map<String, ComboWeightInfo>) {
+        if(comboWeightInfoList.isNotEmpty())
+            cache = comboWeightInfoList.map {
+                parse(it.key)
+            }
     }
 }

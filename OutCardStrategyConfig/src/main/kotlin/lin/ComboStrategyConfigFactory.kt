@@ -13,7 +13,6 @@ object ComboStrategyConfigFactory {
     private val strategyMap = hashMapOf<String, ComboStrategy>()
     init {
 
-
     }
 
     fun get(strategyId:String) : ComboStrategy? {

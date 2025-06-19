@@ -2,26 +2,26 @@ package lin.dao.v1
 
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
+import lin.bean.v2.ComboWeightInfo
 import lin.dao.v1.bean.ComBoCard
 
-class WarManage(private val war:War) {
+class WarManage(private val war:War,private val infoMap : Map<String, ComboWeightInfo> ) {
     private var handCards = emptyList<Card>()
     private var orderComBoCard  = emptyList<ComBoCard>()
     init {
         handCards = war.me.handArea.cards.toList()
-        orderComBoCard = parseComboCardAndOrderByWeight()
+        orderComBoCard = parseComboCard()
     }
 
-    fun comBoGroup():ComboGroup{
-        val comboGroup = parseComboCardAndOrderByWeight()
 
-        TODO()
-    }
+
+
 
 
     //转化并排序
-    private  fun parseComboCardAndOrderByWeight():List<ComBoCard>{
+    private  fun parseComboCard():List<ComBoCard>{
         handCards
+        infoMap
         //对手
         //战场都要复制comboGroup
         TODO()
@@ -33,7 +33,7 @@ class WarManage(private val war:War) {
     }
     //重新再排序
     fun refreshComboOrder(){
-        orderComBoCard = parseComboCardAndOrderByWeight()
+        orderComBoCard = parseComboCard()
     }
     fun getCanUseCards()=orderComBoCard.filter {
             comBoCard ->  comBoCard.card.cost<= war.me.usableResource
