@@ -1,12 +1,9 @@
-package lin.util
+package lin.utils
 
 import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.SimulateWeightCard
-import club.xiaojiawei.config.log
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
-
-import kotlin.collections.ArrayList
 
 object StrategyUtil {
     fun sortCardByPowerWeight(cards: List<SimulateWeightCard>): List<SimulateWeightCard> {

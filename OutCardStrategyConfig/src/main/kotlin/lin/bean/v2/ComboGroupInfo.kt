@@ -1,7 +1,6 @@
 package lin.bean.v2
 
-
-import lin.strategy.condition.ExtOutCardCondition
+import lin.weightHandler.condition.ExtOutCardCondition
 
 class ComboGroupInfo(
     val infoId:String,
@@ -18,8 +17,12 @@ class ComboGroup(
     val extCondition: ExtOutCardCondition //扩展条件
 )
 enum class ComboRole {
-    DEC,     // 减费 提前启动combo
-    FIND,       // 检索 提供combo启动概率
-    CORE,         //有了核心才可以启动  主组组件
+    DEC,             //减费
+    FIND,               //检索发现,当核心不存在
+    GEN_PAYOFF,         //参生潜在收益组
     PAYOFF,       //依赖于核心产生收益组
 }
+interface ComboCondition {
+
+}
+
