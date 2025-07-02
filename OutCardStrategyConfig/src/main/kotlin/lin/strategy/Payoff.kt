@@ -1,6 +1,6 @@
 package lin.strategy
 
-import lin.dao.v1.ComboCard
+import lin.dao.ComboCard
 
 interface Payoff {
     //收益组

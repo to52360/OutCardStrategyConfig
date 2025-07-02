@@ -3,7 +3,7 @@ package lin
 import club.xiaojiawei.DeckStrategy
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.Player
-import club.xiaojiawei.bean.War
+
 import club.xiaojiawei.config.log
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
 
@@ -11,7 +11,8 @@ import club.xiaojiawei.enums.RunModeEnum
 import club.xiaojiawei.status.WAR
 import club.xiaojiawei.strategy.HsCommonDeckStrategy
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
-import lin.dao.ComboWeightGroup
+
+import lin.dao.ComboDao
 import lin.dao.defaultOutCardLambda
 
 
@@ -24,12 +25,12 @@ import lin.dao.defaultOutCardLambda
  * 权重表[CARD_WEIGHT_TRIE]
  */
 class CustomiseRadicalStrategy : DeckStrategy() {
-    private var deckStrategy: (War) -> Unit
+    private var deckStrategy: () -> Unit
 
 
     init {
-         val comboWeightGroup  = ComboWeightGroup(CARD_WEIGHT_TRIE.data())
-         deckStrategy = comboWeightGroup.getOutCardLambda()
+         val comboDao  = ComboDao(CARD_WEIGHT_TRIE.data(), WAR)
+         deckStrategy   = comboDao.getOutCardLambda()
     }
 
     private val commonDeckStrategy = HsCommonDeckStrategy()
@@ -88,13 +89,13 @@ class CustomiseRadicalStrategy : DeckStrategy() {
 
     override fun executeOutCard() {
         try{
-            deckStrategy(WAR)
+            deckStrategy()
         }catch(e:Exception){
             log.error(e) { "Failed to execute card. 异常信息:"+e.localizedMessage }
-            if(deckStrategy == defaultOutCardLambda) throw e
+            if(deckStrategy == defaultOutCardLambda) throw e //激进策略的问题
             else{
                 deckStrategy = defaultOutCardLambda
-                deckStrategy(WAR)
+                deckStrategy()
             }
 
         }

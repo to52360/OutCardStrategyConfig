@@ -1,7 +1,30 @@
 package lin.weightHandler
 
-import lin.dao.v1.ComboCard
+import club.xiaojiawei.bean.Card
+import lin.bean.ComboWeightInfo
+import lin.dao.ComboCard
+import lin.dao.WarInfo
 
-interface WeightHandler{
-    fun cardWeightProcess(useAbleCards:List<ComboCard>, allCards:List<ComboCard>)
+
+interface HandlerFactory<T>{
+    fun create(t:T): WeightHandler
 }
+interface WeightHandler{
+    fun cardWeightProcess(callCard: ComboCard, warInfo: WarInfo)
+    fun priority() = 0
+    fun gameStart(){
+
+    }
+    fun gameEnd(){
+
+    }
+}
+interface InitHandler{
+    fun init(infos:List<ComboWeightInfo>)
+}
+
+interface CardWeightHandler{
+    fun cardWeight(card: Card):Double
+}
+
+

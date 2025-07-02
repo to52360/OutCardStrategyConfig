@@ -3,8 +3,9 @@ package lin.weightHandler.condition
 import club.xiaojiawei.config.log
 import club.xiaojiawei.enums.CardRaceEnum
 import club.xiaojiawei.util.CardDBUtil
-import lin.bean.v2.ComboWeightInfo
-import lin.dao.v1.ComboCard
+import lin.bean.ComboWeightInfo
+import lin.dao.ComboCard
+import lin.weightHandler.condition.context.ConditionException
 import lin.weightHandler.condition.context.notValueDefaultWeight
 
 
@@ -16,11 +17,11 @@ class HandAreaByRace: HandArea() {
 
     private var cache: List<CardRaceEnum> = emptyList()
     //优化
-    override fun canUse(callCard: ComboCard,handCards: List<ComboCard>) {
+    override fun canUse(callCard: ComboCard, handCards: List<ComboCard>) {
         if(cache.isEmpty()) {
             val msg = "条件组件没有初始化或者没有条件组信息"
             log.warn { msg }
-            throw ConditionException(this,msg)
+            throw ConditionException(msg)
         }
         var weight = notValueDefaultWeight
          if(handCards.any {
@@ -47,10 +48,11 @@ class HandAreaByRace: HandArea() {
     override fun id() = 250625013
 
 
-    override fun setWeightCardsById(comboWeightInfoList: Map<String, ComboWeightInfo>) {
+    override fun initByWeightInfo(comboWeightInfoList: List<ComboWeightInfo>) {
         if(comboWeightInfoList.isNotEmpty())
             cache = comboWeightInfoList.map {
                 parse(it.key)
             }
     }
 }
+

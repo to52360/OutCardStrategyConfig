@@ -1,6 +1,6 @@
 import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.bean.LikeTrie
-import lin.dao.ComboWeightGroup
+import lin.dao.temp.ComboWeightGroup
 
 import kotlin.test.BeforeTest
 import kotlin.test.Test

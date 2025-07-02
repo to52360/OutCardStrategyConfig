@@ -1,4 +1,5 @@
 import lin.ComboStrategyConfigFactory
+
 import kotlin.math.absoluteValue
 import kotlin.test.Test
 
@@ -29,4 +30,6 @@ class IdeaTest {
     fun configLoad(){
         println(ComboStrategyConfigFactory.loadConfig())
     }
+
+
 }

@@ -1,4 +1,4 @@
-package lin.bean.v2
+package lin.bean
 
 import lin.weightHandler.condition.ExtOutCardCondition
 

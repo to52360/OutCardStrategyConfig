@@ -1,13 +1,13 @@
-package lin.dao
+package lin.dao.temp
 
 import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
-import club.xiaojiawei.strategy.HsRadicalDeckStrategy
 import lin.strategy.ComboStrategy
 
 import lin.bean.v1.ComboWeightInfoV1
+import lin.dao.DoubleSplitUtils
 import java.util.*
 
 
@@ -42,19 +42,7 @@ class ComboWeightGroup(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>) {
         return infoMap.isNotEmpty() && strategyMap.isNotEmpty()
     }
 
-    /**
-     * 返回出牌策略,给策略类
-     */
-    fun getOutCardLambda() : (War)-> Unit{
-        return if (hasValidStrategy()&&useAble) {
-            // 如果配置有效，返回我们精心设计的执行逻辑
-            { war -> executeOutCardStrategy(war) }
-        } else {
-            // 如果配置无效，返回默认的激进策略
-            log.info { "配置无效或为空，执行默认激进策略..." }
-            defaultOutCardLambda
-        }
-    }
+
 
     private fun executeOutCardStrategy(war :War) {
 
@@ -98,11 +86,6 @@ class ComboWeightGroup(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>) {
 
 }
 
-private val  defaultStrategy:HsRadicalDeckStrategy by lazy {
-    HsRadicalDeckStrategy()
-}
-//默认策略
-val defaultOutCardLambda : (War)-> Unit={
-    defaultStrategy.executeOutCard()
-}
+
+
 
