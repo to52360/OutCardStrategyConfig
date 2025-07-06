@@ -1,6 +1,4 @@
-package lin.bean
-
-import club.xiaojiawei.enums.CardRaceEnum
+package lin.weightHandler.condition.bean
 
 /**
  * [club.xiaojiawei.bean.CardWeight.weight]整数部分条件组

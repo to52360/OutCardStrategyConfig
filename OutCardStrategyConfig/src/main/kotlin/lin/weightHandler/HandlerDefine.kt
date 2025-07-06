@@ -1,11 +1,13 @@
 package lin.weightHandler
 
 import club.xiaojiawei.bean.Card
-import lin.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.dao.ComboCard
 import lin.dao.WarInfo
 
-
+/**
+ * select 服务发现为了方便没有采用更为安全的工厂模式
+ */
 interface HandlerFactory<T>{
     fun create(t:T): WeightHandler
 }

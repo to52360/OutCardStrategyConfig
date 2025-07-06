@@ -1,4 +1,4 @@
-package lin.bean
+package lin.weightHandler.condition.bean
 
 
 /**

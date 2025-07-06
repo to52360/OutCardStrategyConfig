@@ -5,9 +5,8 @@ import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
 
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
-import lin.strategy.ComboStrategy
 
-import lin.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.context.CostWeight
 import java.util.*
@@ -38,7 +37,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,war: War) 
     }
     //把配置信息转化成上下文信息
     private fun parse(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>): Map<String, ComboWeightInfo> {
-        val strategyMap: Map<String, ComboStrategy> = emptyMap()
+
         TODO()
     }
 
@@ -67,6 +66,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,war: War) 
 
       return {executeOutCardStrategy()}
     }
+
 
     private fun executeOutCardStrategy() {
         //重新加载信息

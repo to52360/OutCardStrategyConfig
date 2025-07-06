@@ -1,8 +1,8 @@
 package lin.dao
 
 import club.xiaojiawei.bean.Card
-import lin.bean.ComboWeightInfo
-import lin.weightHandler.condition.OutCardCondition
+import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.Metadata
 import lin.weightHandler.condition.context.defaultWeight
 
 
@@ -27,8 +27,8 @@ class ComboCard (private val comboWeightInfo: ComboWeightInfo?=null, val card: C
     fun setComboWeightAndId(comboOption:(selectCard:List<ComboCard>) -> Double){
         this.comboOption = comboOption
     }
-    fun  getCondition(): OutCardCondition? {
-      return  comboWeightInfo?.outCardCondition
+    fun getMetadata(): Metadata? {
+      return  comboWeightInfo?.metadata
     }
     //在同一组会增加权重
     fun comboAddWeight(comboCards: List<ComboCard>):Double{

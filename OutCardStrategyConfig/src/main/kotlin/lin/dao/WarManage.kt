@@ -2,13 +2,17 @@ package lin.dao
 
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
-import lin.bean.ComboWeightInfo
-//可见性 控制
+import lin.weightHandler.condition.bean.ComboWeightInfo
+
 interface WarInfo{
    fun getCanUseCards():List<ComboCard>
    fun getHandComboCards():List<ComboCard>
    fun getGraveyardCards():List<Card>
    fun getNowCost():Int
+
+    /**
+     * 费用没打完,考虑使用为负数
+     */
    fun costNotFillAllCard():Boolean
 }
 interface WarCtrl {
@@ -16,12 +20,19 @@ interface WarCtrl {
     fun useCard(comBoCard: ComboCard):Boolean
     fun parseComboCard():List<ComboCard>
 }
+
+/**
+ * 可见性控制,提供不一致视角
+ */
 interface WarPro: WarInfo, WarCtrl {
 
 }
 
-//todo 东西太多,功能也太多了
-class WarManage(private val war:War,private val infoMap : Map<String, ComboWeightInfo> ) : WarPro {
+/**
+ * todo-future 东西太多,功能也太多了,看后面需不需要部分功能,采用组合
+ * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码
+ */
+class WarManage( val war:War,private val infoMap : Map<String, ComboWeightInfo> ) : WarPro {
     private var handCards = emptyList<Card>()
     private var comboCards  = emptyList<ComboCard>()
     private var canUseCards = emptyList<ComboCard>()
@@ -73,6 +84,7 @@ class WarManage(private val war:War,private val infoMap : Map<String, ComboWeigh
     }
     //todo 不知道并发安全不,执行出牌策略和更新war是不是同一个线程
     override fun getNowCost()= war.me.usableResource
+
     override fun costNotFillAllCard(): Boolean {
         TODO("Not yet implemented")
     }

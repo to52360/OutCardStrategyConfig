@@ -1,6 +1,6 @@
 package lin.bean
 
-import lin.weightHandler.condition.ExtOutCardCondition
+import lin.weightHandler.condition.define.ExtOutCardCondition
 
 class ComboGroupInfo(
     val infoId:String,

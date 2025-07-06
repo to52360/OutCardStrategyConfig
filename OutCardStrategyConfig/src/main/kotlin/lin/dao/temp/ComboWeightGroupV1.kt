@@ -3,12 +3,9 @@ package lin.dao.temp
 import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
-import club.xiaojiawei.config.log
-import lin.strategy.ComboStrategy
+
 
 import lin.bean.v1.ComboWeightInfoV1
-import lin.dao.DoubleSplitUtils
-import java.util.*
 
 
 /**
@@ -20,17 +17,16 @@ import java.util.*
 class ComboWeightGroup(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>) {
     //存储转化权重信息
     private val infoMap : Map<String, ComboWeightInfoV1>
-    //存储策略分组
-    private val strategyMap : Map<String, ComboStrategy>
+
     //判断是否正确初始化,没有权重信息或者没有匹配对应策略情况
     private var useAble = true
     init{
         if(weightConfigs.isNotEmpty()) {
             infoMap = parseConfigInfo(weightConfigs)
-            strategyMap = loadStrategyInfo(infoMap)
+
         }else{
             infoMap = emptyMap()
-            strategyMap = emptyMap()
+
             useAble = false
         }
     }
@@ -39,7 +35,7 @@ class ComboWeightGroup(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>) {
      * 没有权重信息或者没有匹配对应策略
      */
     private fun hasValidStrategy() : Boolean{
-        return infoMap.isNotEmpty() && strategyMap.isNotEmpty()
+        return infoMap.isNotEmpty()
     }
 
 
@@ -48,28 +44,7 @@ class ComboWeightGroup(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>) {
 
     }
 
-    /**
-     * 加载策略信息
-     */
-    private fun loadStrategyInfo(infoMap: Map<String, ComboWeightInfoV1>) :  Map<String, ComboStrategy>{
-        val comboStrategyList: ServiceLoader<ComboStrategy> = ServiceLoader.load(ComboStrategy::class.java)
-        val readInfo = hashMapOf<String, ComboStrategy>()
-        val strategyGroup  = infoMap.values.groupBy{it.outCardStrategyId}
-        for (comboStrategy in comboStrategyList) {
-                readInfo[comboStrategy.id()] = comboStrategy
-        }
-        val cache = hashMapOf<String, ComboStrategy>()
-        strategyGroup.keys.forEach {
-            readInfo[it]?.let{
-                result->
-                cache.put(it, result)
-            }?:run{
-                log.info { "策略ID不存在，已禁用: $it" }
-                useAble = false
-            }
-        }
-        return cache
-    }
+
     //把魔数转化为系统数据
     private fun parseConfigInfo(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>):Map<String, ComboWeightInfoV1> {
         return  weightConfigs.associateBy(
