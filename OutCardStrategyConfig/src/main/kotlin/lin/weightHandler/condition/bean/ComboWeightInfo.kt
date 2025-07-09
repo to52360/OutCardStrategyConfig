@@ -3,7 +3,6 @@ package lin.weightHandler.condition.bean
 
 /**
  * [club.xiaojiawei.bean.CardWeight]
- * todo 暂定 不知道是否需要考虑
  */
 class ComboWeightInfo(
     val cardId: String,
@@ -14,10 +13,12 @@ class ComboWeightInfo(
     val metadata: Metadata by lazy { Metadata() }
 }
 
-class MetadataKey<T>(val name: String)
+@JvmInline
+value class MetadataKey<T>(val name: String)
 
-class Metadata {
-    private val map = mutableMapOf<MetadataKey<*>, Any>()
+
+@JvmInline
+value class Metadata(private val map: MutableMap<MetadataKey<*>, Any> = mutableMapOf()) {
 
     fun <T> put(key: MetadataKey<T>, value: T) {
         map[key] = value as Any

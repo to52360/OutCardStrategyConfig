@@ -5,7 +5,6 @@ import lin.dao.ComboCard
 import lin.weightHandler.condition.define.HandArea
 import lin.weightHandler.condition.context.defaultWeight
 import lin.weightHandler.condition.context.notConditionDefaultWeight
-import lin.weightHandler.condition.implCondition.util.HandHasRace
 
 
 /**
@@ -14,11 +13,11 @@ import lin.weightHandler.condition.implCondition.util.HandHasRace
 class HandAreaByRace : HandArea  {
 
 
-    private lateinit  var cacheFun: (List<ComboCard>) -> Boolean
+    private lateinit  var handRacePredicate: (List<ComboCard>) -> Boolean
 
     override fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>) {
         var weight = defaultWeight
-        if (cacheFun(handCards)) {
+        if (handRacePredicate(handCards)) {
             weight = notConditionDefaultWeight
         }
         callCard.varPowerWeight = weight
@@ -30,7 +29,7 @@ class HandAreaByRace : HandArea  {
 
 
     override fun initByWeightInfo(comboWeightInfoList: List<ComboWeightInfo>) {
-        TODO()
+        handRacePredicate =  comboWeightInfoList.infoToHandRacePredicate()
     }
 }
 

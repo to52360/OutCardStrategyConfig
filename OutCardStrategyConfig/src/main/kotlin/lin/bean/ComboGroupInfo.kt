@@ -1,11 +1,11 @@
 package lin.bean
 
-import lin.weightHandler.condition.define.ExtOutCardCondition
+import lin.weightHandler.condition.define.ExtWeightCondition
 
 class ComboGroupInfo(
     val infoId:String,
     val startCost: Int?=0,//启动费用,没到启动费用,为0
-    val baseWeight:Int?=0, //基础权重 todo 没考虑清楚是加权还是减权
+    val baseWeight:Int?=0, //基础权重
 )
 /**
  * [club.xiaojiawei.bean.CardWeight.weight] 小数部分为combo组
@@ -14,7 +14,7 @@ class ComboGroup(
     val groupId: Int,//对应的分组
     val infoId : Int,
     val comboRole : ComboRole,// 扮演的角色
-    val extCondition: ExtOutCardCondition //扩展条件
+    val extCondition: ExtWeightCondition //扩展条件
 )
 enum class ComboRole {
     DEC,             //减费

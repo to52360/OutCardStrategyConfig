@@ -9,8 +9,8 @@ open class ConditionGroup(
     val groupId: Int, //唯一标识
     val bindId: Double,
     val outCardConditionId: Int, //打出策略,依赖关联组 ,辅助类:核心卡没上手,依赖项:在手牌
+    val depByWeightId: Double?=0.0,  //依赖权重数据
     val basePriority: Double? = 10.0, //基础优先度 ,不符合条件减优先级也就是减少权重
-    val depByWeightId: Double?=0.0  //依赖权重数据
 )
 
 /**

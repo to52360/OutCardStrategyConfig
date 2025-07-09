@@ -5,11 +5,11 @@ import lin.dao.ComboCard
 import lin.weightHandler.condition.define.ComboCondition
 import lin.weightHandler.condition.context.CostWeight
 import lin.weightHandler.condition.context.defaultWeight
-import lin.weightHandler.condition.define.DefaultOutCardCondition
+
 import lin.weightHandler.condition.define.HandArea
 
 
-//todo 暂时放这里
+//todo 暂时放这里 暂时没有想清楚一起打出的例子
 class ComboConditionByRace: HandArea,ComboCondition {
 
     override fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>) {

@@ -9,7 +9,7 @@ import lin.bean.v1.ComboWeightInfoV1
 
 
 /**
- * todo 名字还没有想好
+ *
  * Entry(cardId: String,value: CardWeight)
  *
  * 出牌条件 先打出组里 16.1   .1策略先打出条件为16.0卡

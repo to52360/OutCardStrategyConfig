@@ -2,7 +2,7 @@ package lin.weightHandler.condition.define
 
 import club.xiaojiawei.bean.Card
 import lin.dao.ComboCard
-import lin.dao.WarInfo
+import lin.dao.MyWarInfo
 
 //减轻 判断的类型处理都在这里
 
@@ -10,22 +10,22 @@ import lin.dao.WarInfo
  * 手牌区域为条件
  *
  */
-interface HandArea : DefaultOutCardCondition {
-    override fun onWarInfoProcessWeight(callCard: ComboCard, warInfo: WarInfo)=
-        onWarInfoProcessWeight(callCard,warInfo.getHandComboCards())
+interface HandArea : DefaultWeightCondition {
+    override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)=
+        onWarInfoProcessWeight(callCard,myWarInfo.getHandComboCards())
      fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>)
 }
 
 /**
  *墓场
  */
-interface GraveyardArea : DefaultOutCardCondition {
-    override fun onWarInfoProcessWeight(callCard: ComboCard, warInfo: WarInfo)= onWarInfoProcessWeight(warInfo.getGraveyardCards())
+interface GraveyardArea : DefaultWeightCondition {
+    override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)= onWarInfoProcessWeight(myWarInfo.getGraveyardCards())
     fun onWarInfoProcessWeight(graveyardCards: List<Card>)
 }
 
 //默认
-interface DefaultOutCardCondition: OutCardCondition, DepByWeightInfo
+interface DefaultWeightCondition: WeightCondition, DepByWeightInfo
 
 //可以一起打出
 interface ComboCondition{
