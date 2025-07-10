@@ -1,6 +1,6 @@
 package lin.weightHandler.condition.context
 
-internal const val CostWeight  = 10.0
-internal const val defaultWeight = 0.0
-internal const val notConditionDefaultWeight = 10.0
-internal const val notValueDefaultWeight = 10.0
+ const val CostWeight  = 10.0
+ const val defaultWeight = 0.0
+ const val notConditionDefaultWeight = 10.0
+ const val baseWeight = 1.0

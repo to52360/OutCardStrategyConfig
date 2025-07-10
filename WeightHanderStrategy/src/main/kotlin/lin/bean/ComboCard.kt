@@ -3,21 +3,24 @@ package lin.bean
 import club.xiaojiawei.bean.Card
 import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.weightHandler.condition.bean.Metadata
+import lin.weightHandler.condition.context.baseWeight
 import lin.weightHandler.condition.context.defaultWeight
+import lombok.extern.slf4j.Slf4j
 
 
 /**
  * @param card select 状态逃逸,增加复杂性和不太安全可能会改变,优点灵活
  * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
  */
-class ComboCard (private val comboWeightInfo: ComboWeightInfo?=null, val card: Card){
+
+  class ComboCard (private val comboWeightInfo: ComboWeightInfo?=null, val card: Card){
     //select 打出刷新 针对改变手牌
     var isRefresh = false
     fun groupId() = comboWeightInfo?.groupId
     fun cardId() = card.cardId
     //select 暂定直接修改,缺点:状态修改到处是无法追踪,要验证状态变化将很复杂,
     // 出牌权重
-    var  varPowerWeight :Double = comboWeightInfo?.powerWeight?:0.0
+    var  varPowerWeight :Double = comboWeightInfo?.powerWeight?:baseWeight
 
     //select 同组加权可以移到condition,但是要考虑继承关系,可以考虑委托方式,现在先测可行性
     private var comboOption : ((List<ComboCard>) -> Double)? =null

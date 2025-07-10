@@ -5,12 +5,16 @@ import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
 
+
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KLogging
 import lin.bean.ComboCard
 
 import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.context.CostWeight
+import lombok.extern.slf4j.Slf4j
 import java.util.*
 
 
@@ -24,7 +28,9 @@ import java.util.*
  * []
  * 出牌条件 先打出组里 16.1   .1策略先打出条件为16.0卡
  */
+
 class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,war: War) {
+
     //存储转化权重信息
     private val warManage: MyWarManage
     private val weightHandlers:List<WeightHandler>

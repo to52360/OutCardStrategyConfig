@@ -6,7 +6,7 @@ import club.xiaojiawei.enums.CardTypeEnum
 import lin.bean.ComboCard
 import lin.dao.MyWarManage
 import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.defaultWeight
+import lin.weightHandler.condition.context.baseWeight
 
 
 class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
@@ -14,7 +14,7 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
         val card = callCard.card
-        if(callCard.varPowerWeight== defaultWeight ){
+        if(callCard.varPowerWeight== baseWeight ){
             callCard.varPowerWeight = cardWeight(card)
         }
 
@@ -22,6 +22,7 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
     override fun cardWeight(card: Card):Double{
         if( CardTypeEnum.MINION==card.cardType){
             val c = cache[card.cardId]
+            //todo 消耗为0应该不进入缓存,费用原生才进入缓存
             if(c==null){
                 val baseWeigh = (card.atc+card.health) -card.cost*2
                 log.info{
@@ -37,7 +38,7 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
             }
 
         }
-        return defaultWeight
+        return baseWeight
     }
 
 
