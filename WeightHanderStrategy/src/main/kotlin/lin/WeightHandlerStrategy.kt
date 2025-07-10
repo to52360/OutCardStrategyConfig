@@ -2,15 +2,17 @@ package lin
 
 import club.xiaojiawei.DeckStrategy
 import club.xiaojiawei.bean.Card
-import club.xiaojiawei.bean.Player
+
 
 import club.xiaojiawei.config.log
+import club.xiaojiawei.data.BaseData
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
 
 import club.xiaojiawei.enums.RunModeEnum
 import club.xiaojiawei.status.WAR
-import club.xiaojiawei.strategy.HsCommonDeckStrategy
+
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
+import club.xiaojiawei.util.DeckStrategyUtil
 
 import lin.dao.ComboDao
 import lin.dao.defaultOutCardLambda
@@ -20,7 +22,7 @@ import lin.dao.defaultOutCardLambda
  * @see club.xiaojiawei.bean.BaseCard
  * @see club.xiaojiawei.bean.Player
  * 插件管理
- *
+ *[CardId]
  * 参考[HsRadicalDeckStrategy]
  * 权重表[CARD_WEIGHT_TRIE]
  * WeightHandlerPlugin
@@ -41,7 +43,6 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     }
 
-    private val commonDeckStrategy = HsCommonDeckStrategy()
 
     override fun name(): String = "权重处理策略"
 
@@ -61,7 +62,17 @@ class WeightHandlerStrategy : DeckStrategy() {
     override fun referChangeWeight(): Boolean = true
 
     override fun executeChangeCard(cards: HashSet<Card>) {
-        commonDeckStrategy.executeChangeCard(cards)
+        if (BaseData.enableChangeWeight) {
+            val weightCards = DeckStrategyUtil.convertToSimulateCard(cards.toList())
+            weightCards.sortByDescending { it.changeWeight }
+            for (card in weightCards) {
+                if (card.changeWeight < 0.0) {
+                    cards.remove(card.card)
+                }
+            }
+        } else {
+            cards.removeIf { card -> card.cost > 2 }
+        }
     }
 
 
@@ -87,5 +98,5 @@ class WeightHandlerStrategy : DeckStrategy() {
      * todo-future 发现策略选择
      */
 
-    override fun executeDiscoverChooseCard(vararg cards: Card): Int = commonDeckStrategy.executeDiscoverChooseCard(*cards)
+    override fun executeDiscoverChooseCard(vararg cards: Card): Int = 1
 }
