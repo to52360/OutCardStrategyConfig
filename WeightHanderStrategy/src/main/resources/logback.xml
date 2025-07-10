@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <property  name="logLevel" value="info"/>
+    <property  name="logPath" value="log"/>
+    <!--控制台日志格式-->
+    <property name="log_pattern_console"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%boldYellow(%thread)] \(%file:%line\) %highlight(%-5level) %msg%n"/>
+    <!--文件日志格式-->
+    <property name="log_pattern_file"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%file:%line] %-5level %msg%n"/>
+    <!--CONSOLE-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                ${log_pattern_console}
+            </pattern>
+        </layout>
+    </appender>
+    <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+    <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
+
+    <appender name="myFile" class="RollingFileAppender">
+        <file>${logPath}/weightHandler.log</file>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/weightHandler-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <MaxHistory>3</MaxHistory>
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${log_pattern_file}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="file_async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="myFile"/>
+    </appender>
+    <logger name="lin" level="INFO"  >
+        <appender-ref ref="myFile" />
+    </logger>
+
+
+    <root level="OFF">
+        <appender-ref ref="console"/>
+    </root>
+</configuration>

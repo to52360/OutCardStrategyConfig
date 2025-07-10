@@ -1,7 +1,9 @@
 package lin
 
 import club.xiaojiawei.StrategyPlugin
+import io.github.oshai.kotlinlogging.KotlinLogging
 
+val myLog = KotlinLogging.logger {}
 class WeightHandlerPlugin: StrategyPlugin {
     override fun version(): String = "1.0.0"
 
@@ -14,7 +16,7 @@ class WeightHandlerPlugin: StrategyPlugin {
 
     override fun id(): String = this.javaClass.name
 
-    override fun name(): String = this.javaClass.name
+    override fun name(): String = "权重处理策略"
 
     override fun homeUrl(): String = "https://github.com/xjw580/Hearthstone-Script"
 

@@ -2,9 +2,9 @@ package lin
 
 import club.xiaojiawei.DeckStrategy
 import club.xiaojiawei.bean.Card
-
-
 import club.xiaojiawei.config.log
+
+
 import club.xiaojiawei.data.BaseData
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
 
@@ -31,12 +31,15 @@ class WeightHandlerStrategy : DeckStrategy() {
 
 
     init {
-         val comboDao  = ComboDao(CARD_WEIGHT_TRIE.data(), WAR)
+        myLog.info { "插件初始化" }
+        log.info { "插件初始化" }
         deckStrategy = try {
+            val comboDao  = ComboDao(CARD_WEIGHT_TRIE.data(), WAR)
             comboDao.getOutCardLambda()
         }catch (e: Exception){
             //todo-future 方便调试,以后删除
-            e.printStackTrace()
+            log.error {e.message}
+            myLog.error { e.message }
             defaultOutCardLambda
         }
 
@@ -45,14 +48,14 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     override fun name(): String = "权重处理策略"
 
-    override fun description(): String = "会在基础策略的基础上使用战吼，法术，地标牌（依旧不识别战吼或法术）"
+    override fun description(): String = "基于战场计算权重的策略,例如在手牌对应种族就加权重,通过配置绑定到组,然后通过组id关联到权重表(CardWeight)的weight,依赖数据也是\n"
 
     override fun getRunMode(): Array<RunModeEnum> =
         arrayOf(RunModeEnum.CASUAL, RunModeEnum.STANDARD, RunModeEnum.WILD, RunModeEnum.PRACTICE)
 
     override fun deckCode(): String = ""
 
-    override fun id(): String = "e71234fa-1-radical-deck-97e9-1f4e126cd33b"
+    override fun id(): String = "e71234fa-1-weightHandler-deck-97e9-1f4e126cd33b"
 
     override fun referWeight(): Boolean = true
 
@@ -82,7 +85,7 @@ class WeightHandlerStrategy : DeckStrategy() {
         }catch(e:Exception){
             //todo-future 方便调试,以后删除
             e.printStackTrace()
-            log.error(e) { "Failed to execute card. 异常信息:"+e.localizedMessage }
+            myLog.error(e) { "Failed to execute card. 异常信息:"+e.localizedMessage }
             if(deckStrategy == defaultOutCardLambda) throw e //激进策略的问题
             else{
                 deckStrategy = defaultOutCardLambda

@@ -1,8 +1,9 @@
 package lin.weightHandler.condition
 
-import club.xiaojiawei.config.log
+
 import lin.bean.ComboCard
 import lin.dao.MyWarManage
+import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ComboWeightInfo
@@ -90,7 +91,7 @@ class ConditionWeightHandler:WeightHandler,InitHandler {
             val primaryConstructor = clazz.getConstructor()
             return  primaryConstructor.newInstance()
         }catch (e:NoSuchMethodException){
-            log.error{
+            myLog.error{
                 "${clazz.simpleName}没有无参构建函数"
             }
             throw e

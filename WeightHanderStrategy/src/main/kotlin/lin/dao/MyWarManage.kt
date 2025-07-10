@@ -3,9 +3,10 @@ package lin.dao
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.bean.isValid
-import club.xiaojiawei.config.log
+
 import club.xiaojiawei.data.CARD_INFO_TRIE
 import lin.bean.ComboCard
+import lin.myLog
 import lin.weightHandler.condition.bean.ComboWeightInfo
 
 /**
@@ -143,7 +144,7 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
         val me = war.me
         if(me.resources==0||me.resources==1){
             //todo-future 看一下是0还是1
-            log.info { "resources属性值为"+me.resources }
+            myLog.info { "resources属性值为"+me.resources }
             var isStart = true
             gameId?.run{
                 war.me.gameId

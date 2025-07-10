@@ -1,6 +1,7 @@
 package lin.weightHandler.condition.implCondition.util.temp
 
-import club.xiaojiawei.config.log
+
+import lin.myLog
 import lin.weightHandler.condition.context.ConditionException
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -26,7 +27,7 @@ class UninitializedDelegate<T : Any>(
      */
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
        return value?:run{
-            log.warn { msg }
+            myLog.warn { msg }
             throw ConditionException(msg)
        }
     }

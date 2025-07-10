@@ -1,16 +1,17 @@
 package lin.weightHandler.condition.implCondition
 
-import club.xiaojiawei.config.log
+
 import club.xiaojiawei.enums.CardRaceEnum
 import club.xiaojiawei.util.CardDBUtil
 import lin.bean.ComboCard
+import lin.myLog
 import lin.weightHandler.condition.bean.ComboWeightInfo
 
 //select 多种实现要转化为接口
 fun ComboWeightInfo.parseRace(): CardRaceEnum =
     CardDBUtil.queryCardById(cardId).firstOrNull()?.type?.let(CardRaceEnum::fromString)?:run{
         //select 实际运行后看一下null怎么处理
-        log.warn { "卡牌:${cardId}没有种族信息" }
+        myLog.warn { "卡牌:${cardId}没有种族信息" }
         CardRaceEnum.UNKNOWN
     }
 fun List<ComboWeightInfo>.toCardRaces(): List<CardRaceEnum> =

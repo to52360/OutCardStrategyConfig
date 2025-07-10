@@ -3,18 +3,17 @@ package lin.dao
 import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
-import club.xiaojiawei.config.log
+
 
 
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
-import io.github.oshai.kotlinlogging.KLogger
-import io.github.oshai.kotlinlogging.KLogging
+
 import lin.bean.ComboCard
+import lin.myLog
 
 import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.context.CostWeight
-import lombok.extern.slf4j.Slf4j
 import java.util.*
 
 
@@ -94,7 +93,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,war: War) 
             }
 
         }catch (e:Exception){
-            log.error { e.message }
+            myLog.error { e.message }
             throw e
         }
     }
@@ -207,7 +206,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,war: War) 
         if (bestCombination.isNotEmpty()) {
             val finalCost = bestCombination.sumOf { it.getCost() }
 
-            log.info {
+            myLog.info {
                 val finalWeight = bestCombination.sumOf { it.varPowerWeight }
                 val msg = "找到最优出牌组合 (总费用: $finalCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
                 println(msg)
