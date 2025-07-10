@@ -22,7 +22,6 @@ import lin.dao.defaultOutCardLambda
  * @see club.xiaojiawei.bean.BaseCard
  * @see club.xiaojiawei.bean.Player
  * 插件管理
- *[CardId]
  * 参考[HsRadicalDeckStrategy]
  * 权重表[CARD_WEIGHT_TRIE]
  * WeightHandlerPlugin
