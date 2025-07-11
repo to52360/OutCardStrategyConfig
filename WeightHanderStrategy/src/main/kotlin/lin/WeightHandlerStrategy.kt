@@ -2,7 +2,6 @@ package lin
 
 import club.xiaojiawei.DeckStrategy
 import club.xiaojiawei.bean.Card
-import club.xiaojiawei.config.log
 
 
 import club.xiaojiawei.data.BaseData
@@ -32,16 +31,14 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     init {
         myLog.info { "插件初始化" }
-        log.info { "插件初始化" }
         deckStrategy = try {
             val comboDao  = ComboDao(CARD_WEIGHT_TRIE.data(), WAR)
             comboDao.getOutCardLambda()
         }catch (e: Exception){
-            //todo-future 方便调试,以后删除
-            log.error {e.message}
-            myLog.error { e.message }
+            myLog.error(e) { e.message }
             defaultOutCardLambda
         }
+
 
     }
 
@@ -64,6 +61,7 @@ class WeightHandlerStrategy : DeckStrategy() {
     override fun referChangeWeight(): Boolean = true
 
     override fun executeChangeCard(cards: HashSet<Card>) {
+        myLog.info { "插件执行换牌策略" }
         if (BaseData.enableChangeWeight) {
             val weightCards = DeckStrategyUtil.convertToSimulateCard(cards.toList())
             weightCards.sortByDescending { it.changeWeight }
@@ -80,11 +78,10 @@ class WeightHandlerStrategy : DeckStrategy() {
 
 
     override fun executeOutCard() {
+        myLog.info { "插件执行出牌策略 策略类名:${deckStrategy}" }
         try{
             deckStrategy()
         }catch(e:Exception){
-            //todo-future 方便调试,以后删除
-            e.printStackTrace()
             myLog.error(e) { "Failed to execute card. 异常信息:"+e.localizedMessage }
             if(deckStrategy == defaultOutCardLambda) throw e //激进策略的问题
             else{

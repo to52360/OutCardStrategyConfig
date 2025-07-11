@@ -93,7 +93,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>,war: War) 
             }
 
         }catch (e:Exception){
-            myLog.error { e.message }
+            myLog.error(e) { e.message }
             throw e
         }
     }
