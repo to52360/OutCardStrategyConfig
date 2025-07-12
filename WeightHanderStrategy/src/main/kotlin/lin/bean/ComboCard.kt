@@ -2,10 +2,10 @@ package lin.bean
 
 import club.xiaojiawei.bean.Card
 import lin.weightHandler.condition.bean.ComboWeightInfo
-import lin.weightHandler.condition.bean.Metadata
-import lin.weightHandler.condition.context.baseWeight
-import lin.weightHandler.condition.context.defaultWeight
-import lombok.extern.slf4j.Slf4j
+
+import lin.weightHandler.condition.bean.MetadataKey
+import lin.weightHandler.condition.context.BaseWeight
+import lin.weightHandler.condition.context.DefaultWeight
 
 
 /**
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j
     fun cardId() = card.cardId
     //select 暂定直接修改,缺点:状态修改到处是无法追踪,要验证状态变化将很复杂,
     // 出牌权重
-    var  varPowerWeight :Double = comboWeightInfo?.powerWeight?:baseWeight
+    var  varPowerWeight :Double = comboWeightInfo?.powerWeight?:BaseWeight
 
     //select 同组加权可以移到condition,但是要考虑继承关系,可以考虑委托方式,现在先测可行性
     private var comboOption : ((List<ComboCard>) -> Double)? =null
@@ -38,21 +38,25 @@ import lombok.extern.slf4j.Slf4j
     fun setComboWeightAndId(comboOption:(selectCard:List<ComboCard>) -> Double){
         this.comboOption = comboOption
     }
-    fun getMetadata(): Metadata? {
-      return  comboWeightInfo?.metadata
+
+
+
+    fun <T>  getMetadata(key: MetadataKey<T>): T? {
+        @Suppress("UNCHECKED_CAST")
+      return  comboWeightInfo?.metadata?.get(key) as? T?
     }
     //在同一组会增加权重
     fun comboAddWeight(comboCards: List<ComboCard>):Double{
         return comboOption?.let {
             return it(comboCards)
-        }?:defaultWeight
+        }?:DefaultWeight
     }
 
     /**
      * todo-future 还需引入策略(全局策略,组策略,卡策略,来解决能不能使用),什么情况卖,什么情况不卖
      * 暂时 小于0为不可使用
      */
-    fun useAble():Boolean = varPowerWeight>=defaultWeight
+    fun useAble():Boolean = varPowerWeight>=DefaultWeight
 
     fun getCost()= card.cost
     /**
@@ -77,6 +81,10 @@ import lombok.extern.slf4j.Slf4j
     override fun hashCode(): Int {
 
         return card.entityId.hashCode()*31
+    }
+
+    override fun toString(): String {
+        return "ComboCard{${cardId()},${card.entityName},${card.entityId}}"
     }
 
 }

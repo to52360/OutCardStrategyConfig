@@ -14,7 +14,7 @@ import club.xiaojiawei.strategy.HsRadicalDeckStrategy
 import club.xiaojiawei.util.DeckStrategyUtil
 
 import lin.dao.ComboDao
-import lin.dao.defaultOutCardLambda
+
 
 
 /**
@@ -25,6 +25,12 @@ import lin.dao.defaultOutCardLambda
  * 权重表[CARD_WEIGHT_TRIE]
  * WeightHandlerPlugin
  */
+private val defaultStrategy: HsRadicalDeckStrategy by lazy {
+    HsRadicalDeckStrategy()
+}
+val defaultOutCardLambda: () -> Unit = {
+    defaultStrategy.executeOutCard()
+}
 class WeightHandlerStrategy : DeckStrategy() {
     private var deckStrategy: () -> Unit
 
@@ -35,9 +41,11 @@ class WeightHandlerStrategy : DeckStrategy() {
             val comboDao  = ComboDao(CARD_WEIGHT_TRIE.data(), WAR)
             comboDao.getOutCardLambda()
         }catch (e: Exception){
+            e.printStackTrace()
             myLog.error(e) { e.message }
             defaultOutCardLambda
         }
+        myLog.info { "插件完成,策略类名:${deckStrategy}" }
 
 
     }
@@ -82,6 +90,7 @@ class WeightHandlerStrategy : DeckStrategy() {
         try{
             deckStrategy()
         }catch(e:Exception){
+            e.printStackTrace()
             myLog.error(e) { "Failed to execute card. 异常信息:"+e.localizedMessage }
             if(deckStrategy == defaultOutCardLambda) throw e //激进策略的问题
             else{

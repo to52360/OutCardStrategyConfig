@@ -5,6 +5,8 @@ import club.xiaojiawei.bean.War
 import club.xiaojiawei.bean.isValid
 
 import club.xiaojiawei.data.CARD_INFO_TRIE
+import club.xiaojiawei.status.WAR
+import club.xiaojiawei.util.DeckStrategyUtil
 import lin.bean.ComboCard
 import lin.myLog
 import lin.weightHandler.condition.bean.ComboWeightInfo
@@ -55,6 +57,10 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
     fun isValid()=war.isValid()
 
 
+
+
+
+
     //转化
     private fun parseComboCard() {
          getHandCards().map { card ->
@@ -81,7 +87,7 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
      fun reLoad(){
          //select 先转换后再过滤考虑存在费用变更情况
          parseComboCard()
-         canUseCards()
+        canUseCards = canUseCards()
     }
 
     /**
@@ -105,9 +111,14 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
         }
     }
     override fun getCanUseCardsByCost()= canUseCards
-    private fun canUseCards()=comboCards.filter {
-            comBoCard ->  comBoCard.card.cost<= getNowCost()
-    }.also { canUseCards =it }
+
+    /**
+     * 过滤出指定费用的卡牌,默认过滤出当前费用
+     * @param cost  费用
+     */
+     fun canUseCards(cost:Int = getNowCost())=comboCards.filter {
+            comBoCard ->  comBoCard.card.cost<= cost
+    }
     fun useCardAndUpdate(comBoCard: ComboCard){
         if(useCard(comBoCard)){
             comboCards-=comBoCard
@@ -161,5 +172,29 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
     //有费用
     fun hasCost()=getNowCost()>0
 
+    /**
+     * 策略执行环境
+     */
+    inline fun executeEnvironment(runnable: () -> Unit) {
+        try {
+            if (isValid()) {
+                //使用地标
+                activeLocation()
+                //重新加载信息
+                reLoad()
+                runnable()
+                usePower()//使用技能
+                activeLocation()
+                //清场
+                cleanPlay()
+            } else {
+                myLog.warn { "战场无效,不知道为啥会这样" }
+            }
 
+        } catch (e: Exception) {
+            e.printStackTrace()
+            myLog.error(e) { "执行出牌逻辑出错" }
+            throw e
+        }
+    }
 }

@@ -4,7 +4,7 @@ import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.bean.ComboCard
 import lin.weightHandler.condition.define.ComboCondition
 import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.defaultWeight
+import lin.weightHandler.condition.context.DefaultWeight
 
 import lin.weightHandler.condition.define.HandArea
 
@@ -20,7 +20,7 @@ class ComboConditionByRace: HandArea,ComboCondition {
                 if(handCards.first().groupId()==callCard.groupId()){
                     CostWeight
                 }else{
-                    defaultWeight
+                    DefaultWeight
                 }
             }
             count++

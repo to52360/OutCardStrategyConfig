@@ -3,8 +3,8 @@ package lin.weightHandler.condition.implCondition
 import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.bean.ComboCard
 import lin.weightHandler.condition.define.HandArea
-import lin.weightHandler.condition.context.defaultWeight
-import lin.weightHandler.condition.context.notConditionDefaultWeight
+import lin.weightHandler.condition.context.DefaultWeight
+import lin.weightHandler.condition.context.NotConditionDefaultWeight
 
 
 /**
@@ -16,9 +16,9 @@ class HandAreaByRace : HandArea  {
     private lateinit  var handRacePredicate: (List<ComboCard>) -> Boolean
 
     override fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>) {
-        var weight = defaultWeight
+        var weight = DefaultWeight
         if (handRacePredicate(handCards)) {
-            weight = notConditionDefaultWeight
+            weight = NotConditionDefaultWeight
         }
         callCard.varPowerWeight = weight
     }

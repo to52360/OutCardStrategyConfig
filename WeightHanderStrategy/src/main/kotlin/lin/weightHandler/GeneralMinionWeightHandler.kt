@@ -7,15 +7,17 @@ import lin.bean.ComboCard
 import lin.dao.MyWarManage
 import lin.myLog
 import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.baseWeight
+import lin.weightHandler.condition.context.BaseWeight
 
-
+/**
+ * 通用随从权重计算
+ */
 class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
         val card = callCard.card
-        if(callCard.varPowerWeight== baseWeight ){
+        if(callCard.varPowerWeight == BaseWeight ){
             callCard.varPowerWeight = cardWeight(card)
         }
 
@@ -23,23 +25,23 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
     override fun cardWeight(card: Card):Double{
         if( CardTypeEnum.MINION==card.cardType){
             val c = cache[card.cardId+card.cost]
-
             if(c==null){
-                val baseWeigh = (card.atc+card.health) -card.cost*2
+                val baseWeight = (card.atc+card.health) -card.cost*2
                 myLog.info{
-                    "${card.entityName}的基础权重:${baseWeigh}"
+                    "${card.entityName}的基础权重:${baseWeight}"
                 }
                 val weigh = getWeigh(card)
                 myLog.info{
                     "${card.entityName}的特征权重:${weigh}"
                 }
-                val result = (baseWeigh+weigh)* CostWeight
+                var result = (baseWeight+weigh)* CostWeight
+                if(result<0)  result = BaseWeight //费用增加的情况,严重亏模的情况 可能导致负数
                 cache[card.cardId+card.cost] = result
                 return result
             }
 
         }
-        return baseWeight
+        return BaseWeight
     }
 
 
