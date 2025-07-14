@@ -36,9 +36,3 @@ open class ConditionGroup(
         depByWeightId
     )
 
-enum class ConditionType {
-    DEFAULT,             //默认条件
-    CHANGE,               //会变化
-    COMBO,         //需要一起打出
-    OTHER          //用于标记没有
-}

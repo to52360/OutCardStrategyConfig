@@ -36,18 +36,14 @@ class WeightHandlerStrategy : DeckStrategy() {
 
 
     init {
-        myLog.info { "插件初始化" }
         deckStrategy = try {
-            val comboDao  = ComboDao(CARD_WEIGHT_TRIE.data(), WAR)
-            comboDao.getOutCardLambda()
+            val comboDao  = ComboDao(WAR)
+            comboDao::outCardStrategy
         }catch (e: Exception){
             e.printStackTrace()
-            myLog.error(e) { e.message }
+            myLog.error(e) { "初始化出现错误切换到激进策略" }
             defaultOutCardLambda
         }
-        myLog.info { "插件完成,策略类名:${deckStrategy}" }
-
-
     }
 
 
@@ -86,14 +82,13 @@ class WeightHandlerStrategy : DeckStrategy() {
 
 
     override fun executeOutCard() {
-        myLog.info { "插件执行出牌策略 策略类名:${deckStrategy}" }
         try{
             deckStrategy()
         }catch(e:Exception){
             e.printStackTrace()
-            myLog.error(e) { "Failed to execute card. 异常信息:"+e.localizedMessage }
             if(deckStrategy == defaultOutCardLambda) throw e //激进策略的问题
             else{
+                myLog.error(e) { "执行出现错误切换到激进策略" }
                 deckStrategy = defaultOutCardLambda
                 deckStrategy()
             }

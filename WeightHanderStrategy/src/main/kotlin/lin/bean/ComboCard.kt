@@ -1,7 +1,8 @@
 package lin.bean
 
 import club.xiaojiawei.bean.Card
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.CardType
+import lin.weightHandler.condition.bean.CardWeightInfo
 
 import lin.weightHandler.condition.bean.MetadataKey
 import lin.weightHandler.condition.context.BaseWeight
@@ -13,14 +14,14 @@ import lin.weightHandler.condition.context.DefaultWeight
  * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
  */
 
-  class ComboCard (private val comboWeightInfo: ComboWeightInfo?=null, val card: Card){
+  class ComboCard (private val cardWeightInfo: CardWeightInfo?=null, val card: Card){
     //select 打出刷新 针对改变手牌
-    var isRefresh = false
-    fun groupId() = comboWeightInfo?.groupId
+    var cardType = cardWeightInfo?.cardType?:CardType.DEFAULT
+    fun groupId() = cardWeightInfo?.groupId
     fun cardId() = card.cardId
     //select 暂定直接修改,缺点:状态修改到处是无法追踪,要验证状态变化将很复杂,
     // 出牌权重
-    var  varPowerWeight :Double = comboWeightInfo?.powerWeight?:BaseWeight
+    var  varPowerWeight :Double = cardWeightInfo?.powerWeight?:BaseWeight
 
     //select 同组加权可以移到condition,但是要考虑继承关系,可以考虑委托方式,现在先测可行性
     private var comboOption : ((List<ComboCard>) -> Double)? =null
@@ -42,8 +43,10 @@ import lin.weightHandler.condition.context.DefaultWeight
 
 
     fun <T>  getMetadata(key: MetadataKey<T>): T? {
-        @Suppress("UNCHECKED_CAST")
-      return  comboWeightInfo?.metadata?.get(key) as? T?
+       return cardWeightInfo?.let {
+            @Suppress("UNCHECKED_CAST")
+            it.metadata[key] as? T?
+        }
     }
     //在同一组会增加权重
     fun comboAddWeight(comboCards: List<ComboCard>):Double{
@@ -60,7 +63,7 @@ import lin.weightHandler.condition.context.DefaultWeight
 
     fun getCost()= card.cost
     /**
-     * todo-future  用于处理重新生成comboCard时候,重新生成没有这么复杂的逻辑,但是效率有问题
+     * todo-future  用于处理重新生成comboCard时候判断是否重复,重新生成没有这么复杂的逻辑,但是效率有问题
      *  这样操作其他比较会不会有问题?
      */
     override fun equals(other: Any?): Boolean {

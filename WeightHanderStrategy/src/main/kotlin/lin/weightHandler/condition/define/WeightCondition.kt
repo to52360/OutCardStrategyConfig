@@ -1,6 +1,6 @@
 package lin.weightHandler.condition.define
 
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.dao.MyWarInfo
 
@@ -34,7 +34,7 @@ interface DepByWeightInfo {
      * 条件(condition)依赖权重组信息
      *
      */
-     fun initByWeightInfo(comboWeightInfoList: List<ComboWeightInfo>)
+     fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>)
 
 }
 

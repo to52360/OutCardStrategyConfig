@@ -1,16 +1,14 @@
 package lin.dao
 
 
-import club.xiaojiawei.bean.CardWeight
-import club.xiaojiawei.bean.LikeTrie
 import club.xiaojiawei.bean.War
 
 
 import lin.bean.ComboCard
 import lin.myLog
 
-import lin.weightHandler.condition.bean.ComboWeightInfo
 import lin.weightHandler.WeightHandler
+import lin.weightHandler.condition.bean.CardType
 import lin.weightHandler.condition.context.CostWeight
 import java.util.*
 
@@ -26,7 +24,7 @@ import java.util.*
  * 出牌条件 先打出组里 16.1   .1策略先打出条件为16.0卡
  */
 
-class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War) {
+class ComboDao( war: War) {
 
     //存储转化权重信息
     private val warManage: MyWarManage
@@ -35,8 +33,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
     //存储策略分组
     init {
         try {
-            val infoMap: Map<String, ComboWeightInfo> = parse(weightConfigs)
-            warManage = MyWarManage(war, infoMap)
+            warManage = MyWarManage(war)
             weightHandlers = getWeightHandler()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -47,15 +44,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
 
     }
 
-    //把配置信息转化成上下文信息
-    private fun parse(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>): Map<String, ComboWeightInfo> {
 
-        return weightConfigs.associateBy(
-            keySelector = { it.key }
-        ) { weightCard ->
-            ComboWeightInfo(weightCard.key, weightCard.value.weight, weightCard.value.powerWeight)
-        }
-    }
 
     /**
      * 权重处理器
@@ -66,52 +55,47 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
         }
     }
 
-    var initResult: Boolean = false
 
 
-    /**
-     * 没有权重信息或者没有匹配对应策略
-     */
-    private fun hasValidStrategy(): Boolean {
-        TODO()
-    }
 
-    /**
-     * 返回出牌策略,给策略类
-     */
-    fun getOutCardLambda(): () -> Unit {
 
-        return { executeOnErrorProcess() }
-    }
 
 
 
     /**
-     * 统一错误记录日志处理
+     * 出牌策略
      */
-    private fun executeOnErrorProcess() {
+     fun outCardStrategy() {
         warManage.executeEnvironment {
             //获取能够打出的卡牌
             val canUseCardsByCost = warManage.getCanUseCardsByCost()
-            executeOutCardStrategy(canUseCardsByCost)
+            useCard(executeWeightHandler(canUseCardsByCost))
         }
     }
 
     /**
-     * 硬币情况处理
+     * todo 硬币情况处理
      */
-    private fun executeOutCardStrategy(canUseCardsByCost: List<ComboCard>) {
-
+    private fun executeWeightHandler(canUseCardsByCost: List<ComboCard>) :MutableList<ComboCard>? {
         if (canUseCardsByCost.isEmpty()) {
-            return
+            return null
         } else {
             val canUseCardsByHandler = mutableListOf<ComboCard>()
-            //todo-future 可能有性能问题,出了问题再看看
+            //todo-future 可能有性能问题,项目初期不考虑太多东西 出了问题再看看
             canUseCardsByCost.forEach {
+                //todo-future 复合权重暂时这样处理,暂时不使用复杂标记策略(处理过的就不处理了)和权重处理链
                 weightHandlers.forEach { handler -> handler.cardWeightProcess(it, warManage) }
                 //过滤出经过权重处理器能使用的卡牌
                 if (it.useAble()) canUseCardsByHandler.add(it)
             }
+            return canUseCardsByHandler
+
+        }
+
+
+    }
+    private fun useCard(canUseCardsByHandler:MutableList<ComboCard>?) {
+        canUseCardsByHandler?.let {
             if (canUseCardsByHandler.size == 1) {//只有一个直接打出,存在硬币情况
 
                 val comboCard = canUseCardsByHandler.first()
@@ -122,26 +106,29 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
                 if (canUseCardsByHandler.first().getCost() == warManage.getNowCost()) {//刚好占满费用不用找了
                     warManage.useCard(canUseCardsByHandler.first())
                     return
-                } else if (canUseCardsByHandler.first().isRefresh) {//打出刷新 针对改变手牌
-                    warManage.useCardAndUpdate(canUseCardsByHandler.first())
+                } else if (CardType.CHANGE == canUseCardsByHandler.first().cardType) {//打出刷新 针对改变手牌
+                    //todo-future 为了性能,在项目初期使用复杂策略是不明智的
+                    warManage.useCardAndRemove(canUseCardsByHandler.first())
                     warManage.refreshComboCards()
-                    executeOutCardStrategy(warManage.getCanUseCardsByCost())
+                    //重新计算权重并使用
+                    val reExecute =  executeWeightHandler(warManage.getCanUseCardsByCost())
+                    useCard(reExecute)
                 } else {
                     //查找权重最高的组合
-                    val bestCombination = findAndUseCard(canUseCardsByHandler)
+                    val bestCombination = findBestCombination(canUseCardsByHandler)
                     //使用卡牌
-                    useCard(canUseCardsByHandler, bestCombination)
+                    executeUseCard(canUseCardsByHandler, bestCombination)
 
                 }
             }
-        }
 
+        }
 
     }
 
 
     // 3. 定义一个递归函数（回溯）来查找所有可能的组合 ai生成 待验证
-    private fun findAndUseCard(comboCards: List<ComboCard>): List<ComboCard> {
+    private fun findBestCombination(comboCards: List<ComboCard>): List<ComboCard> {
         val cost = warManage.getNowCost() // 当前费用
 
 
@@ -175,7 +162,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
             for (i in startIndex until comboCards.size) {
                 val card = comboCards[i]
                 if (card.useAble() && currentCost + card.getCost() <= cost) {
-                    //同组加权
+                    //同组加权 todo 还有同组排序
                     val comboWeight = card.comboAddWeight(currentCombination)
                     findBestCombination(
                         startIndex = i + 1,
@@ -198,7 +185,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
      * @param canUseCardsByHandler 全部能打的卡牌
      * @param bestCombination 回溯算法获取组合
      */
-    private fun useCard(canUseCardsByHandler: List<ComboCard>, bestCombination: List<ComboCard>) {
+    private fun executeUseCard(canUseCardsByHandler: List<ComboCard>, bestCombination: List<ComboCard>) {
         myLog.info { "dao使用卡牌" }
         // 5. 执行找到的最佳出牌组合
         if (bestCombination.isNotEmpty()) {
@@ -216,7 +203,7 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
             val expectCost = warManage.getNowCost() - finalCost
             bestCombination.forEach { warManage.useCard(it) }
             //todo-future 直接遍历使用
-            if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去
+            if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = canUseCardsByHandler - bestCombination.toSet()
                 if (moreTryCard.isNotEmpty()) {
                     for (card in moreTryCard) {
@@ -236,6 +223,5 @@ class ComboDao(weightConfigs: MutableList<LikeTrie.Entry<CardWeight>>, war: War)
 }
 
 
-//默认策略
 
 

@@ -1,7 +1,7 @@
 import club.xiaojiawei.enums.CardRaceEnum
 import club.xiaojiawei.util.CardDBUtil
 import lin.bean.ComboCard
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.CardWeightInfo
 
 class 内联测试 {
 }
@@ -17,18 +17,18 @@ class 内联测试 {
 
     }
 }
- fun getCache(comboWeightInfoList: List<ComboWeightInfo>): List<CardRaceEnum> {
+ fun getCache(cardWeightInfoList: List<CardWeightInfo>): List<CardRaceEnum> {
     var cache: List<CardRaceEnum> = emptyList()
     //select 空判断应该可以去掉,我前面已经判断过,这样的话要限制可见性
-    if (comboWeightInfoList.isNotEmpty()) {
-        cache = comboWeightInfoList.map {
+    if (cardWeightInfoList.isNotEmpty()) {
+        cache = cardWeightInfoList.map {
             parse(it.cardId)
         }
     }
     return cache
 }
-fun getFunction(comboWeightInfoList: List<ComboWeightInfo>): (List<ComboCard>) -> Boolean {
-    val cacheRace = getCache(comboWeightInfoList)
+fun getFunction(cardWeightInfoList: List<CardWeightInfo>): (List<ComboCard>) -> Boolean {
+    val cacheRace = getCache(cardWeightInfoList)
     return { comboCards ->
         comboCards.any {
             cacheRace.any { cardRaceEnum -> it.card.cardRace == cardRaceEnum }

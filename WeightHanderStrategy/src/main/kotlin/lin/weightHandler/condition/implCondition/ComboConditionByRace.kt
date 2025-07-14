@@ -1,6 +1,6 @@
 package lin.weightHandler.condition.implCondition;
 
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.weightHandler.condition.define.ComboCondition
 import lin.weightHandler.condition.context.CostWeight
@@ -36,7 +36,7 @@ class ComboConditionByRace: HandArea,ComboCondition {
         return 25062601
     }
 
-    override fun initByWeightInfo(comboWeightInfoList: List<ComboWeightInfo>) {
+    override fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
         TODO("Not yet implemented")
     }
 

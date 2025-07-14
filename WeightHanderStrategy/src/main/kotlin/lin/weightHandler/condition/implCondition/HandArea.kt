@@ -1,6 +1,6 @@
 package lin.weightHandler.condition.implCondition
 
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.weightHandler.condition.define.HandArea
 import lin.weightHandler.condition.context.DefaultWeight
@@ -28,8 +28,8 @@ class HandAreaByRace : HandArea  {
 
 
 
-    override fun initByWeightInfo(comboWeightInfoList: List<ComboWeightInfo>) {
-        handRacePredicate =  comboWeightInfoList.infoToHandRacePredicate()
+    override fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
+        handRacePredicate =  cardWeightInfoList.infoToHandRacePredicate()
     }
 }
 

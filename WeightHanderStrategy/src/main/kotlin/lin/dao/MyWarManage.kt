@@ -5,11 +5,11 @@ import club.xiaojiawei.bean.War
 import club.xiaojiawei.bean.isValid
 
 import club.xiaojiawei.data.CARD_INFO_TRIE
-import club.xiaojiawei.status.WAR
-import club.xiaojiawei.util.DeckStrategyUtil
 import lin.bean.ComboCard
 import lin.myLog
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.CardWeightInfoProvide
+import lin.weightHandler.condition.bean.CardWeightInfo
+import java.util.*
 
 /**
  * 可见性语义,没有接口语义
@@ -49,15 +49,24 @@ interface MyWarInfo{
  * todo-future 还差全局战场
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
-class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo> ) : MyWarInfo {
+class MyWarManage(val war:War,  ) : MyWarInfo {
     private var comboCards  = emptyList<ComboCard>()
     private var canUseCards = emptyList<ComboCard>()
-
+    private val infoMap : Map<String, CardWeightInfo>
 
     fun isValid()=war.isValid()
+    init {
+        infoMap = getCardInfos()
+    }
 
-
-
+    //把配置信息转化成上下文信息
+    private fun getCardInfos(): Map<String, CardWeightInfo>  {
+        var infoMap: Map<String, CardWeightInfo> = emptyMap()
+        ServiceLoader.load(CardWeightInfoProvide::class.java).forEach{
+            infoMap =  it.getInfos() + infoMap
+        }
+        return infoMap
+    }
 
 
 
@@ -65,7 +74,7 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
     private fun parseComboCard() {
          getHandCards().map { card ->
             ComboCard(
-                comboWeightInfo = infoMap[card.cardId],
+                cardWeightInfo = infoMap[card.cardId],
                 card = card
             )
         }.also {
@@ -87,14 +96,14 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
      fun reLoad(){
          //select 先转换后再过滤考虑存在费用变更情况
          parseComboCard()
-        canUseCards = canUseCards()
-    }
+         canUseCards = canUseCards()
+     }
 
     /**
      *
      * 节省性能方式,但是对于不是新增在右边会有问题,复杂策略往往来更多bug
      * 需要配合使用
-     * [useCardAndUpdate]
+     * [useCardAndRemove]
      * 出问题就用
      * [reLoad]
      * todo-future  看一下comboCards不清空状态会怎么样,看情况决定是否清空状态
@@ -119,7 +128,12 @@ class MyWarManage(val war:War, private val infoMap : Map<String, ComboWeightInfo
      fun canUseCards(cost:Int = getNowCost())=comboCards.filter {
             comBoCard ->  comBoCard.card.cost<= cost
     }
-    fun useCardAndUpdate(comBoCard: ComboCard){
+
+    /**
+     * 操作并改变ComBoCard状态
+     *
+     */
+    fun useCardAndRemove(comBoCard: ComboCard){
         if(useCard(comBoCard)){
             comboCards-=comBoCard
         }

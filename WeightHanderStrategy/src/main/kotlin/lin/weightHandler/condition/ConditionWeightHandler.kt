@@ -3,9 +3,10 @@ package lin.weightHandler.condition
 
 import lin.bean.ComboCard
 import lin.dao.MyWarManage
+import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
-import lin.weightHandler.condition.bean.ComboWeightInfo
+import lin.weightHandler.condition.bean.CardWeightInfo
 import lin.weightHandler.condition.bean.ConditionGroup
 import lin.weightHandler.condition.bean.MetadataKey
 import lin.weightHandler.condition.context.ConditionException
@@ -33,13 +34,17 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
     override fun priority() = 5
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
         //
-        callCard.getMetadata(metadataKey)?.calculateSetWeight(callCard, warManage)
+        callCard.getMetadata(metadataKey)?.let {
+            myLog.info { "条件处理权重前的权重值:${callCard.varPowerWeight}" }
+            it.calculateSetWeight(callCard, warManage)
+            myLog.info { "条件处理权重后的权重值:${callCard.varPowerWeight}" }
+        }
     }
 
     /**
      * todo-future  自定义配置未实现 [lin.weightHandler.condition.bean.ConditionByCustomize]
      */
-    override fun init(infos: List<ComboWeightInfo>) {
+    override fun init(infos: List<CardWeightInfo>) {
         //拥有的条件组
         val groupCondition: HashMap<Int, WeightCondition> = hashMapOf()
         //条件组信息
