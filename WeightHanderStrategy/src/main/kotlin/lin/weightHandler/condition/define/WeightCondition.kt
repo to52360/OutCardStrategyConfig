@@ -22,6 +22,7 @@ interface WeightCondition {
      */
     fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)
 
+
 }
 
 

@@ -12,8 +12,9 @@ class CardHoldType : CardWeightInfoProvide {
      * todo 还需要debug获取硬币的id
      */
     override fun getInfos(): Map<String, CardWeightInfo> {
-        val 硬币 = CardWeightInfo("",5.0)
-        硬币.metadata[AddCost] = 1.0
+        //存在魔数
+        val 硬币 = CardWeightInfo("COIN",100.0)
+        硬币.putMetadata(AddCost,1)
         return mapOf(硬币.cardId to 硬币 )
     }
 }

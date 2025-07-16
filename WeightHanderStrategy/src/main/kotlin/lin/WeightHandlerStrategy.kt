@@ -36,12 +36,14 @@ class WeightHandlerStrategy : DeckStrategy() {
 
 
     init {
-        deckStrategy = try {
-            val comboDao  = ComboDao(WAR)
+        myLog.info{
+            "执行策略初始化"
+        }
+        val comboDao  = ComboDao(WAR)
+        deckStrategy= if(comboDao.initResult){
             comboDao::outCardStrategy
-        }catch (e: Exception){
-            e.printStackTrace()
-            myLog.error(e) { "初始化出现错误切换到激进策略" }
+        }else{
+            myLog.warn { "初始化出现错误切换到激进策略" }
             defaultOutCardLambda
         }
     }

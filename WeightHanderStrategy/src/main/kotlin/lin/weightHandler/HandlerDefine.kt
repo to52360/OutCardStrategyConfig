@@ -17,6 +17,13 @@ interface WeightHandler{
      * todo-future 这里权重信息各自处理,要不要回收权重操作,比较好集中起来统一处理
      */
     fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage)
+
+    /**
+     * 手牌变更处理
+     */
+    fun handChaWeightProcess(callCard: ComboCard, warManage: MyWarManage){
+
+    }
     fun priority() = 0
     fun gameStart(){
 

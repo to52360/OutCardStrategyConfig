@@ -17,17 +17,23 @@ import lin.weightHandler.condition.context.DefaultWeight
   class ComboCard (private val cardWeightInfo: CardWeightInfo?=null, val card: Card){
     //select 打出刷新 针对改变手牌
     var cardType = cardWeightInfo?.cardType?:CardType.DEFAULT
+    var useStrategy = UseStrategy.DEFAULT
+
+    //select 同组加权可以移到condition(每个只做一件事方便开发),但是要考虑继承关系,可以考虑委托方式,现在先测可行性
+    //todo combo组没有实现
+    var comboId = 0
+    var comboPriority = 0
+    private var comboOption : ((List<ComboCard>) -> Double)? =null
+
+    //基础信息
     fun groupId() = cardWeightInfo?.groupId
     fun cardId() = card.cardId
+    fun getCost()= card.cost
     //select 暂定直接修改,缺点:状态修改到处是无法追踪,要验证状态变化将很复杂,
     // 出牌权重
     var  varPowerWeight :Double = cardWeightInfo?.powerWeight?:BaseWeight
-
-    //select 同组加权可以移到condition,但是要考虑继承关系,可以考虑委托方式,现在先测可行性
-    private var comboOption : ((List<ComboCard>) -> Double)? =null
-
     /**
-     * 累加方法
+     * 权重累加方法
      */
     fun addWeight(weight:Double){
         varPowerWeight+=weight
@@ -41,12 +47,13 @@ import lin.weightHandler.condition.context.DefaultWeight
     }
 
 
-
+    /**
+     * 数据元
+     * todo 考虑密封类
+     */
     fun <T>  getMetadata(key: MetadataKey<T>): T? {
-       return cardWeightInfo?.let {
-            @Suppress("UNCHECKED_CAST")
-            it.metadata[key] as? T?
-        }
+        @Suppress("UNCHECKED_CAST")
+        return  cardWeightInfo?.metadata?.get(key) as? T?
     }
     //在同一组会增加权重
     fun comboAddWeight(comboCards: List<ComboCard>):Double{
@@ -61,7 +68,7 @@ import lin.weightHandler.condition.context.DefaultWeight
      */
     fun useAble():Boolean = varPowerWeight>=DefaultWeight
 
-    fun getCost()= card.cost
+
     /**
      * todo-future  用于处理重新生成comboCard时候判断是否重复,重新生成没有这么复杂的逻辑,但是效率有问题
      *  这样操作其他比较会不会有问题?
@@ -90,4 +97,9 @@ import lin.weightHandler.condition.context.DefaultWeight
         return "ComboCard{${cardId()},${card.entityName},${card.entityId}}"
     }
 
+}
+enum class UseStrategy{
+    AFTER,
+    BEFORE,
+    DEFAULT
 }

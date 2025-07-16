@@ -9,6 +9,7 @@ import lin.bean.ComboCard
 import lin.myLog
 import lin.weightHandler.CardWeightInfoProvide
 import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.weightHandler.condition.context.BaseWeight
 import java.util.*
 
 /**
@@ -52,11 +53,15 @@ interface MyWarInfo{
 class MyWarManage(val war:War,  ) : MyWarInfo {
     private var comboCards  = emptyList<ComboCard>()
     private var canUseCards = emptyList<ComboCard>()
-    private val infoMap : Map<String, CardWeightInfo>
+    val infoMap : Map<String, CardWeightInfo>
 
     fun isValid()=war.isValid()
     init {
+
         infoMap = getCardInfos()
+        myLog.info{
+            "MyWarManage初始化$infoMap"
+        }
     }
 
     //把配置信息转化成上下文信息
@@ -96,7 +101,7 @@ class MyWarManage(val war:War,  ) : MyWarInfo {
      fun reLoad(){
          //select 先转换后再过滤考虑存在费用变更情况
          parseComboCard()
-         canUseCards = canUseCards()
+         canUseCards = canUseCardsByCost()
      }
 
     /**
@@ -125,8 +130,13 @@ class MyWarManage(val war:War,  ) : MyWarInfo {
      * 过滤出指定费用的卡牌,默认过滤出当前费用
      * @param cost  费用
      */
-     fun canUseCards(cost:Int = getNowCost())=comboCards.filter {
+    fun canUseCardsByCost(cost:Int = getNowCost())=comboCards.filter {
             comBoCard ->  comBoCard.card.cost<= cost
+    }
+    fun cleanVarWeight(){
+        comboCards.forEach {
+            it.varPowerWeight = BaseWeight
+        }
     }
 
     /**
@@ -154,12 +164,6 @@ class MyWarManage(val war:War,  ) : MyWarInfo {
     //todo-future 不知道并发安全不,执行出牌策略和更新war是不是同一个线程
     override fun getNowCost()= war.me.usableResource
 
-    /**
-     * 费用没打完,考虑使用为负数权重的牌
-     */
-    fun costNotFillAllCard(): Boolean {
-        TODO("Not yet implemented")
-    }
     private var gameId :String? = null
 
     /**

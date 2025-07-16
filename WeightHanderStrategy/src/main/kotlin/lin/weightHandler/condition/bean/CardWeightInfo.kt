@@ -11,9 +11,14 @@ data class CardWeightInfo(
     val cardType: CardType = CardType.DEFAULT
 ){
     //元数据 用来存储
-    val metadata: MutableMap<MetadataKey<*>, Any>  = mutableMapOf()
+    var metadata: MutableMap<MetadataKey<*>, Any> ? = null
     fun <T> putMetadata(key: MetadataKey<T>, value: T) {
-        metadata[key] = value as Any
+        if (metadata != null) {//最初始的用法不用元数据
+            metadata!![key] = value as Any
+        } else {
+            //多线程会出问题
+            metadata = mutableMapOf(key to value as Any)
+        }
 
     }
 
