@@ -68,8 +68,6 @@
                         <goals>
                             <goal>kapt</goal>
                         </goals>
-                        <configuration>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -121,11 +119,6 @@
             <groupId>com.github.xjw580.Hearthstone-Script</groupId>
             <artifactId>hs-script-base-strategy</artifactId>
             <version>${sdk-version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

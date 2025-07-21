@@ -1,6 +1,6 @@
 package lin.weightHandler.condition.define
 
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.dao.MyWarInfo
 

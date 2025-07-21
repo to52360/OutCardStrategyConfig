@@ -2,14 +2,12 @@ package lin.dao
 
 
 import club.xiaojiawei.bean.War
+import lin.bean.*
+import lin.config.WeightGroupConfig
 
 
-import lin.bean.ComboCard
 import lin.myLog
-
-import lin.weightHandler.condition.bean.AddCost
-import lin.weightHandler.condition.bean.CardType.*
-import lin.weightHandler.condition.context.ConditionException
+import lin.utils.JarClassLoader
 
 
 /**
@@ -39,6 +37,8 @@ class ComboDao( war: War) {
         val  classLoader = Thread.currentThread().contextClassLoader
         try {
             Thread.currentThread().contextClassLoader = this::class.java.classLoader
+            val config = WeightGroupConfig()
+            config.configs()
             warManage = MyWarManage(war)
             weightHandlerDao = WeightHandlerDao(warManage = warManage)
         } catch (e: Exception) {
@@ -57,6 +57,9 @@ class ComboDao( war: War) {
      * 出牌策略
      */
      fun outCardStrategy() {
+        myLog.info { "执行出牌策略" }
+
+
         warManage.executeEnvironment {
             //获取能够打出的卡牌
             val canUseCardsByCost = warManage.getCanUseCardsByCost()
@@ -83,23 +86,18 @@ class ComboDao( war: War) {
             0-> return emptyList()
             1->{
                 val comboCard = canUseCardsByHandler.first()
-                when(comboCard.cardType){
-                    DEFAULT ->  return canUseCardsByHandler
-                    CHANGE ->{
+                when(val useStrategy = comboCard.useStrategy){
+                    DefUseStrategy ->  return canUseCardsByHandler
+                    ChangeStrategy ->{
                         warManage.useCardAndRemove(canUseCardsByHandler.first())
                         warManage.refreshComboCards()
                         //todo 这方案不太靠谱 重新计算权重并使用
                         return findBestCombination(warManage.getCanUseCardsByCost(),true)
                     }
-                    ADD_COST -> {
-                        val expectCost =   comboCard.getMetadata(AddCost)
-                        if(expectCost==null) throw ConditionException("没有费用相关信息")
-                        else{
-                            return  weightHandlerDao.findBestCombination(comboCard,expectCost)
-                        }
-
+                    is AddCostStrategy -> {
+                        val expectCost =   useStrategy.cost
+                        return  weightHandlerDao.findBestCombination(comboCard,expectCost)
                     }
-
                 }
             }
             else ->{
@@ -117,18 +115,31 @@ class ComboDao( war: War) {
     private fun executeUseCard(canUseCardsByHandler: List<ComboCard>, bestCombination: List<ComboCard>) {
         // 5. 执行找到的最佳出牌组合
         if (bestCombination.isNotEmpty()) {
+
+            //只有一个处理
             if(bestCombination.size==1){
                 warManage.useCard(bestCombination.first())
                 return
             }
-            val finalCost = bestCombination.sumOf { it.getCost() }
 
+
+            val finalCost = bestCombination.sumOf { it.getCost() }
             myLog.info {
                 val finalWeight = bestCombination.sumOf { it.varPowerWeight }
                 val msg =
                     "找到最优出牌组合 (总费用: $finalCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
                  msg
             }
+
+            //todo-future  打出优先级处理
+/*            bestCombination.sortedBy {
+                val combo =it.combo
+                if(combo is ComboOrder){
+                    combo.outCardPriority
+                }else{
+                    0
+                }
+            }*/
 
 
             val expectCost = warManage.getNowCost() - finalCost

@@ -1,10 +1,7 @@
 package lin.bean
 
 import club.xiaojiawei.bean.Card
-import lin.weightHandler.condition.bean.CardType
-import lin.weightHandler.condition.bean.CardWeightInfo
 
-import lin.weightHandler.condition.bean.MetadataKey
 import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.DefaultWeight
 
@@ -16,13 +13,13 @@ import lin.weightHandler.condition.context.DefaultWeight
 
   class ComboCard (private val cardWeightInfo: CardWeightInfo?=null, val card: Card){
     //select 打出刷新 针对改变手牌
-    var cardType = cardWeightInfo?.cardType?:CardType.DEFAULT
-    var useStrategy = UseStrategy.DEFAULT
+    var useStrategy = cardWeightInfo?.useStrategy?: DefUseStrategy
+
+    val weightCalculate = cardWeightInfo?.weightCalculate?: DefWeightCalculate
 
     //select 同组加权可以移到condition(每个只做一件事方便开发),但是要考虑继承关系,可以考虑委托方式,现在先测可行性
     //todo combo组没有实现
-    var comboId = 0
-    var comboPriority = 0
+    var combo : Combo = DefCombo
     private var comboOption : ((List<ComboCard>) -> Double)? =null
 
     //基础信息
@@ -47,14 +44,6 @@ import lin.weightHandler.condition.context.DefaultWeight
     }
 
 
-    /**
-     * 数据元
-     * todo 考虑密封类
-     */
-    fun <T>  getMetadata(key: MetadataKey<T>): T? {
-        @Suppress("UNCHECKED_CAST")
-        return  cardWeightInfo?.metadata?.get(key) as? T?
-    }
     //在同一组会增加权重
     fun comboAddWeight(comboCards: List<ComboCard>):Double{
         return comboOption?.let {
@@ -94,12 +83,8 @@ import lin.weightHandler.condition.context.DefaultWeight
     }
 
     override fun toString(): String {
-        return "ComboCard{${cardId()},${card.entityName},${card.entityId}}"
+        return "ComboCard{${cardId()},${card.entityName},${card.entityId},${varPowerWeight}}"
     }
 
 }
-enum class UseStrategy{
-    AFTER,
-    BEFORE,
-    DEFAULT
-}
+

@@ -2,7 +2,7 @@ package lin.weightHandler.provide
 
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
 import lin.weightHandler.CardWeightInfoProvide
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
 
 class DefCardWeightInfoProvide : CardWeightInfoProvide {
     override fun getInfos(): Map<String, CardWeightInfo> {
@@ -10,7 +10,7 @@ class DefCardWeightInfoProvide : CardWeightInfoProvide {
         return weightConfigs.associateBy(
             keySelector = { it.key }
         ) { weightCard ->
-            CardWeightInfo(weightCard.key,  weightCard.value.powerWeight,weightCard.value.weight)
+            CardWeightInfo(weightCard.key, weightCard.value.powerWeight, weightCard.value.weight)
         }
     }
 }

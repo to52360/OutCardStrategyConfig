@@ -16,6 +16,28 @@
             </pattern>
         </layout>
     </appender>
+    <!--ALL FILE-->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logPath}/hs_script.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logPath}/hs_script-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!--指定日志保存天数-->
+            <MaxHistory>3</MaxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--指定每个日志文件大小-->
+                <MaxFileSize>5MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <!--            <pattern>%-5p [%d %C:%L - %m %n</pattern>-->
+            <pattern>${log_pattern_file}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="file_async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="file"/>
+        <appender-ref ref="myFile"/>
+    </appender>
     <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
     <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
     <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"/>
@@ -32,15 +54,16 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <appender name="file_async" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="myFile"/>
-    </appender>
     <logger name="lin" level="INFO"  additivity="false">
         <appender-ref ref="myFile" />
     </logger>
 
-
-    <root level="OFF">
+    <appender name="other" class="club.xiaojiawei.hsscript.appender.ExtraLogAppender"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="club.xiaojiawei.factory" level="WARN"/>
+    <root level="${logLevel}">
         <appender-ref ref="console"/>
+        <appender-ref ref="file_async"/>
+        <appender-ref ref="other"/>
     </root>
 </configuration>

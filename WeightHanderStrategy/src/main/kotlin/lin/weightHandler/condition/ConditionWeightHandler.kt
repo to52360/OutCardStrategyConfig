@@ -1,27 +1,25 @@
 package lin.weightHandler.condition
 
 
-import lin.bean.ComboCard
+import lin.bean.*
 import lin.dao.MyWarManage
 import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
-import lin.weightHandler.condition.bean.CardWeightInfo
 import lin.weightHandler.condition.bean.ConditionGroup
-import lin.weightHandler.condition.bean.MetadataKey
 import lin.weightHandler.condition.context.ConditionException
 import lin.weightHandler.condition.define.DepByWeightInfo
 import lin.weightHandler.condition.define.WeightCondition
 import java.util.ServiceLoader
 
 import kotlin.collections.HashMap
-
+val MetadataKey = MetadataKey<WeightCondition>("ConditionWeightHandler")
 /**
  * 条件权重处理器
  */
 class ConditionWeightHandler : WeightHandler, InitHandler {
 
-    private val metadataKey = MetadataKey<WeightCondition>("ConditionWeightHandler")
+
     private val needManageCondition = mutableListOf<WeightCondition>()
 
     /**
@@ -33,12 +31,17 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
     //todo-future 存在魔数
     override fun priority() = 5
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        //
-        callCard.getMetadata(metadataKey)?.let {
+        val weightCalculate = callCard.weightCalculate
+        if(weightCalculate is OutCondition){
             myLog.info { "条件处理权重前的权重值:${callCard.varPowerWeight}" }
-            it.calculateSetWeight(callCard, warManage)
+            weightCalculate.calculateSetWeight(callCard, warManage)
+            myLog.info { "条件处理权重后的权重值:${callCard.varPowerWeight}" }
+        }else if(weightCalculate is OutConditions){//多条件处理
+            myLog.info { "条件处理权重前的权重值:${callCard.varPowerWeight}" }
+            weightCalculate.calculateSetWeight(callCard, warManage)
             myLog.info { "条件处理权重后的权重值:${callCard.varPowerWeight}" }
         }
+
     }
 
     /**
@@ -70,7 +73,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
                 //主数据处理
                 val binWeightInfos = weightGroupInfos[conditionGroup.bindId]
                 if (binWeightInfos == null) {
-                    val msg = "条件组需要绑定的数据没有在权重表找到,weight(id)为${conditionGroup.bindId}"
+                    val msg = "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId}"
                     throw ConditionException(msg)
                 }
                 //这里采用反射复制,为了简洁和快速实现 没有采用工厂模式
@@ -84,18 +87,18 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
                     val depWeightInfos = weightGroupInfos[conditionGroup.depByWeightId]
                     if (depWeightInfos == null) {
-                        val msg = "条件组需要绑定的数据没有在权重表找到,weight(id)为${conditionGroup.depByWeightId}"
+                        val msg = "条件组需要绑定的数据没有在权重表找到,weight(depByWeightId)为${conditionGroup.depByWeightId}"
                         throw ConditionException(msg)
 
                     }
                     copyCondition.initByWeightInfo(depWeightInfos)
                 }
 
-
+                //这里共用一个weightCalculate
+                val weightCalculate = OutCondition(copyCondition)
                 //在卡牌数据冗余打出条件
                 binWeightInfos.forEach { info ->
-
-                    info.putMetadata(metadataKey, copyCondition)
+                    info.weightCalculate = weightCalculate
                 }
 
 

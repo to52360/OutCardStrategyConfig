@@ -28,9 +28,7 @@ import lin.dao.ComboDao
 private val defaultStrategy: HsRadicalDeckStrategy by lazy {
     HsRadicalDeckStrategy()
 }
-val defaultOutCardLambda: () -> Unit = {
-    defaultStrategy.executeOutCard()
-}
+val defaultOutCardLambda: () -> Unit =defaultStrategy::executeOutCard
 class WeightHandlerStrategy : DeckStrategy() {
     private var deckStrategy: () -> Unit
 
@@ -66,8 +64,12 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     override fun referChangeWeight(): Boolean = true
 
+    /**
+     * [HsRadicalDeckStrategy]
+     */
     override fun executeChangeCard(cards: HashSet<Card>) {
-        myLog.info { "插件执行换牌策略" }
+
+
         if (BaseData.enableChangeWeight) {
             val weightCards = DeckStrategyUtil.convertToSimulateCard(cards.toList())
             weightCards.sortByDescending { it.changeWeight }

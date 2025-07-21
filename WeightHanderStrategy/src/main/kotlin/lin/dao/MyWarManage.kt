@@ -8,7 +8,7 @@ import club.xiaojiawei.data.CARD_INFO_TRIE
 import lin.bean.ComboCard
 import lin.myLog
 import lin.weightHandler.CardWeightInfoProvide
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
 import lin.weightHandler.condition.context.BaseWeight
 import java.util.*
 
@@ -22,7 +22,7 @@ interface MyWarInfo{
    fun getCanUseCardsByCost():List<ComboCard>
 
     /**
-     * 获取全部手牌
+     * 获取全部手牌(经过转化)
      */
    fun getHandComboCards():List<ComboCard>
 
@@ -40,6 +40,8 @@ interface MyWarInfo{
      * 最新的手牌数据
      */
     fun getHandCards():List<Card>
+
+    fun getWarInfos():WarInfos
 }
 
 
@@ -50,10 +52,11 @@ interface MyWarInfo{
  * todo-future 还差全局战场
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
-class MyWarManage(val war:War,  ) : MyWarInfo {
+class MyWarManage(val war:War) : MyWarInfo {
     private var comboCards  = emptyList<ComboCard>()
     private var canUseCards = emptyList<ComboCard>()
     val infoMap : Map<String, CardWeightInfo>
+    private val warInfos = WarInfos(war)
 
     fun isValid()=war.isValid()
     init {
@@ -89,6 +92,10 @@ class MyWarManage(val war:War,  ) : MyWarInfo {
 
     override fun getHandCards(): List<Card> {
         return war.me.handArea.cards
+    }
+
+    override fun getWarInfos(): WarInfos {
+        return  warInfos
     }
 
     override fun getHandComboCards()=comboCards
@@ -167,7 +174,7 @@ class MyWarManage(val war:War,  ) : MyWarInfo {
     private var gameId :String? = null
 
     /**
-     * 判断游戏是否新的一局
+     * todo debug看一下 判断游戏是否新的一局
      */
     fun isStart() : Boolean{
         val me = war.me

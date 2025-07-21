@@ -1,7 +1,7 @@
 package lin.weightHandler
 
 import club.xiaojiawei.bean.Card
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.dao.MyWarManage
 

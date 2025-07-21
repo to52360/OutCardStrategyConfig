@@ -1,12 +1,11 @@
 package lin.dao
 
-import club.xiaojiawei.config.log
 import lin.bean.ComboCard
-import lin.bean.UseStrategy
 import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
+import lin.bean.UseType
 import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.CostWeight
 import java.util.*
@@ -43,7 +42,7 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
         }
     }
 
-    private inline fun useCardsByCostsEnvironment(canUseCardsByCost:List<ComboCard>,useFunction:UseCardsByCostsFun):List<ComboCard> {
+    private inline fun cardsByCostsEnvironment(canUseCardsByCost:List<ComboCard>, useFunction:UseCardsByCostsFun):List<ComboCard> {
 
         if (canUseCardsByCost.isEmpty()) {
            return emptyList()
@@ -63,13 +62,15 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
      *
      */
      fun executeWeightProcess(canUseCardsByCost:List<ComboCard>)  {
-        this.canUseCardsByHandler = useCardsByCostsEnvironment(canUseCardsByCost) {weightHandler, comboCard ->
+        this.canUseCardsByHandler = cardsByCostsEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
             weightHandler.cardWeightProcess(comboCard, warManage)
         }
 
     }
     private fun weightProcess(canUseCardsByCost:List<ComboCard>) :List<ComboCard> {
-        return useCardsByCostsEnvironment(canUseCardsByCost) {weightHandler, comboCard ->
+        //todo 暂不使用handChaWeightProcess清空权重使用cardWeightProcess重新计算,先测试,看handChaWeightProcess怎么改进
+        canUseCardsByCost.forEach { it.varPowerWeight= BaseWeight }
+        return cardsByCostsEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
             weightHandler.cardWeightProcess(comboCard, warManage)
         }
 
@@ -79,8 +80,7 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
      * todo 这个方案也有问题,如果已满足就不计算,会产生额外的策略
      */
      fun executeHandChaWeightProcess(canUseCardsByCost:List<ComboCard>) {
-         //todo 暂不使用handChaWeightProcess清空权重使用cardWeightProcess重新计算,先测试,看handChaWeightProcess怎么改进
-        canUseCardsByCost.forEach { it.varPowerWeight= BaseWeight }
+
         this.canUseCardsByHandler = weightProcess(canUseCardsByCost)
     }
 
@@ -93,7 +93,7 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
         }
         this.canUseCardsByHandler = canUseCardsByHandler.sortedBy { it.varPowerWeight }
         //需要组合之前,有特殊操作
-        if(UseStrategy.BEFORE==canUseCardsByHandler.first().useStrategy){
+        if(canUseCardsByHandler.first().useStrategy.useType== UseType.BEFORE){
             return listOf(canUseCardsByHandler.first())
         }
         return findBestCombination()
@@ -123,6 +123,7 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
             nowCostCards
         }else{
             warManage.useCard(comboCard)//使用
+            //todo 没排序
             this.canUseCardsByHandler = expectCostCardByWeight
             bestCombination
         }

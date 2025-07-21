@@ -5,7 +5,7 @@ import club.xiaojiawei.enums.CardRaceEnum
 import club.xiaojiawei.util.CardDBUtil
 import lin.bean.ComboCard
 import lin.myLog
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
 
 //select 多种实现要转化为接口
 fun CardWeightInfo.parseRace(): CardRaceEnum =

@@ -1,6 +1,6 @@
 package lin.weightHandler.condition.implCondition
 
-import lin.weightHandler.condition.bean.CardWeightInfo
+import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.weightHandler.condition.define.HandArea
 import lin.weightHandler.condition.context.DefaultWeight

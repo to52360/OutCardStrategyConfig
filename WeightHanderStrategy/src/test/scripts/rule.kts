@@ -1,0 +1,1 @@
+ctx.hand.count { it.type == "Attack" } >= 2 && ctx.enemyHp < 50
