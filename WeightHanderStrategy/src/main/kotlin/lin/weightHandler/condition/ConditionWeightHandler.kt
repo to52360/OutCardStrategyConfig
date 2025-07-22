@@ -7,13 +7,13 @@ import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ConditionGroup
+import lin.weightHandler.condition.config.WeightGroupConfig
 import lin.weightHandler.condition.context.ConditionException
 import lin.weightHandler.condition.define.DepByWeightInfo
 import lin.weightHandler.condition.define.WeightCondition
 import java.util.ServiceLoader
 
 import kotlin.collections.HashMap
-val MetadataKey = MetadataKey<WeightCondition>("ConditionWeightHandler")
 /**
  * 条件权重处理器
  */
@@ -25,8 +25,9 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
     /**
      * todo 没有配置信息ui 暂时硬编码 获取配置
      */
-    private fun loadConfig(): List<ConditionGroup> {
-        return listOf(ConditionGroup(1, 3.0, 250625013, 2.0))
+    private fun loadConfig(): List<ConditionGroup>? {
+
+        return WeightGroupConfig().configs()
     }
     //todo-future 存在魔数
     override fun priority() = 5
@@ -49,7 +50,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
      */
     override fun init(infos: List<CardWeightInfo>) {
         //条件组信息
-        val conditionGroupInfos: List<ConditionGroup> = loadConfig()
+        val conditionGroupInfos: List<ConditionGroup> = loadConfig()?:return
 
 
         //条件实现数据
@@ -112,7 +113,6 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
             }
         }
-
 
     }
     //都是通过ServerLoader加载没有可能获取不到

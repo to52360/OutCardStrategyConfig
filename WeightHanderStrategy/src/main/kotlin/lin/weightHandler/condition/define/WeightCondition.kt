@@ -3,15 +3,7 @@ package lin.weightHandler.condition.define
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.dao.MyWarInfo
-
-/**
- * 加权条件
- * todo-future id考虑用配置表
- */
-interface WeightCondition {
-     //唯一
-     fun id(): Int
-
+interface WeightRule{
     //
     /**
      * select 符合条件增加权重,先试一下
@@ -21,8 +13,25 @@ interface WeightCondition {
      * @param myWarInfo 战场信息
      */
     fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)
+}
 
+/**
+ * 加权条件
+ * todo-future id考虑用配置表
+ */
+interface WeightCondition:WeightRule {
+     //唯一
+     fun id(): Int
+     fun name(): String {
+         return this.javaClass.simpleName
+     }
+}
 
+/**
+ * 单卡权重规则
+ */
+interface CardRule: WeightRule {
+    fun cardId(): String
 }
 
 

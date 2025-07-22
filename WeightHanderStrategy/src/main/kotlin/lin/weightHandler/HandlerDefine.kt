@@ -24,7 +24,7 @@ interface WeightHandler{
     fun handChaWeightProcess(callCard: ComboCard, warManage: MyWarManage){
 
     }
-    fun priority() = 0
+    fun priority() = 100
     fun gameStart(){
 
     }
@@ -33,6 +33,9 @@ interface WeightHandler{
     }
 }
 interface InitHandler{
+    /**
+     * @return 初始化结果, false将不加载Handler
+     */
     fun init(infos:List<CardWeightInfo>)
 }
 

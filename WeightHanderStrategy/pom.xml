@@ -10,7 +10,7 @@
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
+    <groupId>lin</groupId>
     <artifactId>WeightHandlerStrategy</artifactId>
     <version>1.0.0</version>
 
@@ -68,7 +68,16 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
+
                     </execution>
                 </executions>
             </plugin>

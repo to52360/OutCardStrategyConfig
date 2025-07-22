@@ -24,7 +24,7 @@ class HandAreaByRace : HandArea  {
     }
 
 
-    override fun id() = 250625013
+    override fun id(): Int = 250625013
 
 
 

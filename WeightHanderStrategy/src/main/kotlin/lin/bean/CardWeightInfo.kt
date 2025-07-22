@@ -6,6 +6,7 @@ import kotlinx.serialization.Transient
 import lin.dao.MyWarInfo
 import lin.weightHandler.condition.context.ConditionException
 import lin.weightHandler.condition.define.WeightCondition
+import lin.weightHandler.condition.define.WeightRule
 
 
 /**
@@ -21,47 +22,54 @@ data class CardWeightInfo(
     val cardId: String,
     val powerWeight: Double,
     val groupId: Double = 0.0
-){
+) {
     @Transient
     @Contextual
     var useStrategy: UseStrategy = DefUseStrategy
-    set(value){
-        if(field== DefUseStrategy){
-            field = value
-        }else{
-            throw ConditionException("暂时无法重复设置")
+        set(value) {
+            if (field == DefUseStrategy) {
+                field = value
+            } else if (value == DefUseStrategy) {
+                field = DefUseStrategy
+            } else {
+                throw ConditionException("暂时无法重复设置")
+            }
         }
-    }
+
     @Transient
     @Contextual
+    //todo 是设置只能改一次,还是
     var weightCalculate: WeightCalculate = DefWeightCalculate
-        set(value){
-            when(val context = field){
-                DefWeightCalculate -> field = value
-                is OutCondition -> { //转化为集合
-                    if(value is OutCondition){
-                        val outCondition = OutConditions(context.weightCondition)
-                        outCondition.add(value.weightCondition)
-                        field = outCondition
-                    }else{
-                        throw RuntimeException("设置类型错误")
+        set(value) {
+            if (value == DefWeightCalculate) {
+                field = value
+            } else
+                when (val context = field) {
+                    DefWeightCalculate -> field = value
+                    is OutCondition -> { //转化为集合
+                        if (value is OutCondition) {
+                            val outCondition = OutConditions(context.weightRule)
+                            outCondition.add(value.weightRule)
+                            field = outCondition
+                        } else {
+                            throw RuntimeException("设置类型错误")
+                        }
+
                     }
 
-                }
-                is OutConditions -> {
-                    if(value is OutCondition){
-                        context.add(value.weightCondition)
-                    }else{
-                        throw RuntimeException("设置类型错误")
+                    is OutConditions -> {
+                        if (value is OutCondition) {
+                            context.add(value.weightRule)
+                        } else {
+                            throw RuntimeException("设置类型错误")
+                        }
                     }
                 }
-            }
         }
 }
 
 
-
-sealed class UseStrategy(val useType : UseType)
+sealed class UseStrategy(val useType: UseType)
 data object DefUseStrategy : UseStrategy(UseType.DEF)
 data object ChangeStrategy : UseStrategy(UseType.BEFORE)
 class AddCostStrategy(val cost: Int) : UseStrategy(UseType.BEFORE)
@@ -74,42 +82,44 @@ data object DefCombo : Combo()
 /**
  * @param outCardPriority 打出优先级
  */
-data class ComboOrder(var comboId :Int,var outCardPriority : Int):Combo()
-
-
+data class ComboOrder(var comboId: Int, var outCardPriority: Int) : Combo()
 
 
 sealed class WeightCalculate
 data object DefWeightCalculate : WeightCalculate()
-class OutCondition( val weightCondition: WeightCondition): WeightCalculate(){
-    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo){
-        weightCondition.calculateSetWeight(callCard, myWarInfo)
+class OutCondition(val weightRule: WeightRule) : WeightCalculate() {
+    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo) {
+        weightRule.calculateSetWeight(callCard, myWarInfo)
     }
 }
-class OutConditions( weightCondition: WeightCondition): WeightCalculate(){
-    private val weightConditions = mutableListOf(weightCondition)
-    fun add(weightCondition: WeightCondition)  = weightConditions.add(weightCondition)
-    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo){
-        weightConditions.forEach{
+
+class OutConditions(weightRule: WeightRule) : WeightCalculate() {
+    private val weightConditions = mutableListOf(weightRule)
+    fun add(weightRule: WeightRule) = weightConditions.add(weightRule)
+    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo) {
+        weightConditions.forEach {
             it.calculateSetWeight(callCard, myWarInfo)
         }
     }
 }
+
 sealed class CardContext
 data object DefCardContext : CardContext()
-class AnyContext: CardContext(){
+class AnyContext : CardContext() {
     //元数据 用来存储
-    private val metadata: MutableMap<MetadataKey<*>, Any>  = mutableMapOf()
+    private val metadata: MutableMap<MetadataKey<*>, Any> = mutableMapOf()
     fun <T> putMetadata(key: MetadataKey<T>, value: T) {
         metadata[key] = value as Any
     }
+
     @Suppress("UNCHECKED_CAST")
     fun <T> getMetadata(key: MetadataKey<T>): T? = metadata[key] as T?
 }
+
 @JvmInline
 value class MetadataKey<T>(val name: String)
 
-enum class UseType{
+enum class UseType {
     BEFORE,
     DEF,
     AFTER

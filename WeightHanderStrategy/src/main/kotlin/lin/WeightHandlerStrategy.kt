@@ -30,7 +30,7 @@ private val defaultStrategy: HsRadicalDeckStrategy by lazy {
 }
 val defaultOutCardLambda: () -> Unit =defaultStrategy::executeOutCard
 class WeightHandlerStrategy : DeckStrategy() {
-    private var deckStrategy: () -> Unit
+    private var strategy: () -> Unit
 
 
     init {
@@ -38,7 +38,7 @@ class WeightHandlerStrategy : DeckStrategy() {
             "执行策略初始化"
         }
         val comboDao  = ComboDao(WAR)
-        deckStrategy= if(comboDao.initResult){
+        strategy= if(comboDao.initResult){
             comboDao::outCardStrategy
         }else{
             myLog.warn { "初始化出现错误切换到激进策略" }
@@ -87,14 +87,14 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     override fun executeOutCard() {
         try{
-            deckStrategy()
+            strategy()
         }catch(e:Exception){
             e.printStackTrace()
-            if(deckStrategy == defaultOutCardLambda) throw e //激进策略的问题
+            if(strategy == defaultOutCardLambda) throw e //激进策略的问题
             else{
-                myLog.error(e) { "执行出现错误切换到激进策略" }
-                deckStrategy = defaultOutCardLambda
-                deckStrategy()
+                myLog.error(e) { "执行出现错误切换到默认激进策略" }
+                strategy = defaultOutCardLambda
+                strategy()
             }
 
         }

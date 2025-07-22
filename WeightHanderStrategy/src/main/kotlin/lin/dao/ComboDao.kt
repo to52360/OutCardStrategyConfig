@@ -3,11 +3,11 @@ package lin.dao
 
 import club.xiaojiawei.bean.War
 import lin.bean.*
-import lin.config.WeightGroupConfig
 
 
 import lin.myLog
 import lin.utils.JarClassLoader
+import java.util.ServiceConfigurationError
 
 
 /**
@@ -36,16 +36,21 @@ class ComboDao( war: War) {
         }
         val  classLoader = Thread.currentThread().contextClassLoader
         try {
+            val jarClassLoader = JarClassLoader().classLoader()
+            println(jarClassLoader)
+            myLog.info {jarClassLoader}
             Thread.currentThread().contextClassLoader = this::class.java.classLoader
-            val config = WeightGroupConfig()
-            config.configs()
             warManage = MyWarManage(war)
             weightHandlerDao = WeightHandlerDao(warManage = warManage)
         } catch (e: Exception) {
             e.printStackTrace()
             myLog.error(e) { "初始化失败" }
             initResult = false
-        }finally {
+        }catch (serviceError: ServiceConfigurationError){
+            serviceError.printStackTrace()
+            myLog.error(serviceError) { "serviceError初始化失败" }
+            initResult = false
+        } finally {
             Thread.currentThread().contextClassLoader = classLoader
         }
 
