@@ -1,8 +1,6 @@
 package lin.bean
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+
 import lin.dao.MyWarInfo
 import lin.weightHandler.condition.context.ConditionException
 import lin.weightHandler.condition.define.WeightCondition
@@ -17,14 +15,11 @@ import lin.weightHandler.condition.define.WeightRule
  * 打出优先级
  * [ComboOrder.outCardPriority]
  */
-@Serializable
 data class CardWeightInfo(
     val cardId: String,
     val powerWeight: Double,
     val groupId: Double = 0.0
 ) {
-    @Transient
-    @Contextual
     var useStrategy: UseStrategy = DefUseStrategy
         set(value) {
             if (field == DefUseStrategy) {
@@ -36,9 +31,7 @@ data class CardWeightInfo(
             }
         }
 
-    @Transient
-    @Contextual
-    //todo 是设置只能改一次,还是
+    //todo 改成这样,为了实现val功能,但是不实用,看一下是否需要该
     var weightCalculate: WeightCalculate = DefWeightCalculate
         set(value) {
             if (value == DefWeightCalculate) {
@@ -71,6 +64,7 @@ data class CardWeightInfo(
 
 sealed class UseStrategy(val useType: UseType)
 data object DefUseStrategy : UseStrategy(UseType.DEF)
+//
 data object ChangeStrategy : UseStrategy(UseType.BEFORE)
 class AddCostStrategy(val cost: Int) : UseStrategy(UseType.BEFORE)
 

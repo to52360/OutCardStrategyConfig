@@ -6,6 +6,7 @@ import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.bean.CardWeightInfo
 import lin.bean.UseType
+import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.CostWeight
 import java.util.*
@@ -31,7 +32,7 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
     private fun getWeightHandler(infos:Map<String, CardWeightInfo>): List<WeightHandler> {
         myLog.info { "权重信息的id集合:${infos.keys}" }
         val cardWeightInfos =  infos.values.toList()
-        val services =ServiceLoader.load(WeightHandler::class.java)
+        val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
         myLog.info { "加载到的权重处理器的类名:${services.joinToString(","){it::class.simpleName.toString()}}" }
         return services.sortedBy {
             //按ai的说法会语义多重,实践看看有什么后果

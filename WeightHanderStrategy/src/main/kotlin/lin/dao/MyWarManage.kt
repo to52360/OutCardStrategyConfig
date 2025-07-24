@@ -9,7 +9,10 @@ import lin.bean.ComboCard
 import lin.myLog
 import lin.weightHandler.CardWeightInfoProvide
 import lin.bean.CardWeightInfo
+import lin.bean.OutCondition
+import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.context.BaseWeight
+import lin.weightHandler.condition.define.CardRule
 import java.util.*
 
 /**
@@ -62,6 +65,7 @@ class MyWarManage(val war:War) : MyWarInfo {
     init {
 
         infoMap = getCardInfos()
+        parseCondition(infoMap)
         myLog.info{
             "MyWarManage初始化$infoMap"
         }
@@ -70,10 +74,27 @@ class MyWarManage(val war:War) : MyWarInfo {
     //把配置信息转化成上下文信息
     private fun getCardInfos(): Map<String, CardWeightInfo>  {
         var infoMap: Map<String, CardWeightInfo> = emptyMap()
-        ServiceLoader.load(CardWeightInfoProvide::class.java).forEach{
+        ServiceLoaderUtils.loadServices(CardWeightInfoProvide::class.java).forEach{
             infoMap =  it.getInfos() + infoMap
         }
+
         return infoMap
+    }
+
+    /**
+     * 解析单卡条件,
+     */
+    private fun parseCondition(infoMap: Map<String, CardWeightInfo>){
+
+        ServiceLoaderUtils.loadServices(CardRule::class.java).forEach {
+            val card = infoMap[it.cardId()]
+            card?.run {
+                weightCalculate = OutCondition(it)
+            }
+        }
+
+
+
     }
 
 

@@ -4,6 +4,7 @@ package lin.weightHandler.condition
 import lin.bean.*
 import lin.dao.MyWarManage
 import lin.myLog
+import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ConditionGroup
@@ -46,7 +47,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
     }
 
     /**
-     * todo-future  自定义配置未实现 [lin.weightHandler.condition.bean.ConditionByCustomize]
+     * 初始化,为卡牌冗余条件计算
      */
     override fun init(infos: List<CardWeightInfo>) {
         //条件组信息
@@ -55,7 +56,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
         //条件实现数据
         val groupCondition: HashMap<Int, WeightCondition> = hashMapOf()
-        ServiceLoader.load(WeightCondition::class.java).forEach {
+        ServiceLoaderUtils.loadServices(WeightCondition::class.java).forEach {
             groupCondition[it.id()] = it
         }
         myLog.info {
@@ -67,7 +68,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
 
         conditionGroupInfos.forEach { conditionGroup ->
-            val outCardConditionId = conditionGroup.outCardConditionId
+            val outCardConditionId = conditionGroup.weightConditionId
             val outCardCondition = groupCondition[outCardConditionId]
             outCardCondition?.let {
 
@@ -108,7 +109,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
 
             } ?: run {//没有对应条件id实现
-                val msg = "groupId=${conditionGroup.groupId},没有匹配到conditionId:${conditionGroup.outCardConditionId}的条件信息"
+                val msg = "groupId=${conditionGroup.groupId},没有匹配到conditionId:${conditionGroup.weightConditionId}的条件信息"
                 throw ConditionException(msg)
 
             }

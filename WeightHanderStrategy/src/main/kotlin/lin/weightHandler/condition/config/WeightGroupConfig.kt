@@ -1,27 +1,32 @@
 package lin.weightHandler.condition.config
 
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.json.Json
 import lin.myLog
+import lin.utils.database.SqliteJdbcProvider
 import lin.weightHandler.condition.bean.ConditionGroup
+import lin.weightHandler.condition.context.ConditionException
 import java.nio.file.Path
 
 class WeightGroupConfig {
-
-     val json = Json {     prettyPrint = true       // 美化输出
-        ignoreUnknownKeys = true // 忽略未知字段
-        encodeDefaults = true    // 包含默认值
-    }
+    /**
+     * [org.sqlite.jdbc4.JDBC4ResultSet.unsupported]
+     */
     fun configs():List<ConditionGroup>? {
         val rootPath = System.getProperty("user.dir")
-        val weightGroupConfig = Path.of(rootPath,"plugin","config","weightGroup.json")
-        val file = weightGroupConfig.toFile()
-        if (!file.exists()) {
-            myLog.info { "文件不存在" }
+        val weightGroupConfig = Path.of(rootPath,"weightHandlerStrategy.db")
+        try {
+            val sqliteJdbcProvider = SqliteJdbcProvider(weightGroupConfig)
+            val groupStrategyDao = GroupStrategyDao(sqliteJdbcProvider.jdbcTemplate)
+            return groupStrategyDao.getAll()
+        }catch (e: ConditionException){
+            myLog.warn(e){
+                e.message
+            }
             return null
+        }catch (e:Exception){
+            throw e
         }
 
-        return json.decodeFromString(ListSerializer(ConditionGroup.serializer()),file.readText())
+
 
     }
 }

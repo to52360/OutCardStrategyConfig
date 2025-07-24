@@ -64,9 +64,9 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>kapt</id>
+                        <id>ksp </id>
                         <goals>
-                            <goal>kapt</goal>
+                            <goal>kapt </goal>
                         </goals>
                     </execution>
                 </executions>

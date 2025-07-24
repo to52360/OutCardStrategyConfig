@@ -2,11 +2,13 @@ package lin.dao
 
 
 import club.xiaojiawei.bean.War
+import club.xiaojiawei.config.log
 import lin.bean.*
 
 
 import lin.myLog
 import lin.utils.JarClassLoader
+import lin.weightHandler.condition.config.WeightGroupConfig
 import java.util.ServiceConfigurationError
 
 
@@ -34,24 +36,21 @@ class ComboDao( war: War) {
         myLog.info{
             "ComboDao初始化"
         }
-        val  classLoader = Thread.currentThread().contextClassLoader
+        val  threadClassLoader = Thread.currentThread().contextClassLoader
         try {
-            val jarClassLoader = JarClassLoader().classLoader()
-            println(jarClassLoader)
-            myLog.info {jarClassLoader}
-            Thread.currentThread().contextClassLoader = this::class.java.classLoader
+            val classLoader = JarClassLoader(parent = javaClass.classLoader).classLoader()?:run {
+                log.warn { "没有获取到类加载器" }
+                javaClass.classLoader
+            }
+            Thread.currentThread().contextClassLoader = classLoader
             warManage = MyWarManage(war)
             weightHandlerDao = WeightHandlerDao(warManage = warManage)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            myLog.error(e) { "初始化失败" }
-            initResult = false
-        }catch (serviceError: ServiceConfigurationError){
+        } catch (serviceError: ServiceConfigurationError){
             serviceError.printStackTrace()
             myLog.error(serviceError) { "serviceError初始化失败" }
             initResult = false
         } finally {
-            Thread.currentThread().contextClassLoader = classLoader
+            Thread.currentThread().contextClassLoader = threadClassLoader
         }
 
 
