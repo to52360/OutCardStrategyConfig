@@ -1,18 +1,15 @@
-package lin.implCondition
+package lin.serviceLoader.cardRule.combo
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
-import lin.weightHandler.condition.define.ComboCondition
+import lin.serviceLoader.cardRule.ComboCondition
 import lin.weightHandler.condition.context.CostWeight
 import lin.weightHandler.condition.context.DefaultWeight
 
-import lin.weightHandler.condition.define.HandArea
-
-
 //todo-future 暂时这样 暂时没有想清楚一起打出的例子要怎么处理
-class ComboConditionByRace: HandArea,ComboCondition {
+class ComboConditionByRace : ComboCondition {
 
-    override fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>) {
+     fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>) {
         var count : Int = 0
         handCards.forEach{
             //todo 判断依据没有写
@@ -32,11 +29,11 @@ class ComboConditionByRace: HandArea,ComboCondition {
 
 
 
-    override fun id(): Int {
+     fun id(): Int {
         return 25062601
     }
 
-    override fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
+     fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
         TODO("Not yet implemented")
     }
 

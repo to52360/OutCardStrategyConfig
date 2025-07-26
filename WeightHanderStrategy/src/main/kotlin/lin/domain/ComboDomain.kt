@@ -148,6 +148,7 @@ class ComboDomain(war: War) {
             val expectCost = warManage.getNowCost() - needCost
             bestCombination.forEach { warManage.useCard(it) }
             //todo-future 直接遍历使用
+            //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = canUseCardsByHandler - bestCombination.toSet()
                 if (moreTryCard.isNotEmpty()) {

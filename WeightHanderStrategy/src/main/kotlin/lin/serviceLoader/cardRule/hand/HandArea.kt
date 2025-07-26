@@ -1,9 +1,11 @@
-package lin.implCondition.hand
+package lin.serviceLoader.cardRule.hand
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
-import lin.implCondition.infoToHandRacePredicate
-import lin.weightHandler.condition.define.HandArea
+import lin.serviceLoader.cardRule.DepByWeightInfo
+import lin.serviceLoader.cardRule.HandArea
+import lin.serviceLoader.cardRule.utils.infoToHandRacePredicate
+
 import lin.weightHandler.condition.context.DefaultWeight
 import lin.weightHandler.condition.context.NotConditionDefaultWeight
 
@@ -11,7 +13,7 @@ import lin.weightHandler.condition.context.NotConditionDefaultWeight
 /**
  * 以种族作为打出条件
  */
-class HandAreaByRace : HandArea  {
+class HandAreaByRace : HandArea, DepByWeightInfo {
 
 
     private lateinit  var handRacePredicate: (List<ComboCard>) -> Boolean
@@ -30,7 +32,7 @@ class HandAreaByRace : HandArea  {
 
 
     override fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
-        handRacePredicate =  cardWeightInfoList.infoToHandRacePredicate()
+        handRacePredicate = cardWeightInfoList.infoToHandRacePredicate()
     }
 }
 

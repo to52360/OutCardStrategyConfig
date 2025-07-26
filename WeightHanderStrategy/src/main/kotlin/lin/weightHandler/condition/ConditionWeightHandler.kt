@@ -4,14 +4,15 @@ package lin.weightHandler.condition
 import lin.bean.*
 import lin.domain.MyWarManage
 import lin.myLog
+import lin.serviceLoader.cardRule.DepByWeightInfos
+import lin.serviceLoader.cardRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ConditionGroup
 import lin.weightHandler.condition.config.WeightGroupConfig
 import lin.weightHandler.condition.context.ConditionException
-import lin.weightHandler.condition.define.DepByWeightInfo
-import lin.weightHandler.condition.define.WeightCondition
+
 
 import kotlin.collections.HashMap
 /**
@@ -82,13 +83,19 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
 
                 //依赖数据处理
-                if (copyCondition is DepByWeightInfo) {
+                if (copyCondition is DepByWeightInfos) {
                     //todo-future 万一以类型绑定卡牌,那打出条件如何冗余在卡牌信息里
                     //绑定对象,
+                    val depWeightInfos = mutableListOf<List<CardWeightInfo>>()
+                    conditionGroup.depByWeightIds.forEach { depId ->
+                        weightGroupInfos[depId]?.run {
+                            depWeightInfos.add(this)
+                        }
+                    }
 
-                    val depWeightInfos = weightGroupInfos[conditionGroup.depByWeightId]
-                    if (depWeightInfos == null) {
-                        val msg = "条件组需要绑定的数据没有在权重表找到,weight(depByWeightId)为${conditionGroup.depByWeightId}"
+
+                    if (depWeightInfos.isEmpty()) {
+                        val msg = "条件组需要绑定的数据没有在权重表找到,weight(depByWeightId)为${conditionGroup.depByWeightIds}"
                         throw ConditionException(msg)
 
                     }

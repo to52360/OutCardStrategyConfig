@@ -1,4 +1,4 @@
-package lin.weightHandler.condition.define
+package lin.serviceLoader.cardRule
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
@@ -42,15 +42,29 @@ interface CardRule : WeightRule {
 
 
 //注入数据参考组,标记
+interface DepByWeightInfos {
+    /**
+     * select  自定义初始化方法,有没有采用工厂模式
+     * 条件(condition)依赖权重组信息
+     *
+     */
+    fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>)
+
+}
 interface DepByWeightInfo {
     /**
      * select  自定义初始化方法,有没有采用工厂模式
      * 条件(condition)依赖权重组信息
      *
      */
+    fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>){
+        initByWeightInfo(cardWeightInfoList.first())
+    }
+
     fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>)
 
 }
+
 
 
 

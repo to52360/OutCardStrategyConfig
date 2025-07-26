@@ -1,7 +1,6 @@
-package lin.weightHandler.provide
+package lin.serviceLoader.cardInfoProvide
 
 import club.xiaojiawei.data.COIN_CARD_ID
-import lin.weightHandler.CardWeightInfoProvide
 import lin.bean.AddCostStrategy
 import lin.bean.CardWeightInfo
 

@@ -1,7 +1,6 @@
-package lin.weightHandler.provide
+package lin.serviceLoader.cardInfoProvide
 
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
-import lin.weightHandler.CardWeightInfoProvide
 import lin.bean.CardWeightInfo
 
 class DefCardWeightInfoProvide : CardWeightInfoProvide {

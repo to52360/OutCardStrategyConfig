@@ -8,12 +8,13 @@ import club.xiaojiawei.bean.isValid
 import club.xiaojiawei.data.CARD_INFO_TRIE
 import lin.bean.ComboCard
 import lin.myLog
-import lin.weightHandler.CardWeightInfoProvide
+import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.bean.CardWeightInfo
 import lin.bean.OutCondition
+import lin.serviceLoader.cardRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.context.BaseWeight
-import lin.weightHandler.condition.define.CardRule
+
 
 /**
  * 可见性语义,没有接口语义
@@ -178,6 +179,7 @@ class MyWarManage(val war:War) : MyWarInfo {
         }
     }
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
+    //todo 可以判断最后一个下标等不等于最后下标
      fun useCard(comBoCard: ComboCard):Boolean{
         val card = comBoCard.card
         if(card.area !is HandArea) return false //修改区域

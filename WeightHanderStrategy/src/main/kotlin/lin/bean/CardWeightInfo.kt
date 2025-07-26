@@ -2,13 +2,14 @@ package lin.bean
 
 
 import lin.domain.MyWarInfo
+import lin.serviceLoader.cardRule.WeightRule
 import lin.weightHandler.condition.context.ConditionException
-import lin.weightHandler.condition.define.WeightRule
+
 
 
 /**
  * 转化位置
- * [lin.weightHandler.provide.DefCardWeightInfoProvide]
+ * [lin.serviceLoader.cardInfoProvide.DefCardWeightInfoProvide]
  * @param groupId 使用weight的值 [club.xiaojiawei.bean.CardWeight.weight]
  * @param powerWeight 检测优先级
  * 打出优先级
@@ -21,10 +22,8 @@ data class CardWeightInfo(
 ) {
     var useStrategy: UseStrategy = DefUseStrategy
         set(value) {
-            if (field == DefUseStrategy) {
-                field = value
-            } else if (value == DefUseStrategy) {
-                field = DefUseStrategy
+            field = if (field == DefUseStrategy) {
+                value
             } else {
                 throw ConditionException("暂时无法重复设置")
             }
@@ -33,30 +32,28 @@ data class CardWeightInfo(
     //todo 改成这样,为了实现val功能,但是不实用,看一下是否需要该 ,增加额外复杂性
     var weightCalculate: WeightCalculate = DefWeightCalculate
         set(value) {
-            if (value == DefWeightCalculate) {
-                field = value
-            } else
-                when (val context = field) {
-                    DefWeightCalculate -> field = value
-                    is OutCondition -> { //转化为集合
-                        if (value is OutCondition) {
-                            val outCondition = OutConditions(context.weightRule)
-                            outCondition.add(value.weightRule)
-                            field = outCondition
-                        } else {
-                            throw RuntimeException("设置类型错误")
-                        }
 
+            when (val context = field) {
+                is OutCondition -> { //转化为集合
+                    if (value is OutCondition) {
+                        val outCondition = OutConditions(context.weightRule)
+                        outCondition.add(value.weightRule)
+                        field = outCondition
+                    } else {
+                        throw RuntimeException("设置类型错误")
                     }
 
-                    is OutConditions -> {
-                        if (value is OutCondition) {
-                            context.add(value.weightRule)
-                        } else {
-                            throw RuntimeException("设置类型错误")
-                        }
+                }
+
+                is OutConditions -> {
+                    if (value is OutCondition) {
+                        context.add(value.weightRule)
+                    } else {
+                        throw RuntimeException("设置类型错误")
                     }
                 }
+                else ->  throw ConditionException("暂时无法重复设置")
+            }
         }
 }
 

@@ -1,14 +1,14 @@
-package lin.implCondition
+package lin.serviceLoader.cardRule.def
 
 import lin.bean.CardWeightInfo
-import lin.weightHandler.condition.define.DepByWeightInfo
+import lin.serviceLoader.cardRule.DepByWeightInfos
 
 /**
  * todo-future 不知道还要不要了
  */
-abstract  class DepRaceCacheFun<FUN_CACHE:Any>: DepByWeightInfo {
+abstract  class DepRaceCacheFun<FUN_CACHE:Any>: DepByWeightInfos {
     protected lateinit var funCache :FUN_CACHE
-    override fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
+    override fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>) {
         TODO("Not yet implemented")
     }
     abstract fun parseInfosToCache(cardWeightInfoList: List<CardWeightInfo>):FUN_CACHE

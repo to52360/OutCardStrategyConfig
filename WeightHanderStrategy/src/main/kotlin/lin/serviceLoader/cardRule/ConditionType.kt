@@ -1,4 +1,4 @@
-package lin.weightHandler.condition.define
+package lin.serviceLoader.cardRule
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
@@ -10,7 +10,7 @@ import lin.domain.MyWarInfo
  * 手牌区域为条件
  *
  */
-interface HandArea : DefaultWeightCondition {
+interface HandArea : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)=
         onWarInfoProcessWeight(callCard,myWarInfo.getHandComboCards())
      fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>)
@@ -19,13 +19,13 @@ interface HandArea : DefaultWeightCondition {
 /**
  *墓场
  */
-interface GraveyardArea : DefaultWeightCondition {
+interface GraveyardArea : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)= onWarInfoProcessWeight(myWarInfo.getGraveyardCards())
     fun onWarInfoProcessWeight(graveyardCards: List<Card>)
 }
 
-//默认
-interface DefaultWeightCondition: WeightCondition, DepByWeightInfo
+
+
 
 //可以一起打出
 interface ComboCondition{

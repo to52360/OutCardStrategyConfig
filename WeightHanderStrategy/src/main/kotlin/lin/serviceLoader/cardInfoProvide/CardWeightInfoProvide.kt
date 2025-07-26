@@ -1,4 +1,4 @@
-package lin.weightHandler
+package lin.serviceLoader.cardInfoProvide
 
 import lin.bean.CardWeightInfo
 
