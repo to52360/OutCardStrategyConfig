@@ -2,15 +2,16 @@ package lin.utils.serviceLoader
 
 import lin.myLog
 import lin.utils.JarClassLoader
+import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 
 /**
- * 不知怎么管理,先object先
+ * 不知要不要ioc,先object先
  */
 object ServiceLoaderUtils {
     private val classLoader : ClassLoader by lazy {
         JarClassLoader(parent = javaClass.classLoader).classLoader()?:run {
-            myLog.warn { "没有获取到类加载器" }
+            myLog.info { "不存在扩展类" }
             javaClass.classLoader
         }
     }
@@ -26,7 +27,7 @@ object ServiceLoaderUtils {
                 try {
                     val service = provider.get()
                     services.add(service)
-                } catch (e: Throwable) {
+                } catch (e: ServiceConfigurationError) {
                     myLog.warn(e) { "跳过服务提供者: ${provider.type().name}，原因: ${e.message}" }
                 }
             }

@@ -1,4 +1,4 @@
-package lin.weightHandler.condition.implCondition
+package lin.implCondition
 
 
 import club.xiaojiawei.enums.CardRaceEnum

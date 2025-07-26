@@ -1,4 +1,4 @@
-package lin.dao
+package lin.domain
 
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
@@ -69,7 +69,7 @@ class WarInfos(private val war: War) {
     }
 
     // 自定义查询
-    fun findRivalCardsByFilter(filter:(Card)->Boolean ): List<Card> {
+     fun findRivalCardsByFilter(filter:(Card)->Boolean ): List<Card> {
         return war.rival.playArea.cards.filter { filter(it) }
     }
 

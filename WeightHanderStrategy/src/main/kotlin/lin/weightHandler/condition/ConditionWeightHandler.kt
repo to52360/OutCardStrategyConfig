@@ -2,7 +2,7 @@ package lin.weightHandler.condition
 
 
 import lin.bean.*
-import lin.dao.MyWarManage
+import lin.domain.MyWarManage
 import lin.myLog
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.InitHandler
@@ -12,7 +12,6 @@ import lin.weightHandler.condition.config.WeightGroupConfig
 import lin.weightHandler.condition.context.ConditionException
 import lin.weightHandler.condition.define.DepByWeightInfo
 import lin.weightHandler.condition.define.WeightCondition
-import java.util.ServiceLoader
 
 import kotlin.collections.HashMap
 /**

@@ -4,7 +4,7 @@ import club.xiaojiawei.bean.Card
 
 import club.xiaojiawei.enums.CardTypeEnum
 import lin.bean.ComboCard
-import lin.dao.MyWarManage
+import lin.domain.MyWarManage
 import lin.myLog
 import lin.weightHandler.condition.context.CostWeight
 import lin.weightHandler.condition.context.BaseWeight
@@ -16,30 +16,29 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        val card = callCard.card
-        if(callCard.varPowerWeight == BaseWeight ){
-            callCard.varPowerWeight = cardWeight(card)
-        }
-
+        cardWeight(callCard)
     }
-    override fun cardWeight(card: Card):Double{
-        if( CardTypeEnum.MINION==card.cardType){
-            val c = cache[card.cardId+card.cost]
-            if(c==null){
-                val baseWeight = (card.atc+card.health) -card.cost*2
-                myLog.info{
-                    "${card.entityName}的基础权重:${baseWeight}"
+    override fun cardWeight(comboCard: ComboCard):Double{
+        if(comboCard.varPowerWeight == BaseWeight ) {
+            val card = comboCard.card
+            if (CardTypeEnum.MINION == card.cardType) {
+                val c = cache[card.cardId + card.cost]
+                if (c == null) {
+                    val baseWeight = (card.atc + card.health) - card.cost * 2
+                    myLog.info {
+                        "${card.entityName}的基础权重:${baseWeight}"
+                    }
+                    val weigh = getWeigh(card)
+                    myLog.info {
+                        "${card.entityName}的特征权重:${weigh}"
+                    }
+                    var result = (baseWeight + weigh) * CostWeight
+                    if (result < 0) result = BaseWeight //费用增加的情况,严重亏模的情况 可能导致负数
+                    cache[card.cardId + card.cost] = result
+                    return result
                 }
-                val weigh = getWeigh(card)
-                myLog.info{
-                    "${card.entityName}的特征权重:${weigh}"
-                }
-                var result = (baseWeight+weigh)* CostWeight
-                if(result<0)  result = BaseWeight //费用增加的情况,严重亏模的情况 可能导致负数
-                cache[card.cardId+card.cost] = result
-                return result
-            }
 
+            }
         }
         return BaseWeight
     }

@@ -1,9 +1,8 @@
 package lin.bean
 
 
-import lin.dao.MyWarInfo
+import lin.domain.MyWarInfo
 import lin.weightHandler.condition.context.ConditionException
-import lin.weightHandler.condition.define.WeightCondition
 import lin.weightHandler.condition.define.WeightRule
 
 
@@ -31,7 +30,7 @@ data class CardWeightInfo(
             }
         }
 
-    //todo 改成这样,为了实现val功能,但是不实用,看一下是否需要该
+    //todo 改成这样,为了实现val功能,但是不实用,看一下是否需要该 ,增加额外复杂性
     var weightCalculate: WeightCalculate = DefWeightCalculate
         set(value) {
             if (value == DefWeightCalculate) {
@@ -119,10 +118,4 @@ enum class UseType {
     AFTER
 }
 
-enum class CardType {
-    DEFAULT,             //默认值无意义
-    CHANGE,               //改变手牌
-    ADD_COST,         //增加费用的
-}
 
-val AddCost by lazy { MetadataKey<Int>("AddCost") }

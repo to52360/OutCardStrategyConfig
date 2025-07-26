@@ -1,5 +1,6 @@
-package lin.dao
+package lin.domain
 
+import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
 import lin.myLog
 import lin.weightHandler.InitHandler
@@ -7,17 +8,21 @@ import lin.weightHandler.WeightHandler
 import lin.bean.CardWeightInfo
 import lin.bean.UseType
 import lin.utils.serviceLoader.ServiceLoaderUtils
+import lin.weightHandler.CardWeightHandler
 import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.CostWeight
-import java.util.*
+
 typealias UseCardsByCostsFun = (WeightHandler,ComboCard) -> Unit
-class WeightHandlerDao(private val warManage: MyWarManage) {
-    private val weightHandlers: List<WeightHandler>
+class WeightHandlerDomain(private val warManage: MyWarManage) {
+    private lateinit var weightHandlers: List<WeightHandler>
+    private lateinit var cardWeightHandlers: List<CardWeightHandler>
+
     var canUseCardsByHandler:List<ComboCard> = emptyList()
     init {
 
         try {
-            weightHandlers = getWeightHandler(warManage.infoMap)
+            getWeightHandler(warManage.infoMap)
+
         } catch (e: Exception) {
             e.printStackTrace()
             myLog.error(e) { "测试化失败" }
@@ -29,18 +34,27 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
     /**
      * 权重处理器
      */
-    private fun getWeightHandler(infos:Map<String, CardWeightInfo>): List<WeightHandler> {
+    private fun getWeightHandler(infos:Map<String, CardWeightInfo>) {
         myLog.info { "权重信息的id集合:${infos.keys}" }
         val cardWeightInfos =  infos.values.toList()
         val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
         myLog.info { "加载到的权重处理器的类名:${services.joinToString(","){it::class.simpleName.toString()}}" }
-        return services.sortedBy {
+        val cardWeightHandler = mutableListOf<CardWeightHandler>()
+        val weightHandler = services.sortedBy {
             //按ai的说法会语义多重,实践看看有什么后果
             if(it is InitHandler) {
                 it.init(cardWeightInfos)
             }
+            //todo 存在一个问题没法单独扩展
+            if(it is CardWeightHandler){
+                cardWeightHandler.add(it)
+            }
             it.priority()
         }
+        this.weightHandlers = weightHandler
+        this.cardWeightHandlers = cardWeightHandler.toList()
+
+
     }
 
     private inline fun cardsByCostsEnvironment(canUseCardsByCost:List<ComboCard>, useFunction:UseCardsByCostsFun):List<ComboCard> {
@@ -106,7 +120,7 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
          myLog.info { "现在费用的权重:${sumCost},成员:$nowCostCards" }
 
 
-         //todo-future 复杂状态关系要不要封装成对象,这里存在很多复制数组的操作,性能没问题就不优化
+         //todo-future 1.复杂状态关系要不要封装成对象,2.这里存在很多复制数组的操作,性能没问题就不优化
          val expectCostCard = warManage.canUseCardsByCost(expectCost+warManage.getNowCost()) -comboCard
          val expectCostCardByWeight = weightProcess(expectCostCard)
          //todo-future 这里还可以提供
@@ -191,6 +205,24 @@ class WeightHandlerDao(private val warManage: MyWarManage) {
         // 初始状态是空组合，从索引0开始
         findBestCombination(0, 0, 0.0, emptyList())
         return bestCombination
+
+    }
+
+
+    fun executeDiscoverChooseCard(vararg cards: Card): Int{
+        var maxIndex = 0
+        var maxWeight = 0.0
+        for(i in cards.indices){
+            val comboCard = warManage.parseComboCard(cards[i])
+            cardWeightHandlers.forEach {
+                it.cardWeight(comboCard)
+            }
+            if(comboCard.varPowerWeight>maxWeight){
+                maxWeight = comboCard.varPowerWeight
+                maxIndex = i
+            }
+        }
+        return maxIndex
 
     }
 

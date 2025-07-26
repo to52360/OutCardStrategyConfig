@@ -1,4 +1,4 @@
-package lin.dao
+package lin.domain
 
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.enums.CardTypeEnum

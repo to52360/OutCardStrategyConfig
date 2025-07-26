@@ -2,7 +2,7 @@ package lin.weightHandler.condition.define
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
-import lin.dao.MyWarInfo
+import lin.domain.MyWarInfo
 
 //减轻 判断的类型处理都在这里
 

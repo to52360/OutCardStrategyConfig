@@ -2,8 +2,10 @@ package lin.weightHandler.condition.define
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
-import lin.dao.MyWarInfo
-interface WeightRule{
+import lin.domain.MyWarInfo
+import lin.weightHandler.condition.context.CostWeight
+
+interface WeightRule {
     //
     /**
      * select 符合条件增加权重,先试一下
@@ -19,22 +21,24 @@ interface WeightRule{
  * 加权条件
  * todo-future id考虑用配置表
  */
-interface WeightCondition:WeightRule {
-     //唯一
-     fun id(): Int
-     fun name(): String {
-         return this.javaClass.simpleName
-     }
+interface WeightCondition : WeightRule {
+    //唯一
+    fun id(): Int
+    fun groupWeight(): Double {
+        return CostWeight
+    }
+
+    fun name(): String {
+        return this.javaClass.simpleName
+    }
 }
 
 /**
  * 单卡权重规则
  */
-interface CardRule: WeightRule {
+interface CardRule : WeightRule {
     fun cardId(): String
 }
-
-
 
 
 //注入数据参考组,标记
@@ -44,7 +48,7 @@ interface DepByWeightInfo {
      * 条件(condition)依赖权重组信息
      *
      */
-     fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>)
+    fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>)
 
 }
 

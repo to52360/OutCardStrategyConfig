@@ -1,7 +1,8 @@
-package lin.dao
+package lin.domain
 
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
+import club.xiaojiawei.bean.area.HandArea
 import club.xiaojiawei.bean.isValid
 
 import club.xiaojiawei.data.CARD_INFO_TRIE
@@ -13,7 +14,6 @@ import lin.bean.OutCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.define.CardRule
-import java.util.*
 
 /**
  * 可见性语义,没有接口语义
@@ -56,7 +56,7 @@ interface MyWarInfo{
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
 class MyWarManage(val war:War) : MyWarInfo {
-    private var comboCards  = emptyList<ComboCard>()
+    private var handComboCards  = emptyList<ComboCard>()
     private var canUseCards = emptyList<ComboCard>()
     val infoMap : Map<String, CardWeightInfo>
     private val warInfos = WarInfos(war)
@@ -82,7 +82,7 @@ class MyWarManage(val war:War) : MyWarInfo {
     }
 
     /**
-     * 解析单卡条件,
+     * 解析单卡条件并绑定
      */
     private fun parseCondition(infoMap: Map<String, CardWeightInfo>){
 
@@ -100,16 +100,17 @@ class MyWarManage(val war:War) : MyWarInfo {
 
 
     //转化
-    private fun parseComboCard() {
-         getHandCards().map { card ->
-            ComboCard(
-                cardWeightInfo = infoMap[card.cardId],
-                card = card
-            )
-        }.also {
-            comboCards = it
+     fun parseComboCard(cards:List<Card> = getHandCards()):List<ComboCard>{
+        return cards.map { parseComboCard(it)
         }
     }
+    fun parseComboCard(card: Card): ComboCard{
+        return ComboCard(
+            cardWeightInfo = infoMap[card.cardId],
+            card = card
+        )
+    }
+
 
     override fun getHandCards(): List<Card> {
         return war.me.handArea.cards
@@ -119,7 +120,7 @@ class MyWarManage(val war:War) : MyWarInfo {
         return  warInfos
     }
 
-    override fun getHandComboCards()=comboCards
+    override fun getHandComboCards()=handComboCards
     override fun getGraveyardCards()=war.me.graveyardArea.cards
 
     /**
@@ -128,7 +129,7 @@ class MyWarManage(val war:War) : MyWarInfo {
      */
      fun reLoad(){
          //select 先转换后再过滤考虑存在费用变更情况
-         parseComboCard()
+         handComboCards = parseComboCard()
          canUseCards = canUseCardsByCost()
      }
 
@@ -143,13 +144,13 @@ class MyWarManage(val war:War) : MyWarInfo {
      */
     fun refreshComboCards(){
         val handCards = getHandCards()
-        if (handCards.size > comboCards.size) {
+        if (handCards.size > handComboCards.size) {
             val tempList = mutableListOf<ComboCard>()
-            for (i in comboCards.size until handCards.size) {
+            for (i in handComboCards.size until handCards.size) {
                 val card = handCards[i]
                 tempList.add(ComboCard(infoMap[card.cardId], card))
             }
-            comboCards += tempList
+            handComboCards += tempList
         }
     }
     override fun getCanUseCardsByCost()= canUseCards
@@ -158,11 +159,11 @@ class MyWarManage(val war:War) : MyWarInfo {
      * 过滤出指定费用的卡牌,默认过滤出当前费用
      * @param cost  费用
      */
-    fun canUseCardsByCost(cost:Int = getNowCost())=comboCards.filter {
+    fun canUseCardsByCost(cost:Int = getNowCost())=handComboCards.filter {
             comBoCard ->  comBoCard.card.cost<= cost
     }
     fun cleanVarWeight(){
-        comboCards.forEach {
+        handComboCards.forEach {
             it.varPowerWeight = BaseWeight
         }
     }
@@ -173,12 +174,14 @@ class MyWarManage(val war:War) : MyWarInfo {
      */
     fun useCardAndRemove(comBoCard: ComboCard){
         if(useCard(comBoCard)){
-            comboCards-=comBoCard
+            handComboCards-=comBoCard
         }
     }
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
      fun useCard(comBoCard: ComboCard):Boolean{
         val card = comBoCard.card
+        if(card.area !is HandArea) return false //修改区域
+
         val actionInfo = CARD_INFO_TRIE[card.cardId]
         var result = true
         actionInfo?.let {

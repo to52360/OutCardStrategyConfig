@@ -1,4 +1,4 @@
-package lin.weightHandler.condition.implCondition
+package lin.implCondition
 
 import lin.bean.CardWeightInfo
 import lin.weightHandler.condition.define.DepByWeightInfo

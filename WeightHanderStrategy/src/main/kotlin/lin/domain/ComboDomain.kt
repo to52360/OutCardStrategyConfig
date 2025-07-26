@@ -1,6 +1,7 @@
-package lin.dao
+package lin.domain
 
 
+import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
 import lin.bean.*
@@ -8,7 +9,6 @@ import lin.bean.*
 
 import lin.myLog
 import lin.utils.JarClassLoader
-import lin.weightHandler.condition.config.WeightGroupConfig
 import java.util.ServiceConfigurationError
 
 
@@ -23,13 +23,13 @@ import java.util.ServiceConfigurationError
  * 出牌条件 先打出组里 16.1   .1策略先打出条件为16.0卡
  */
 
-class ComboDao( war: War) {
+class ComboDomain(war: War) {
 
     //SPI没法抛异常把把val 改为 lateinit var
     //存储转化权重信息
     private lateinit var warManage: MyWarManage
-    private lateinit var weightHandlerDao:WeightHandlerDao
-    var initResult = true
+    private lateinit var weightHandlerDomain:WeightHandlerDomain
+
 
     //存储策略分组
     init {
@@ -44,11 +44,10 @@ class ComboDao( war: War) {
             }
             Thread.currentThread().contextClassLoader = classLoader
             warManage = MyWarManage(war)
-            weightHandlerDao = WeightHandlerDao(warManage = warManage)
+            weightHandlerDomain = WeightHandlerDomain(warManage = warManage)
         } catch (serviceError: ServiceConfigurationError){
             serviceError.printStackTrace()
             myLog.error(serviceError) { "serviceError初始化失败" }
-            initResult = false
         } finally {
             Thread.currentThread().contextClassLoader = threadClassLoader
         }
@@ -70,7 +69,7 @@ class ComboDao( war: War) {
             //todo 看一下isChange能不能放入weightHandlerDao
             val bestCombination = findBestCombination(canUseCardsByCost,false)
 
-            val canUseCardsByHandler = weightHandlerDao.canUseCardsByHandler
+            val canUseCardsByHandler = weightHandlerDomain.canUseCardsByHandler
             myLog.info { "找到需要使用的卡牌:$bestCombination" }
             executeUseCard(canUseCardsByHandler,bestCombination)
 
@@ -79,12 +78,12 @@ class ComboDao( war: War) {
 
     private fun findBestCombination(cards:List<ComboCard>, isChange:Boolean):List<ComboCard>{
         if(isChange){//todo 这方案不太靠谱 重新计算权重并使用
-            weightHandlerDao.executeHandChaWeightProcess(cards)
+            weightHandlerDomain.executeHandChaWeightProcess(cards)
         }else{
-            weightHandlerDao.executeWeightProcess(cards)
+            weightHandlerDomain.executeWeightProcess(cards)
         }
 
-        val canUseCardsByHandler = weightHandlerDao.findBeforeOrBestCombination()
+        val canUseCardsByHandler = weightHandlerDomain.findBeforeOrBestCombination()
 
         when(canUseCardsByHandler.size){
             0-> return emptyList()
@@ -100,7 +99,7 @@ class ComboDao( war: War) {
                     }
                     is AddCostStrategy -> {
                         val expectCost =   useStrategy.cost
-                        return  weightHandlerDao.findBestCombination(comboCard,expectCost)
+                        return  weightHandlerDomain.findBestCombination(comboCard,expectCost)
                     }
                 }
             }
@@ -127,11 +126,11 @@ class ComboDao( war: War) {
             }
 
 
-            val finalCost = bestCombination.sumOf { it.getCost() }
+            val needCost = bestCombination.sumOf { it.getCost() }
             myLog.info {
                 val finalWeight = bestCombination.sumOf { it.varPowerWeight }
                 val msg =
-                    "找到最优出牌组合 (总费用: $finalCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
+                    "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
                  msg
             }
 
@@ -146,7 +145,7 @@ class ComboDao( war: War) {
             }*/
 
 
-            val expectCost = warManage.getNowCost() - finalCost
+            val expectCost = warManage.getNowCost() - needCost
             bestCombination.forEach { warManage.useCard(it) }
             //todo-future 直接遍历使用
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
@@ -165,6 +164,9 @@ class ComboDao( war: War) {
         }
     }
 
+    fun executeDiscoverChooseCard(vararg cards: Card): Int{
+        return weightHandlerDomain.executeDiscoverChooseCard(*cards)
+    }
 
 }
 

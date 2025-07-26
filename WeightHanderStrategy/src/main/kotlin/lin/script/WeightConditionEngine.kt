@@ -1,7 +1,7 @@
 package lin.script
 
 import lin.bean.ComboCard
-import lin.dao.MyWarInfo
+import lin.domain.MyWarInfo
 import lin.weightHandler.condition.define.WeightCondition
 import java.nio.file.FileSystems
 import java.nio.file.Files

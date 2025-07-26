@@ -13,7 +13,7 @@ import club.xiaojiawei.status.WAR
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
 import club.xiaojiawei.util.DeckStrategyUtil
 
-import lin.dao.ComboDao
+import lin.domain.ComboDomain
 
 
 
@@ -30,20 +30,14 @@ private val defaultStrategy: HsRadicalDeckStrategy by lazy {
 }
 val defaultOutCardLambda: () -> Unit =defaultStrategy::executeOutCard
 class WeightHandlerStrategy : DeckStrategy() {
-    private var strategy: () -> Unit
+    private val comboDomain  = ComboDomain(WAR)
 
 
     init {
         myLog.info{
             "执行策略初始化"
         }
-        val comboDao  = ComboDao(WAR)
-        strategy= if(comboDao.initResult){
-            comboDao::outCardStrategy
-        }else{
-            myLog.warn { "初始化出现错误切换到激进策略" }
-            defaultOutCardLambda
-        }
+
     }
 
 
@@ -87,16 +81,11 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     override fun executeOutCard() {
         try{
-            strategy()
+            comboDomain.outCardStrategy()
         }catch(e:Exception){
             e.printStackTrace()
-            if(strategy == defaultOutCardLambda) throw e //激进策略的问题
-            else{
-                myLog.error(e) { "执行出现错误切换到默认激进策略" }
-                strategy = defaultOutCardLambda
-                strategy()
-            }
-
+            myLog.error(e){"出牌策略出现错误"}
+            throw  e
         }
 
     }
@@ -105,5 +94,14 @@ class WeightHandlerStrategy : DeckStrategy() {
      * todo-future 发现策略选择
      */
 
-    override fun executeDiscoverChooseCard(vararg cards: Card): Int = 1
+    override fun executeDiscoverChooseCard(vararg cards: Card): Int  {
+        try{
+          return   comboDomain.executeDiscoverChooseCard(*cards)
+        }catch(e:Exception){
+            e.printStackTrace()
+            myLog.error(e){"发现策略出现错误"}
+            throw  e
+        }
+
+    }
 }
