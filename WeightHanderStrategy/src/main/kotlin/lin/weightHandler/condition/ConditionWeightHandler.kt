@@ -35,13 +35,13 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
         val weightCalculate = callCard.weightCalculate
         if(weightCalculate is OutCondition){
-            myLog.info { "条件处理权重前的权重值:${callCard.varPowerWeight}" }
+            myLog.info { "条件处理权重前的权重值:${callCard.powerWeight}" }
             weightCalculate.calculateSetWeight(callCard, warManage)
-            myLog.info { "条件处理权重后的权重值:${callCard.varPowerWeight}" }
+            myLog.info { "条件处理权重后的权重值:${callCard.powerWeight}" }
         }else if(weightCalculate is OutConditions){//多条件处理
-            myLog.info { "条件处理权重前的权重值:${callCard.varPowerWeight}" }
+            myLog.info { "条件处理权重前的权重值:${callCard.powerWeight}" }
             weightCalculate.calculateSetWeight(callCard, warManage)
-            myLog.info { "条件处理权重后的权重值:${callCard.varPowerWeight}" }
+            myLog.info { "条件处理权重后的权重值:${callCard.powerWeight}" }
         }
 
     }
@@ -100,7 +100,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
                         throw ConditionException(msg)
 
                     }
-                    copyCondition.initByWeightInfo(depWeightInfos)
+                    copyCondition.initByWeightInfos(depWeightInfos)
                 }
 
                 //完善条件信息

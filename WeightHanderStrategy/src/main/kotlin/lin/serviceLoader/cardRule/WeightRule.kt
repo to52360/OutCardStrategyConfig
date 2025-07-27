@@ -3,7 +3,6 @@ package lin.serviceLoader.cardRule
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.MyWarInfo
-import lin.weightHandler.condition.context.CostWeight
 
 interface WeightRule {
     //
@@ -28,7 +27,7 @@ interface WeightCondition : WeightRule,GroupWeight  {
         return this.javaClass.simpleName
     }
 }
-interface  SetWeightByCondition :WeightCondition{
+interface  AddWeightByCondition :WeightCondition{
     override  fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo){
         callCard.addWeight(calculateSetWeight(myWarInfo))
     }
@@ -57,16 +56,18 @@ interface DepByWeightInfos {
      * 条件(condition)依赖权重组信息
      *
      */
-    fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>)
+    fun initByWeightInfos(cardWeightInfoList: List<List<CardWeightInfo>>)
 
 }
+
+
 interface DepByWeightInfo :DepByWeightInfos {
     /**
      * select  自定义初始化方法,有没有采用工厂模式
      * 条件(condition)依赖权重组信息
      *
      */
-    override fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>){
+    override fun initByWeightInfos(cardWeightInfoList: List<List<CardWeightInfo>>){
         initByWeightInfo(cardWeightInfoList.first())
     }
 

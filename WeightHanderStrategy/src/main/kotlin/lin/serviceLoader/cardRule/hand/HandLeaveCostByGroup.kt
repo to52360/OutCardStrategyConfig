@@ -8,7 +8,11 @@ import lin.weightHandler.condition.context.CostWeight
 import lin.weightHandler.condition.context.DefaultWeight
 
 
-class HandByLeaveGroup : CanUseHandByLeaveCost, DepByWeightInfoDelegates<DepToPredicates> by PredicateByGroup() {
+/**
+ * 存在足够费用使用配合拍,combo使用增加
+ */
+class HandLeaveCostByGroup : CanUseHandByLeaveCost,
+    DepByWeightInfoDelegates<DepToPredicates> by PredicateByGroup() {
     override var groupWeight: Double = CostWeight
 
 
@@ -22,7 +26,6 @@ class HandByLeaveGroup : CanUseHandByLeaveCost, DepByWeightInfoDelegates<DepToPr
     ) {
         val weight = if (depToPredicate(handCards)) groupWeight else DefaultWeight
         callCard.addWeight(weight)
-
     }
 }
 

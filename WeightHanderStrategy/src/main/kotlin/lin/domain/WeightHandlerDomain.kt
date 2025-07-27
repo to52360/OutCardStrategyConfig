@@ -84,7 +84,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
     }
     private fun weightProcess(canUseCardsByCost:List<ComboCard>) :List<ComboCard> {
         //todo 暂不使用handChaWeightProcess清空权重使用cardWeightProcess重新计算,先测试,看handChaWeightProcess怎么改进
-        canUseCardsByCost.forEach { it.varPowerWeight= BaseWeight }
+        canUseCardsByCost.forEach { it.cleanWeight() }
         return cardsByCostsEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
             weightHandler.cardWeightProcess(comboCard, warManage)
         }
@@ -106,7 +106,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         if(canUseCardsByHandler.size<2){
             return canUseCardsByHandler
         }
-        this.canUseCardsByHandler = canUseCardsByHandler.sortedBy { it.varPowerWeight }
+        this.canUseCardsByHandler = canUseCardsByHandler.sortedBy { it.powerWeight }
         //需要组合之前,有特殊操作
         if(canUseCardsByHandler.first().useStrategy.useType== UseType.BEFORE){
             return listOf(canUseCardsByHandler.first())
@@ -116,7 +116,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
     fun findBestCombination(comboCard: ComboCard,expectCost:Int):List<ComboCard>{
          val nowCostCardsByWeight  = this.canUseCardsByHandler-comboCard
          val  nowCostCards =  findBestCombination(nowCostCardsByWeight)
-         val sumCost = nowCostCards.sumOf { it.varPowerWeight }
+         val sumCost = nowCostCards.sumOf { it.powerWeight }
          myLog.info { "现在费用的权重:${sumCost},成员:$nowCostCards" }
 
 
@@ -129,7 +129,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
         //todo 超模才用硬币,也可能一直不打硬币情况
         val reduceWeight = expectCost*5.0
-        val sumExpectCost = expectCostCard.sumOf { it.varPowerWeight }-reduceWeight
+        val sumExpectCost = expectCostCard.sumOf { it.powerWeight }-reduceWeight
         myLog.info { "期望费用的权重:${sumExpectCost},成员:$bestCombination" }
 
 
@@ -194,7 +194,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
                     findBestCombination(
                         startIndex = i + 1,
                         currentCost = currentCost + card.getCost(),
-                        currentWeight = currentWeight + card.varPowerWeight + comboWeight,
+                        currentWeight = currentWeight + card.powerWeight + comboWeight,
                         currentCombination = currentCombination + card
                     )
                 }
@@ -217,8 +217,8 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
             cardWeightHandlers.forEach {
                 it.cardWeight(comboCard)
             }
-            if(comboCard.varPowerWeight>maxWeight){
-                maxWeight = comboCard.varPowerWeight
+            if(comboCard.powerWeight>maxWeight){
+                maxWeight = comboCard.powerWeight
                 maxIndex = i
             }
         }

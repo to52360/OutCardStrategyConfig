@@ -128,7 +128,7 @@ class ComboDomain(war: War) {
 
             val needCost = bestCombination.sumOf { it.getCost() }
             myLog.info {
-                val finalWeight = bestCombination.sumOf { it.varPowerWeight }
+                val finalWeight = bestCombination.sumOf { it.powerWeight }
                 val msg =
                     "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
                  msg

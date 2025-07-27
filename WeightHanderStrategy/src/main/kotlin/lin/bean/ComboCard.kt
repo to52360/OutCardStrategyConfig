@@ -27,13 +27,20 @@ import lin.weightHandler.condition.context.DefaultWeight
     fun cardId() = card.cardId
     fun getCost()= card.cost
     //select 暂定直接修改,缺点:状态修改到处是无法追踪,要验证状态变化将很复杂,
+
+    val basePowerWeight = cardWeightInfo?.powerWeight?:BaseWeight
     // 出牌权重
-    var  varPowerWeight :Double = cardWeightInfo?.powerWeight?:BaseWeight
+    val  powerWeight :Double
+        get() = basePowerWeight+extPowerWeight
+    var  extPowerWeight = DefaultWeight
     /**
      * 权重累加方法
      */
     fun addWeight(weight:Double){
-        varPowerWeight+=weight
+        extPowerWeight+=weight
+    }
+    fun cleanWeight(){
+        extPowerWeight=DefaultWeight
     }
 
     /**
@@ -47,7 +54,7 @@ import lin.weightHandler.condition.context.DefaultWeight
     //在同一组会增加权重
     fun comboAddWeight(comboCards: List<ComboCard>):Double{
         return comboOption?.let {
-            return it(comboCards)
+             it(comboCards)
         }?:DefaultWeight
     }
 
@@ -55,7 +62,7 @@ import lin.weightHandler.condition.context.DefaultWeight
      * todo-future 还需引入策略(全局策略,组策略,卡策略,来解决能不能使用),什么情况卖,什么情况不卖
      * 暂时 小于0为不可使用
      */
-    fun useAble():Boolean = varPowerWeight>=DefaultWeight
+    fun useAble():Boolean = powerWeight>=DefaultWeight
 
 
     /**
@@ -83,7 +90,7 @@ import lin.weightHandler.condition.context.DefaultWeight
     }
 
     override fun toString(): String {
-        return "ComboCard{${cardId()},${card.entityName},${card.entityId},${varPowerWeight}}"
+        return "ComboCard{${cardId()},${card.entityName},${card.entityId},${powerWeight}}"
     }
 
 }

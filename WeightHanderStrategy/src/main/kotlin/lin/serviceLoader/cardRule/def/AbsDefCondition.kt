@@ -8,7 +8,7 @@ import lin.serviceLoader.cardRule.DepByWeightInfos
  */
 abstract  class DepRaceCacheFun<FUN_CACHE:Any>: DepByWeightInfos {
     protected lateinit var funCache :FUN_CACHE
-    override fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>) {
+    override fun initByWeightInfos(cardWeightInfoList: List<List<CardWeightInfo>>) {
         TODO("Not yet implemented")
     }
     abstract fun parseInfosToCache(cardWeightInfoList: List<CardWeightInfo>):FUN_CACHE

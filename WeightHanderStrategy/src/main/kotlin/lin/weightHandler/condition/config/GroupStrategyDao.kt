@@ -13,7 +13,7 @@ class GroupStrategyDao(private val jdbcTemplate: JdbcTemplate) {
                 bindId = rs.getDouble("bindId"),
                 weightConditionId  = rs.getInt("weightConditionId"),
                 depByWeightIds = rs.toDouble("depByWeightIds"),
-                basePriority = rs.safeGetDouble("basePriority")
+                priority  = rs.safeGetDouble("basePriority")
             )
         }
     }

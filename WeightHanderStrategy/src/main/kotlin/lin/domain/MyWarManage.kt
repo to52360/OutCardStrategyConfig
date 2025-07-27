@@ -13,7 +13,6 @@ import lin.bean.CardWeightInfo
 import lin.bean.OutCondition
 import lin.serviceLoader.cardRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
-import lin.weightHandler.condition.context.BaseWeight
 
 
 /**
@@ -53,7 +52,7 @@ interface MyWarInfo{
 
 /**
  * todo-future 东西太多,功能也太多了,看后面需不需要部分功能,采用组合
- * todo-future 还差全局战场
+ * todo-future 有空的时候采用委托处理一下
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
 class MyWarManage(val war:War) : MyWarInfo {
@@ -62,7 +61,7 @@ class MyWarManage(val war:War) : MyWarInfo {
     val infoMap : Map<String, CardWeightInfo>
     private val warInfos = WarInfos(war)
 
-    fun isValid()=war.isValid()
+
     init {
 
         infoMap = getCardInfos()
@@ -93,9 +92,6 @@ class MyWarManage(val war:War) : MyWarInfo {
                 weightCalculate = OutCondition(it)
             }
         }
-
-
-
     }
 
 
@@ -163,9 +159,9 @@ class MyWarManage(val war:War) : MyWarInfo {
     fun canUseCardsByCost(cost:Int = getNowCost())=handComboCards.filter {
             comBoCard ->  comBoCard.card.cost<= cost
     }
-    fun cleanVarWeight(){
+    fun cleanWeight(){
         handComboCards.forEach {
-            it.varPowerWeight = BaseWeight
+            it.cleanWeight()
         }
     }
 
@@ -228,7 +224,7 @@ class MyWarManage(val war:War) : MyWarInfo {
      */
     inline fun executeEnvironment(runnable: () -> Unit) {
         try {
-            if (isValid()) {
+            if (war.isValid()) {
                 //使用地标
                 activeLocation()
                 //重新加载信息
@@ -243,7 +239,6 @@ class MyWarManage(val war:War) : MyWarInfo {
             }
 
         } catch (e: Exception) {
-            e.printStackTrace()
             myLog.error(e) { "执行出牌逻辑出错" }
             throw e
         }

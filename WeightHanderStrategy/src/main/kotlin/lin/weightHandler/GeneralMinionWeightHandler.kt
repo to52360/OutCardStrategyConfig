@@ -16,10 +16,10 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        cardWeight(callCard)
+        callCard.addWeight(cardWeight(callCard))
     }
     override fun cardWeight(comboCard: ComboCard):Double{
-        if(comboCard.varPowerWeight == BaseWeight ) {
+        if(comboCard.powerWeight == BaseWeight ) {
             val card = comboCard.card
             if (CardTypeEnum.MINION == card.cardType) {
                 val c = cache[card.cardId + card.cost]
