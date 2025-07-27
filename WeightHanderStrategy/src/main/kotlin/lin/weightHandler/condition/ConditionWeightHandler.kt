@@ -66,13 +66,14 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
         val weightGroupInfos = infos.groupBy { it.groupId }
 
-
+        //遍历解析组信息
         conditionGroupInfos.forEach { conditionGroup ->
             val outCardConditionId = conditionGroup.weightConditionId
             val outCardCondition = groupCondition[outCardConditionId]
+            //获取到对应id条件实现
             outCardCondition?.let {
 
-                //主数据处理
+                //从权重表获取依赖数据
                 val binWeightInfos = weightGroupInfos[conditionGroup.bindId]
                 if (binWeightInfos == null) {
                     val msg = "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId}"
@@ -102,8 +103,12 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
                     copyCondition.initByWeightInfo(depWeightInfos)
                 }
 
+                //完善条件信息
+                copyCondition.groupWeight = conditionGroup.basePriority
                 //这里共用一个weightCalculate
                 val weightCalculate = OutCondition(copyCondition)
+
+
                 //在卡牌数据冗余打出条件
                 binWeightInfos.forEach { info ->
                     info.weightCalculate = weightCalculate

@@ -4,17 +4,9 @@ import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
 import lin.domain.MyWarInfo
 
-//减轻 判断的类型处理都在这里
+//减轻开发者所需知识 ,属于未分类区域,暂时放这
 
-/**
- * 手牌区域为条件
- *
- */
-interface HandArea : WeightCondition {
-    override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)=
-        onWarInfoProcessWeight(callCard,myWarInfo.getHandComboCards())
-     fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>)
-}
+
 
 /**
  *墓场
@@ -23,6 +15,8 @@ interface GraveyardArea : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)= onWarInfoProcessWeight(myWarInfo.getGraveyardCards())
     fun onWarInfoProcessWeight(graveyardCards: List<Card>)
 }
+
+interface DefaultWeightCondition: WeightCondition, DepByWeightInfo
 
 
 

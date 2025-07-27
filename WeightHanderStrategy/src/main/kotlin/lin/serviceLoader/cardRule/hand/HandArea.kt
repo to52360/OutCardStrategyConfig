@@ -1,38 +1,33 @@
 package lin.serviceLoader.cardRule.hand
 
-import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
-import lin.serviceLoader.cardRule.DepByWeightInfo
-import lin.serviceLoader.cardRule.HandArea
-import lin.serviceLoader.cardRule.utils.infoToHandRacePredicate
+import lin.domain.MyWarInfo
+import lin.serviceLoader.cardRule.SetWeightByCondition
 
-import lin.weightHandler.condition.context.DefaultWeight
-import lin.weightHandler.condition.context.NotConditionDefaultWeight
+import lin.serviceLoader.cardRule.WeightCondition
+import lin.weightHandler.condition.context.CostWeight
 
-
-/**
- * 以种族作为打出条件
- */
-class HandAreaByRace : HandArea, DepByWeightInfo {
-
-
-    private lateinit  var handRacePredicate: (List<ComboCard>) -> Boolean
-
-    override fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>) {
-        var weight = DefaultWeight
-        if (handRacePredicate(handCards)) {
-            weight = NotConditionDefaultWeight
-        }
-        callCard.varPowerWeight = weight
+interface HandArea : SetWeightByCondition {
+    override fun calculateSetWeight(myWarInfo: MyWarInfo): Double {
+        return  onWarInfoProcessWeight(myWarInfo.getHandComboCards())
     }
-
-
-    override fun id(): Int = 250625013
-
-
-
-    override fun initByWeightInfo(cardWeightInfoList: List<CardWeightInfo>) {
-        handRacePredicate = cardWeightInfoList.infoToHandRacePredicate()
-    }
+    fun onWarInfoProcessWeight( handCards: List<ComboCard>):Double
 }
+abstract class AbstractHandArea : HandArea{
+    override var groupWeight: Double = CostWeight
+
+}
+
+interface CanUseHandByLeaveCost : WeightCondition {
+    override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo){
+        val leaveCost =  myWarInfo.getNowCost() - callCard.getCost()
+        val cardByLeaveCost =   myWarInfo.getCanUseCardsByCost().filter { it.getCost()<leaveCost }
+        onWarInfoProcessWeight(callCard,cardByLeaveCost)
+    }
+
+    fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>)
+}
+
+
+
 

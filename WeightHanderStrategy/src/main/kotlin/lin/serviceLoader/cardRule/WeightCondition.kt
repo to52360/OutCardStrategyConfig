@@ -21,17 +21,26 @@ interface WeightRule {
  * 加权条件
  * todo-future id考虑用配置表
  */
-interface WeightCondition : WeightRule {
+interface WeightCondition : WeightRule,GroupWeight  {
     //唯一
     fun id(): Int
-    fun groupWeight(): Double {
-        return CostWeight
-    }
-
     fun name(): String {
         return this.javaClass.simpleName
     }
 }
+interface  SetWeightByCondition :WeightCondition{
+    override  fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo){
+        callCard.addWeight(calculateSetWeight(myWarInfo))
+    }
+    fun calculateSetWeight( myWarInfo: MyWarInfo):Double
+}
+
+
+interface GroupWeight{
+    var groupWeight: Double
+}
+
+
 
 /**
  * 单卡权重规则
@@ -51,13 +60,13 @@ interface DepByWeightInfos {
     fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>)
 
 }
-interface DepByWeightInfo {
+interface DepByWeightInfo :DepByWeightInfos {
     /**
      * select  自定义初始化方法,有没有采用工厂模式
      * 条件(condition)依赖权重组信息
      *
      */
-    fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>){
+    override fun initByWeightInfo(cardWeightInfoList: List<List<CardWeightInfo>>){
         initByWeightInfo(cardWeightInfoList.first())
     }
 
