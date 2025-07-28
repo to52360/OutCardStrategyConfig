@@ -44,6 +44,13 @@ import lin.weightHandler.condition.context.DefaultWeight
     }
 
     /**
+     * todo-future   or条件判断,存在问题(需要严格的顺序),目前不想大改先这样
+     */
+    fun isBaseWeight(): Boolean {
+      return  extPowerWeight==DefaultWeight
+    }
+
+    /**
      * 设置
      */
     fun setComboWeightAndId(comboOption:(selectCard:List<ComboCard>) -> Double){

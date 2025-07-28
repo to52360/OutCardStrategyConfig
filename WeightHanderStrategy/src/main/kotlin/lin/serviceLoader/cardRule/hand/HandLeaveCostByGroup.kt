@@ -9,7 +9,8 @@ import lin.weightHandler.condition.context.DefaultWeight
 
 
 /**
- * 存在足够费用使用配合拍,combo使用增加
+ * 存在足够费用使用配合牌,combo使用增加
+ * 例如:玛克扎尔的小鬼+弃牌
  */
 class HandLeaveCostByGroup : CanUseHandByLeaveCost,
     DepByWeightInfoDelegates<DepToPredicates> by PredicateByGroup() {
