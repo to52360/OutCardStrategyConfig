@@ -2,7 +2,9 @@ package lin.serviceLoader.cardRule
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
-import lin.domain.MyWarInfo
+
+import lin.domain.MyWarManage
+import lin.domain.WarInfos.getGraveyardCards
 
 //减轻开发者所需知识 ,属于未分类区域,暂时放这
 
@@ -12,7 +14,7 @@ import lin.domain.MyWarInfo
  *墓场
  */
 interface GraveyardArea : WeightCondition {
-    override fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)= onWarInfoProcessWeight(myWarInfo.getGraveyardCards())
+    override fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage)= onWarInfoProcessWeight(myWarManage.getGraveyardCards())
     fun onWarInfoProcessWeight(graveyardCards: List<Card>)
 }
 

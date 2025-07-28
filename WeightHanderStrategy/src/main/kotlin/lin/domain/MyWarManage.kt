@@ -15,37 +15,6 @@ import lin.serviceLoader.cardRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 
 
-/**
- * 可见性语义,没有接口语义
- */
-interface MyWarInfo{
-    /**
-     * 获取能够使用的牌
-     */
-   fun getCanUseCardsByCost():List<ComboCard>
-
-    /**
-     * 获取全部手牌(经过转化)
-     */
-   fun getHandComboCards():List<ComboCard>
-
-    /**
-     * 获取墓场的牌
-     */
-   fun getGraveyardCards():List<Card>
-
-    /**
-     * 可以费用
-     */
-   fun getNowCost():Int
-
-    /**
-     * 最新的手牌数据
-     */
-    fun getHandCards():List<Card>
-
-    fun getWarInfos():WarInfos
-}
 
 
 
@@ -55,12 +24,14 @@ interface MyWarInfo{
  * todo-future 有空的时候采用委托处理一下
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
-class MyWarManage(val war:War) : MyWarInfo {
+class MyWarManage(val war:War)  {
     private var handComboCards  = emptyList<ComboCard>()
     private var canUseCards = emptyList<ComboCard>()
     val infoMap : Map<String, CardWeightInfo>
-    private val warInfos = WarInfos(war)
-
+    val readHandComboCards:List<ComboCard>
+        get() =  handComboCards
+    val readCanUseCards:List<ComboCard>
+        get() =canUseCards
 
     init {
 
@@ -109,26 +80,27 @@ class MyWarManage(val war:War) : MyWarInfo {
     }
 
 
-    override fun getHandCards(): List<Card> {
+     fun getHandCards(): List<Card> {
         return war.me.handArea.cards
     }
+    fun getNowCost()= war.me.usableResource
 
-    override fun getWarInfos(): WarInfos {
-        return  warInfos
-    }
 
-    override fun getHandComboCards()=handComboCards
-    override fun getGraveyardCards()=war.me.graveyardArea.cards
 
     /**
      * select 暂时重新读取数据,性能太差或者有空 改成如果一直如不用更改
      * 重新加载
      */
-     fun reLoad(){
+     internal fun reLoad(){
          //select 先转换后再过滤考虑存在费用变更情况
          handComboCards = parseComboCard()
          canUseCards = canUseCardsByCost()
      }
+     fun cleanWeight(){
+        handComboCards.forEach {
+            it.cleanWeight()
+        }
+    }
 
     /**
      *
@@ -139,7 +111,7 @@ class MyWarManage(val war:War) : MyWarInfo {
      * [reLoad]
      * todo-future  看一下comboCards不清空状态会怎么样,看情况决定是否清空状态
      */
-    fun refreshComboCards(){
+    internal fun refreshComboCards(){
         val handCards = getHandCards()
         if (handCards.size > handComboCards.size) {
             val tempList = mutableListOf<ComboCard>()
@@ -150,7 +122,7 @@ class MyWarManage(val war:War) : MyWarInfo {
             handComboCards += tempList
         }
     }
-    override fun getCanUseCardsByCost()= canUseCards
+
 
     /**
      * 过滤出指定费用的卡牌,默认过滤出当前费用
@@ -159,24 +131,20 @@ class MyWarManage(val war:War) : MyWarInfo {
     fun canUseCardsByCost(cost:Int = getNowCost())=handComboCards.filter {
             comBoCard ->  comBoCard.card.cost<= cost
     }
-    fun cleanWeight(){
-        handComboCards.forEach {
-            it.cleanWeight()
-        }
-    }
+
 
     /**
      * 操作并改变ComBoCard状态
      *
      */
-    fun useCardAndRemove(comBoCard: ComboCard){
+     internal fun useCardAndRemove(comBoCard: ComboCard){
         if(useCard(comBoCard)){
             handComboCards-=comBoCard
         }
     }
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
     //todo 可以判断最后一个下标等不等于最后下标
-     fun useCard(comBoCard: ComboCard):Boolean{
+    internal   fun useCard(comBoCard: ComboCard):Boolean{
         val card = comBoCard.card
         if(card.area !is HandArea) return false //修改区域
 
@@ -191,7 +159,7 @@ class MyWarManage(val war:War) : MyWarInfo {
 
     }
     //todo-future 不知道并发安全不,执行出牌策略和更新war是不是同一个线程
-    override fun getNowCost()= war.me.usableResource
+
 
     private var gameId :String? = null
 
@@ -222,7 +190,7 @@ class MyWarManage(val war:War) : MyWarInfo {
     /**
      * 策略执行环境
      */
-    inline fun executeEnvironment(runnable: () -> Unit) {
+     fun executeEnvironment(runnable: () -> Unit) {
         try {
             if (war.isValid()) {
                 //使用地标

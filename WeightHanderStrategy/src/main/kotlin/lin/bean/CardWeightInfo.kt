@@ -1,7 +1,8 @@
 package lin.bean
 
 
-import lin.domain.MyWarInfo
+
+import lin.domain.MyWarManage
 import lin.serviceLoader.cardRule.WeightRule
 import lin.weightHandler.condition.context.ConditionException
 
@@ -78,17 +79,17 @@ data class ComboOrder(var comboId: Int, var outCardPriority: Int) : Combo()
 sealed class WeightCalculate
 data object DefWeightCalculate : WeightCalculate()
 class OutCondition(val weightRule: WeightRule) : WeightCalculate() {
-    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo) {
-        weightRule.calculateSetWeight(callCard, myWarInfo)
+    fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage) {
+        weightRule.calculateSetWeight(callCard, myWarManage)
     }
 }
 
 class OutConditions(weightRule: WeightRule) : WeightCalculate() {
     private val weightConditions = mutableListOf(weightRule)
     fun add(weightRule: WeightRule) = weightConditions.add(weightRule)
-    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo) {
+    fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage) {
         weightConditions.forEach {
-            it.calculateSetWeight(callCard, myWarInfo)
+            it.calculateSetWeight(callCard, myWarManage)
         }
     }
 }

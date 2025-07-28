@@ -65,7 +65,7 @@ class ComboDomain(war: War) {
 
         warManage.executeEnvironment {
             //获取能够打出的卡牌
-            val canUseCardsByCost = warManage.getCanUseCardsByCost()
+            val canUseCardsByCost = warManage.readCanUseCards
             //todo 看一下isChange能不能放入weightHandlerDao
             val bestCombination = findBestCombination(canUseCardsByCost,false)
 
@@ -95,7 +95,7 @@ class ComboDomain(war: War) {
                         warManage.useCardAndRemove(canUseCardsByHandler.first())
                         warManage.refreshComboCards()
                         //todo 这方案不太靠谱 重新计算权重并使用
-                        return findBestCombination(warManage.getCanUseCardsByCost(),true)
+                        return findBestCombination(warManage.readCanUseCards,true)
                     }
                     is AddCostStrategy -> {
                         val expectCost =   useStrategy.cost

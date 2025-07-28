@@ -1,7 +1,8 @@
 package lin.script
 
 import lin.bean.ComboCard
-import lin.domain.MyWarInfo
+import lin.domain.MyWarManage
+
 import lin.serviceLoader.cardRule.WeightCondition
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -86,15 +87,15 @@ class WeightConditionEngine(private val scriptDir: Path) {
     /**
      * todo-future
      */
-    fun calculateCardWeights(cards: List<ComboCard>, war: MyWarInfo): Map<ComboCard, Int> {
+    fun calculateCardWeights(cards: List<ComboCard>, myWarManage: MyWarManage): Map<ComboCard, Int> {
         TODO()
         /*return cards.associateWith { card ->
             strategies.values.sumOf { it.calculateWeight(card, war) }
         }*/
     }
 
-    fun selectBestCard(cards: List<ComboCard>, war: MyWarInfo): ComboCard? {
-        return cards.maxByOrNull { calculateCardWeights(listOf(it), war)[it] ?: 0 }
+    fun selectBestCard(cards: List<ComboCard>, myWarManage: MyWarManage): ComboCard? {
+        return cards.maxByOrNull { calculateCardWeights(listOf(it), myWarManage)[it] ?: 0 }
     }
 }
 

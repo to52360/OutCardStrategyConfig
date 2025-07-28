@@ -2,7 +2,8 @@ package lin.serviceLoader.cardRule
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
-import lin.domain.MyWarInfo
+
+import lin.domain.MyWarManage
 
 interface WeightRule {
     //
@@ -13,7 +14,7 @@ interface WeightRule {
      * @param callCard 需要处理的的卡牌,todo 要不要去掉 这里传入是为了处理完权重信息一起处理combo组情景,
      * @param myWarInfo 战场信息
      */
-    fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo)
+    fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage)
 }
 
 /**
@@ -28,10 +29,10 @@ interface WeightCondition : WeightRule,GroupWeight  {
     }
 }
 interface  AddWeightByCondition :WeightCondition{
-    override  fun calculateSetWeight(callCard: ComboCard, myWarInfo: MyWarInfo){
-        callCard.addWeight(calculateSetWeight(myWarInfo))
+    override  fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage){
+        callCard.addWeight(calculateSetWeight(myWarManage))
     }
-    fun calculateSetWeight( myWarInfo: MyWarInfo):Double
+    fun calculateSetWeight( myWarManage: MyWarManage):Double
 }
 
 
