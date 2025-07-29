@@ -65,17 +65,20 @@ class ComboDomain(war: War) {
 
         warManage.executeEnvironment {
             //获取能够打出的卡牌
-            val canUseCardsByCost = warManage.readCanUseCards
+            val canUseCardsByCost = warManage.canUseCards
             //todo 看一下isChange能不能放入weightHandlerDao
             val bestCombination = findBestCombination(canUseCardsByCost,false)
 
-            val canUseCardsByHandler = weightHandlerDomain.canUseCardsByHandler
+            val canUseCardsByHandler = weightHandlerDomain.readCanUseCardsByHandler
             myLog.info { "找到需要使用的卡牌:$bestCombination" }
             executeUseCard(canUseCardsByHandler,bestCombination)
 
         }
     }
 
+    /**
+     *  处理使用策略,权重转发给权重处理器模型处理
+     */
     private fun findBestCombination(cards:List<ComboCard>, isChange:Boolean):List<ComboCard>{
         if(isChange){//todo 这方案不太靠谱 重新计算权重并使用
             weightHandlerDomain.executeHandChaWeightProcess(cards)
@@ -95,11 +98,11 @@ class ComboDomain(war: War) {
                         warManage.useCardAndRemove(canUseCardsByHandler.first())
                         warManage.refreshComboCards()
                         //todo 这方案不太靠谱 重新计算权重并使用
-                        return findBestCombination(warManage.readCanUseCards,true)
+                        return findBestCombination(warManage.canUseCards,true)
                     }
                     is AddCostStrategy -> {
                         val expectCost =   useStrategy.cost
-                        return  weightHandlerDomain.findBestCombination(comboCard,expectCost)
+                        return  weightHandlerDomain.findBestCombinationByExpectCost(comboCard,expectCost)
                     }
                 }
             }

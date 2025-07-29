@@ -3,7 +3,7 @@ package lin.bean
 import club.xiaojiawei.bean.Card
 
 import lin.weightHandler.condition.context.BaseWeight
-import lin.weightHandler.condition.context.DefaultWeight
+import lin.weightHandler.condition.context.NotWeight
 
 
 /**
@@ -32,7 +32,7 @@ import lin.weightHandler.condition.context.DefaultWeight
     // 出牌权重
     val  powerWeight :Double
         get() = basePowerWeight+extPowerWeight
-    var  extPowerWeight = DefaultWeight
+    var  extPowerWeight = NotWeight
     /**
      * 权重累加方法
      */
@@ -40,14 +40,14 @@ import lin.weightHandler.condition.context.DefaultWeight
         extPowerWeight+=weight
     }
     fun cleanWeight(){
-        extPowerWeight=DefaultWeight
+        extPowerWeight=NotWeight
     }
 
     /**
      * todo-future   or条件判断,存在问题(需要严格的顺序),目前不想大改先这样
      */
     fun isBaseWeight(): Boolean {
-      return  extPowerWeight==DefaultWeight
+      return  extPowerWeight==NotWeight
     }
 
     /**
@@ -62,14 +62,14 @@ import lin.weightHandler.condition.context.DefaultWeight
     fun comboAddWeight(comboCards: List<ComboCard>):Double{
         return comboOption?.let {
              it(comboCards)
-        }?:DefaultWeight
+        }?:NotWeight
     }
 
     /**
      * todo-future 还需引入策略(全局策略,组策略,卡策略,来解决能不能使用),什么情况卖,什么情况不卖
      * 暂时 小于0为不可使用
      */
-    fun useAble():Boolean = powerWeight>=DefaultWeight
+    fun useAble():Boolean = powerWeight>=NotWeight
 
 
     /**

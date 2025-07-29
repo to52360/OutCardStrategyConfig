@@ -5,7 +5,7 @@ import lin.bean.ComboCard
 import lin.serviceLoader.cardRule.utils.DepByWeightInfoDelegate
 import lin.serviceLoader.cardRule.utils.PredicateByRace
 import lin.serviceLoader.cardRule.utils.DepToPredicates
-import lin.weightHandler.condition.context.DefaultWeight
+import lin.weightHandler.condition.context.NotWeight
 
 
 
@@ -15,7 +15,7 @@ import lin.weightHandler.condition.context.DefaultWeight
 class HandAreaByRace : AbstractHandArea(),
     DepByWeightInfoDelegate<DepToPredicates> by PredicateByRace() {
     override fun onWarInfoProcessWeight(handCards: List<ComboCard>): Double {
-        return  if (depToPredicate(handCards)) groupWeight else DefaultWeight
+        return  if (depToPredicate(handCards)) groupWeight else NotWeight
     }
     override fun id(): Int = 250625013
 }

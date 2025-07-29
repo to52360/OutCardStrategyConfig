@@ -9,7 +9,7 @@ import lin.weightHandler.condition.context.CostWeight
 
 interface HandArea : AddWeightByCondition {
     override fun calculateSetWeight(myWarManage: MyWarManage): Double {
-        return  onWarInfoProcessWeight(myWarManage.readHandComboCards)
+        return  onWarInfoProcessWeight(myWarManage.handComboCards)
     }
     fun onWarInfoProcessWeight( handCards: List<ComboCard>):Double
 }
@@ -21,7 +21,7 @@ abstract class AbstractHandArea : HandArea{
 interface CanUseHandByLeaveCost : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage){
         val leaveCost =  myWarManage.getNowCost() - callCard.getCost()
-        val cardByLeaveCost =   myWarManage.readCanUseCards.filter { it.getCost()<leaveCost }
+        val cardByLeaveCost =   myWarManage.canUseCards.filter { it.getCost()<leaveCost }
         onWarInfoProcessWeight(callCard,cardByLeaveCost)
     }
 

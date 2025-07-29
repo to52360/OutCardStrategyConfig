@@ -5,7 +5,7 @@ import lin.serviceLoader.cardRule.utils.DepByWeightInfoDelegates
 import lin.serviceLoader.cardRule.utils.DepToPredicates
 import lin.serviceLoader.cardRule.utils.PredicateByGroup
 import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.DefaultWeight
+import lin.weightHandler.condition.context.NotWeight
 
 
 /**
@@ -25,7 +25,7 @@ class HandLeaveCostByGroup : CanUseHandByLeaveCost,
         callCard: ComboCard,
         handCards: List<ComboCard>
     ) {
-        val weight = if (depToPredicate(handCards)) groupWeight else DefaultWeight
+        val weight = if (depToPredicate(handCards)) groupWeight else NotWeight
         callCard.addWeight(weight)
     }
 }

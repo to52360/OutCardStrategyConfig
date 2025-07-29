@@ -4,7 +4,7 @@ import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.serviceLoader.cardRule.ComboCondition
 import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.DefaultWeight
+import lin.weightHandler.condition.context.NotWeight
 
 //todo-future 暂时这样 暂时没有想清楚一起打出的例子要怎么处理
 class ComboConditionByRace : ComboCondition {
@@ -17,7 +17,7 @@ class ComboConditionByRace : ComboCondition {
                 if(handCards.first().groupId()==callCard.groupId()){
                     CostWeight
                 }else{
-                    DefaultWeight
+                    NotWeight
                 }
             }
             count++

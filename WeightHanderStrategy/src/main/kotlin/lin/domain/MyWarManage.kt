@@ -14,39 +14,42 @@ import lin.bean.OutCondition
 import lin.serviceLoader.cardRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 
-
-
-
-
+interface WarInfo{
+    val handComboCards:List<ComboCard>
+    val canUseCards : List<ComboCard>
+    val playComboCards:List<ComboCard>
+    val infoMap: Map<String, CardWeightInfo>
+}
 
 /**
  * todo-future 东西太多,功能也太多了,看后面需不需要部分功能,采用组合
  * todo-future 有空的时候采用委托处理一下
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
-class MyWarManage(val war:War)  {
-    private var handComboCards  = emptyList<ComboCard>()
-    private var canUseCards = emptyList<ComboCard>()
-    val infoMap : Map<String, CardWeightInfo>
-    val readHandComboCards:List<ComboCard>
-        get() =  handComboCards
-    val readCanUseCards:List<ComboCard>
-        get() =canUseCards
+class MyWarManage(val war: War):WarInfo  {
+
+    override var handComboCards = emptyList<ComboCard>()
+        private set
+    override var playComboCards = emptyList<ComboCard>()
+        private set
+    override var canUseCards = emptyList<ComboCard>()
+        private set
+    override val infoMap: Map<String, CardWeightInfo>
 
     init {
 
         infoMap = getCardInfos()
         parseCondition(infoMap)
-        myLog.info{
+        myLog.info {
             "MyWarManage初始化$infoMap"
         }
     }
 
     //把配置信息转化成上下文信息
-    private fun getCardInfos(): Map<String, CardWeightInfo>  {
+    private fun getCardInfos(): Map<String, CardWeightInfo> {
         var infoMap: Map<String, CardWeightInfo> = emptyMap()
-        ServiceLoaderUtils.loadServices(CardWeightInfoProvide::class.java).forEach{
-            infoMap =  it.getInfos() + infoMap
+        ServiceLoaderUtils.loadServices(CardWeightInfoProvide::class.java).forEach {
+            infoMap = it.getInfos() + infoMap
         }
 
         return infoMap
@@ -55,7 +58,7 @@ class MyWarManage(val war:War)  {
     /**
      * 解析单卡条件并绑定
      */
-    private fun parseCondition(infoMap: Map<String, CardWeightInfo>){
+    private fun parseCondition(infoMap: Map<String, CardWeightInfo>) {
 
         ServiceLoaderUtils.loadServices(CardRule::class.java).forEach {
             val card = infoMap[it.cardId()]
@@ -66,37 +69,43 @@ class MyWarManage(val war:War)  {
     }
 
 
-
     //转化
-     fun parseComboCard(cards:List<Card> = getHandCards()):List<ComboCard>{
-        return cards.map { parseComboCard(it)
+    fun parseComboCard(cards: List<Card> = getHandCards()): List<ComboCard> {
+        return cards.map {
+            parseComboCard(it)
         }
     }
-    fun parseComboCard(card: Card): ComboCard{
+
+    fun parseComboCard(card: Card): ComboCard {
         return ComboCard(
             cardWeightInfo = infoMap[card.cardId],
             card = card
         )
     }
 
+    fun getPlayCards(): List<Card> {
+        return war.me.playArea.cards
+    }
 
-     fun getHandCards(): List<Card> {
+    fun getHandCards(): List<Card> {
         return war.me.handArea.cards
     }
-    fun getNowCost()= war.me.usableResource
 
+    fun getNowCost() = war.me.usableResource
 
 
     /**
      * select 暂时重新读取数据,性能太差或者有空 改成如果一直如不用更改
      * 重新加载
      */
-     internal fun reLoad(){
-         //select 先转换后再过滤考虑存在费用变更情况
-         handComboCards = parseComboCard()
-         canUseCards = canUseCardsByCost()
-     }
-     fun cleanWeight(){
+    internal fun reLoad() {
+        //select 先转换后再过滤考虑存在费用变更情况
+        handComboCards = parseComboCard()
+        canUseCards = canUseCardsByCost()
+        playComboCards = parseComboCard(getPlayCards())
+    }
+
+    fun cleanWeight() {
         handComboCards.forEach {
             it.cleanWeight()
         }
@@ -111,7 +120,7 @@ class MyWarManage(val war:War)  {
      * [reLoad]
      * todo-future  看一下comboCards不清空状态会怎么样,看情况决定是否清空状态
      */
-    internal fun refreshComboCards(){
+    internal fun refreshComboCards() {
         val handCards = getHandCards()
         if (handCards.size > handComboCards.size) {
             val tempList = mutableListOf<ComboCard>()
@@ -128,8 +137,8 @@ class MyWarManage(val war:War)  {
      * 过滤出指定费用的卡牌,默认过滤出当前费用
      * @param cost  费用
      */
-    fun canUseCardsByCost(cost:Int = getNowCost())=handComboCards.filter {
-            comBoCard ->  comBoCard.card.cost<= cost
+    fun canUseCardsByCost(cost: Int = getNowCost()) = handComboCards.filter { comBoCard ->
+        comBoCard.card.cost <= cost
     }
 
 
@@ -137,23 +146,24 @@ class MyWarManage(val war:War)  {
      * 操作并改变ComBoCard状态
      *
      */
-     internal fun useCardAndRemove(comBoCard: ComboCard){
-        if(useCard(comBoCard)){
-            handComboCards-=comBoCard
+    internal fun useCardAndRemove(comBoCard: ComboCard) {
+        if (useCard(comBoCard)) {
+            handComboCards -= comBoCard
         }
     }
+
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
     //todo 可以判断最后一个下标等不等于最后下标
-    internal   fun useCard(comBoCard: ComboCard):Boolean{
+    internal fun useCard(comBoCard: ComboCard): Boolean {
         val card = comBoCard.card
-        if(card.area !is HandArea) return false //修改区域
+        if (card.area !is HandArea) return false //修改区域
 
         val actionInfo = CARD_INFO_TRIE[card.cardId]
         var result = true
         actionInfo?.let {
             card.action.autoPower(it)
-        }?:run{
-            result = card.action.power()?.let { true }?:false
+        } ?: run {
+            result = card.action.power()?.let { true } ?: false
         }
         return result
 
@@ -161,21 +171,21 @@ class MyWarManage(val war:War)  {
     //todo-future 不知道并发安全不,执行出牌策略和更新war是不是同一个线程
 
 
-    private var gameId :String? = null
+    private var gameId: String? = null
 
     /**
      * todo debug看一下 判断游戏是否新的一局
      */
-    fun isStart() : Boolean{
+    fun isStart(): Boolean {
         val me = war.me
-        if(me.resources==0||me.resources==1){
+        if (me.resources == 0 || me.resources == 1) {
             //todo-future 看一下是0还是1
-            myLog.info { "resources属性值为"+me.resources }
+            myLog.info { "resources属性值为" + me.resources }
             var isStart = true
-            gameId?.run{
+            gameId?.run {
                 war.me.gameId
-            }?:{
-                if(war.me.gameId == gameId) isStart =false
+            } ?: {
+                if (war.me.gameId == gameId) isStart = false
                 war.me.gameId
             }
             return isStart
@@ -185,12 +195,13 @@ class MyWarManage(val war:War)  {
     }
 
     //有费用
-    fun hasCost()=getNowCost()>0
+    fun hasCost() = getNowCost() > 0
 
     /**
      * 策略执行环境
+     * todo-future 可见性原因,不支持内联
      */
-     fun executeEnvironment(runnable: () -> Unit) {
+    fun executeEnvironment(runnable: () -> Unit) {
         try {
             if (war.isValid()) {
                 //使用地标

@@ -5,23 +5,41 @@ import lin.bean.ComboCard
 import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
-import lin.bean.CardWeightInfo
 import lin.bean.UseType
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.CardWeightHandler
-import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.CostWeight
 
-typealias UseCardsByCostsFun = (WeightHandler,ComboCard) -> Unit
+typealias ProcessWeightByCostsFun = (WeightHandler, ComboCard) -> Unit
 class WeightHandlerDomain(private val warManage: MyWarManage) {
-    private lateinit var weightHandlers: List<WeightHandler>
-    private lateinit var cardWeightHandlers: List<CardWeightHandler>
+    private val weightHandlers: List<WeightHandler>
+    private val cardWeightHandlers: List<CardWeightHandler>
 
-    var canUseCardsByHandler:List<ComboCard> = emptyList()
+    private var canUseCardsByHandler:List<ComboCard> = emptyList()
+    val readCanUseCardsByHandler: List<ComboCard>
+        get() = canUseCardsByHandler
     init {
 
         try {
-            getWeightHandler(warManage.infoMap)
+            val infos = warManage.infoMap
+            myLog.info { "权重信息的id集合:${infos.keys}" }
+            val cardWeightInfos =  infos.values.toList()
+            val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
+            myLog.info { "加载到的权重处理器的类名:${services.joinToString(","){it::class.simpleName.toString()}}" }
+            val cardWeightHandler = mutableListOf<CardWeightHandler>()
+            val weightHandler = services.sortedBy {
+                //按ai的说法会语义多重,实践看看有什么后果
+                if(it is InitHandler) {
+                    it.init(cardWeightInfos)
+                }
+                //todo 存在一个问题没法单独扩展
+                if(it is CardWeightHandler){
+                    cardWeightHandler.add(it)
+                }
+                it.priority()
+            }
+            this.weightHandlers = weightHandler
+            this.cardWeightHandlers = cardWeightHandler.toList()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -31,33 +49,12 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
 
     }
+
+
     /**
-     * 权重处理器
+     * 权重执行环境,为了优化留下扩展
      */
-    private fun getWeightHandler(infos:Map<String, CardWeightInfo>) {
-        myLog.info { "权重信息的id集合:${infos.keys}" }
-        val cardWeightInfos =  infos.values.toList()
-        val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
-        myLog.info { "加载到的权重处理器的类名:${services.joinToString(","){it::class.simpleName.toString()}}" }
-        val cardWeightHandler = mutableListOf<CardWeightHandler>()
-        val weightHandler = services.sortedBy {
-            //按ai的说法会语义多重,实践看看有什么后果
-            if(it is InitHandler) {
-                it.init(cardWeightInfos)
-            }
-            //todo 存在一个问题没法单独扩展
-            if(it is CardWeightHandler){
-                cardWeightHandler.add(it)
-            }
-            it.priority()
-        }
-        this.weightHandlers = weightHandler
-        this.cardWeightHandlers = cardWeightHandler.toList()
-
-
-    }
-
-    private inline fun cardsByCostsEnvironment(canUseCardsByCost:List<ComboCard>, useFunction:UseCardsByCostsFun):List<ComboCard> {
+    private inline fun processWeightEnvironment(canUseCardsByCost:List<ComboCard>, processWeightByCostsFun: ProcessWeightByCostsFun):List<ComboCard> {
 
         if (canUseCardsByCost.isEmpty()) {
            return emptyList()
@@ -66,7 +63,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
             //todo-future 可能有性能问题,项目初期不考虑太多东西 出了问题再看看
             canUseCardsByCost.forEach {comboCard->
                 //todo-future 复合权重暂时这样处理,暂时不使用复杂标记策略(处理过的就不处理了)和权重处理链
-                weightHandlers.forEach { useFunction(it,comboCard) }
+                weightHandlers.forEach { processWeightByCostsFun(it,comboCard) }
                 //过滤出经过权重处理器能使用的卡牌
                 if (comboCard.useAble()) canUseCardsByHandler.add(comboCard)
             }
@@ -77,25 +74,29 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
      *
      */
      fun executeWeightProcess(canUseCardsByCost:List<ComboCard>)  {
-        this.canUseCardsByHandler = cardsByCostsEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
+        this.canUseCardsByHandler = processWeightEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
             weightHandler.cardWeightProcess(comboCard, warManage)
         }
 
     }
+
+    /**
+     *
+     *
+     */
     private fun weightProcess(canUseCardsByCost:List<ComboCard>) :List<ComboCard> {
-        //todo 暂不使用handChaWeightProcess清空权重使用cardWeightProcess重新计算,先测试,看handChaWeightProcess怎么改进
-        canUseCardsByCost.forEach { it.cleanWeight() }
-        return cardsByCostsEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
+        return processWeightEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
             weightHandler.cardWeightProcess(comboCard, warManage)
         }
 
     }
     /**
-     * 手牌变更重新计算权重
-     * todo 这个方案也有问题,如果已满足就不计算,会产生额外的策略
+     * 重新计算,手牌变化的策略
+     * todo 这个方案也有问题,如果已满足就应该不计算,会产生额外计算,但安全,看看性能怎么样,再说
+     * todo 清空权重使用cardWeightProcess重新计算,先测试,看handChaWeightProcess怎么改进
      */
      fun executeHandChaWeightProcess(canUseCardsByCost:List<ComboCard>) {
-
+        warManage.cleanWeight()
         this.canUseCardsByHandler = weightProcess(canUseCardsByCost)
     }
 
@@ -113,7 +114,12 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         }
         return findBestCombination()
     }
-    fun findBestCombination(comboCard: ComboCard,expectCost:Int):List<ComboCard>{
+
+    /**
+     * 增加额外费用处理,预期和现在对比
+     * todo-future 存在复制集合操作,可优化
+     */
+    fun findBestCombinationByExpectCost(comboCard: ComboCard, expectCost:Int):List<ComboCard>{
          val nowCostCardsByWeight  = this.canUseCardsByHandler-comboCard
          val  nowCostCards =  findBestCombination(nowCostCardsByWeight)
          val sumCost = nowCostCards.sumOf { it.powerWeight }
@@ -121,16 +127,17 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
 
          //todo-future 1.复杂状态关系要不要封装成对象,2.这里存在很多复制数组的操作,性能没问题就不优化
-         val expectCostCard = warManage.canUseCardsByCost(expectCost+warManage.getNowCost()) -comboCard
+         val expectCostCard = warManage.canUseCardsByCost(expectCost+warManage.getNowCost()).copy(comboCard)
+        //todo-future  采用复制性能问题,但是应该不常用,到时再看
          val expectCostCardByWeight = weightProcess(expectCostCard)
          //todo-future 这里还可以提供
-         val bestCombination =findBestCombination(expectCostCardByWeight)
+         val expectCostCards =findBestCombination(expectCostCardByWeight)
 
 
         //todo 超模才用硬币,也可能一直不打硬币情况
         val reduceWeight = expectCost*5.0
         val sumExpectCost = expectCostCard.sumOf { it.powerWeight }-reduceWeight
-        myLog.info { "期望费用的权重:${sumExpectCost},成员:$bestCombination" }
+        myLog.info { "期望费用的权重:${sumExpectCost},成员:$expectCostCards" }
 
 
         return if(sumCost>sumExpectCost){
@@ -140,10 +147,15 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
             warManage.useCard(comboCard)//使用
             //todo 没排序
             this.canUseCardsByHandler = expectCostCardByWeight
-            bestCombination
+            expectCostCards
         }
 
     }
+
+
+    /**
+     * 查询前置优化操作
+     */
     private fun findBestCombination(canUseCardsByHandler:List<ComboCard>):List<ComboCard>{
         return if(canUseCardsByHandler.size>1){
             findBestCombination(comboCards=canUseCardsByHandler)
@@ -224,6 +236,21 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         }
         return maxIndex
 
+    }
+
+    /**
+     * 存在性能问题,暂时这样了
+     */
+    fun List<ComboCard>.copy(skipComboCard: ComboCard):List<ComboCard>{
+        val comboCards = mutableListOf<ComboCard>()
+        forEach {
+            if(skipComboCard != it.card){//重写的equals,不知道==起效不
+                val comboCard = warManage.parseComboCard(it.card)
+                comboCards.add(comboCard)
+            }
+
+        }
+        return comboCards
     }
 
 
