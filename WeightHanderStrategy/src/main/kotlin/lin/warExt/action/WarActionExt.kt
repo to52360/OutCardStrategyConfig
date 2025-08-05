@@ -1,8 +1,9 @@
-package lin.domain
+package lin.warExt.action
 
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.enums.CardTypeEnum
 import club.xiaojiawei.util.DeckStrategyUtil
+import lin.domain.MyWarManage
 
 /**
  * 怕战场管理太多代码,功能性代码移到这里
@@ -23,7 +24,7 @@ fun MyWarManage.activeLocation(){
 /**
  * 清场
  */
-fun  MyWarManage.cleanPlay(){
+fun MyWarManage.cleanPlay(){
     DeckStrategyUtil.cleanPlay()
 }
 

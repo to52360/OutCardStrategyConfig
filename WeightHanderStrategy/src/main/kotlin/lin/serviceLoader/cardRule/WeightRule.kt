@@ -3,7 +3,8 @@ package lin.serviceLoader.cardRule
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 
-import lin.domain.MyWarManage
+
+import lin.domain.WarInfo
 
 interface WeightRule {
     //
@@ -12,9 +13,9 @@ interface WeightRule {
      * todo-future 这里直接操作感觉不太好,如果出现要缓存的计算的权重将不好处理
      * 根据战场
      * @param callCard 需要处理的的卡牌,todo 要不要去掉 这里传入是为了处理完权重信息一起处理combo组情景,
-     * @param myWarInfo 战场信息
+     * @param warInfo 战场信息
      */
-    fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage)
+    fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo)
 }
 
 /**
@@ -29,10 +30,18 @@ interface WeightCondition : WeightRule,GroupWeight  {
     }
 }
 interface  AddWeightByCondition :WeightCondition{
-    override  fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage){
-        callCard.addWeight(calculateSetWeight(myWarManage))
+    override fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo){
+        callCard.addWeight(calculateWeight(warInfo))
     }
-    fun calculateSetWeight( myWarManage: MyWarManage):Double
+    fun calculateWeight(warInfo: WarInfo):Double
+}
+
+interface  AddWeightByAll :WeightCondition{
+    override  fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo){
+        val weight =   calculateWeight(callCard,warInfo)
+        callCard.addWeight(weight)
+    }
+    fun calculateWeight(callCard: ComboCard, warInfo: WarInfo):Double
 }
 
 
@@ -58,6 +67,15 @@ interface DepByWeightInfos {
      *
      */
     fun initByWeightInfos(cardWeightInfoList: List<List<CardWeightInfo>>)
+
+}
+interface DepByWeightGroup {
+    /**
+     * select  自定义初始化方法,有没有采用工厂模式
+     * 条件(condition)依赖权重组信息
+     *
+     */
+    fun initByGroupIds(groupIds: Array<Double>)
 
 }
 

@@ -10,7 +10,7 @@ import lin.weightHandler.condition.context.NotWeight
  * @param card select 状态逃逸,增加复杂性和不太安全可能会改变,优点灵活
  * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
  */
-
+typealias ComboRule = (ComboCard) -> Double
   class ComboCard (private val cardWeightInfo: CardWeightInfo?=null, val card: Card){
     //select 打出刷新 针对改变手牌
     var useStrategy = cardWeightInfo?.useStrategy?: DefUseStrategy
@@ -20,7 +20,7 @@ import lin.weightHandler.condition.context.NotWeight
     //select 同组加权可以移到condition(每个只做一件事方便开发),但是要考虑继承关系,可以考虑委托方式,现在先测可行性
     //todo combo组没有实现
     var combo : Combo = DefCombo
-    private var comboOption : ((List<ComboCard>) -> Double)? =null
+    private var comboRule : ComboRule? =null
 
     //基础信息
     fun groupId() = cardWeightInfo?.groupId
@@ -53,15 +53,15 @@ import lin.weightHandler.condition.context.NotWeight
     /**
      * 设置
      */
-    fun setComboWeightAndId(comboOption:(selectCard:List<ComboCard>) -> Double){
-        this.comboOption = comboOption
+    fun setComboWeightAndId(comboRule:ComboRule){
+        this.comboRule = comboRule
     }
 
 
     //在同一组会增加权重
-    fun comboAddWeight(comboCards: List<ComboCard>):Double{
-        return comboOption?.let {
-             it(comboCards)
+    fun comboAddWeight(comboCard: ComboCard):Double{
+        return comboRule?.let {
+             it(comboCard)
         }?:NotWeight
     }
 

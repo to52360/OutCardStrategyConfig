@@ -7,6 +7,7 @@ import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.bean.UseType
 import lin.utils.serviceLoader.ServiceLoaderUtils
+import lin.warExt.base.getNowCost
 import lin.weightHandler.CardWeightHandler
 import lin.weightHandler.condition.context.CostWeight
 
@@ -74,9 +75,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
      *
      */
      fun executeWeightProcess(canUseCardsByCost:List<ComboCard>)  {
-        this.canUseCardsByHandler = processWeightEnvironment(canUseCardsByCost) { weightHandler, comboCard ->
-            weightHandler.cardWeightProcess(comboCard, warManage)
-        }
+        this.canUseCardsByHandler = weightProcess(canUseCardsByCost)
 
     }
 
@@ -97,7 +96,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
      */
      fun executeHandChaWeightProcess(canUseCardsByCost:List<ComboCard>) {
         warManage.cleanWeight()
-        this.canUseCardsByHandler = weightProcess(canUseCardsByCost)
+        executeWeightProcess(canUseCardsByCost)
     }
 
     /**
@@ -164,10 +163,10 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         }
     }
     // 3. 定义一个递归函数（回溯）来查找所有可能的组合 ai生成 待验证
-    private fun findBestCombination(cost:Int = warManage.getNowCost(),comboCards:List<ComboCard> = canUseCardsByHandler): List<ComboCard> {
+    private fun findBestCombination(useAbleCost:Int = warManage.getNowCost(), comboCards:List<ComboCard> = canUseCardsByHandler): List<ComboCard> {
 
         val sumCost = comboCards.sumOf { it.getCost() }
-        if(sumCost<cost){//总费用小于可用费用 直接不用组合了
+        if(sumCost<useAbleCost){//总费用小于可用费用 直接不用组合了
             return comboCards
         }
 
@@ -186,7 +185,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         ) {
             // *** 核心改动 ***
             // 在每次形成一个有效组合时（包括空组合），都计算其“有效分”
-            val remainingCost = cost - currentCost
+            val remainingCost = useAbleCost - currentCost
 
             val penalty = remainingCost * CostWeight
             val effectiveScore = currentWeight - penalty
@@ -199,15 +198,20 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
             // 从 startIndex 开始遍历，继续添加新的牌来探索更深的组合
             for (i in startIndex until comboCards.size) {
-                val card = comboCards[i]
-                if (card.useAble() && currentCost + card.getCost() <= cost) {
-                    //同组加权 todo 还有同组排序
-                    val comboWeight = card.comboAddWeight(currentCombination)
+                val newCard = comboCards[i]
+                if (  newCard.getCost() <= remainingCost) {
+                    //同组加权
+                    var comboBonus = 0.0
+                    currentCombination.forEach { existingCard ->
+                        // 双向检查 combo 规则，因为 A 对 B 的 combo 和 B 对 A 的 combo 可能不同
+                        comboBonus += existingCard.comboAddWeight(newCard)
+                    }
+
                     findBestCombination(
                         startIndex = i + 1,
-                        currentCost = currentCost + card.getCost(),
-                        currentWeight = currentWeight + card.powerWeight + comboWeight,
-                        currentCombination = currentCombination + card
+                        currentCost = currentCost + newCard.getCost(),
+                        currentWeight = currentWeight + newCard.powerWeight + comboBonus ,
+                        currentCombination = currentCombination + newCard
                     )
                 }
             }
@@ -220,7 +224,9 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
     }
 
-
+    /**
+     * 发现策略
+     */
     fun executeDiscoverChooseCard(vararg cards: Card): Int{
         var maxIndex = 0
         var maxWeight = 0.0

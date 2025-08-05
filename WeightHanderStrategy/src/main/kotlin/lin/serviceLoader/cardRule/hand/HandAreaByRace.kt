@@ -1,6 +1,7 @@
 package lin.serviceLoader.cardRule.hand
 
 import lin.bean.ComboCard
+import lin.domain.WarInfo
 
 import lin.serviceLoader.cardRule.utils.DepByWeightInfoDelegate
 import lin.serviceLoader.cardRule.utils.PredicateByRace

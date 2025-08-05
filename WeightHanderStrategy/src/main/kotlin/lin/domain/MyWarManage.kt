@@ -10,11 +10,19 @@ import lin.bean.ComboCard
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.bean.CardWeightInfo
+import lin.bean.ComboRule
 import lin.bean.OutCondition
+
 import lin.serviceLoader.cardRule.CardRule
+import lin.serviceLoader.combo.ComboInfo
 import lin.utils.serviceLoader.ServiceLoaderUtils
+import lin.warExt.base.*
+import lin.warExt.action.*
+import lin.weightHandler.condition.config.ComboInfoDao
+import lin.weightHandler.condition.context.NotWeight
 
 interface WarInfo{
+    val war: War
     val handComboCards:List<ComboCard>
     val canUseCards : List<ComboCard>
     val playComboCards:List<ComboCard>
@@ -26,7 +34,7 @@ interface WarInfo{
  * todo-future 有空的时候采用委托处理一下
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
-class MyWarManage(val war: War):WarInfo  {
+class MyWarManage(override val war: War):WarInfo  {
 
     override var handComboCards = emptyList<ComboCard>()
         private set
@@ -53,6 +61,37 @@ class MyWarManage(val war: War):WarInfo  {
         }
 
         return infoMap
+    }
+
+    private fun parseComboCard(infoMap: Map<String, CardWeightInfo>): ComboCard {
+        val cardGroupInfos =  infoMap.values.groupBy { it.groupId }
+        val comboInfos = ComboInfoDao().getAllCombos()
+        comboInfos.forEach { comboInfo->
+            val bindId = comboInfo.bindId
+           val bindCardGroup  = cardGroupInfos[bindId]
+            bindCardGroup?.let { comboGroup ->
+                val comboRule : ComboRule  = {comboCards->
+                    if(comboInfo.depIds.any{
+                            it == comboCards.groupId()
+                        })
+                        comboInfo.comboWeight
+                    else
+                        NotWeight
+                }
+                val before = if(comboInfo.isBefore) 1 else 0
+                bindCardGroup.forEach {
+                    it.r
+                }
+
+
+            }?:run {
+                myLog.warn { "绑定在权重表没有找到对应信息,id为${bindId}" }
+            }
+
+
+
+        }
+
     }
 
     /**
@@ -83,22 +122,14 @@ class MyWarManage(val war: War):WarInfo  {
         )
     }
 
-    fun getPlayCards(): List<Card> {
-        return war.me.playArea.cards
-    }
 
-    fun getHandCards(): List<Card> {
-        return war.me.handArea.cards
-    }
-
-    fun getNowCost() = war.me.usableResource
 
 
     /**
      * select 暂时重新读取数据,性能太差或者有空 改成如果一直如不用更改
      * 重新加载
      */
-    internal fun reLoad() {
+     fun reLoad() {
         //select 先转换后再过滤考虑存在费用变更情况
         handComboCards = parseComboCard()
         canUseCards = canUseCardsByCost()
@@ -120,7 +151,7 @@ class MyWarManage(val war: War):WarInfo  {
      * [reLoad]
      * todo-future  看一下comboCards不清空状态会怎么样,看情况决定是否清空状态
      */
-    internal fun refreshComboCards() {
+     fun refreshComboCards() {
         val handCards = getHandCards()
         if (handCards.size > handComboCards.size) {
             val tempList = mutableListOf<ComboCard>()
@@ -146,7 +177,7 @@ class MyWarManage(val war: War):WarInfo  {
      * 操作并改变ComBoCard状态
      *
      */
-    internal fun useCardAndRemove(comBoCard: ComboCard) {
+     fun useCardAndRemove(comBoCard: ComboCard) {
         if (useCard(comBoCard)) {
             handComboCards -= comBoCard
         }
@@ -154,7 +185,7 @@ class MyWarManage(val war: War):WarInfo  {
 
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
     //todo 可以判断最后一个下标等不等于最后下标
-    internal fun useCard(comBoCard: ComboCard): Boolean {
+     fun useCard(comBoCard: ComboCard): Boolean {
         val card = comBoCard.card
         if (card.area !is HandArea) return false //修改区域
 
@@ -195,13 +226,13 @@ class MyWarManage(val war: War):WarInfo  {
     }
 
     //有费用
-    fun hasCost() = getNowCost() > 0
+
 
     /**
      * 策略执行环境
      * todo-future 可见性原因,不支持内联
      */
-    fun executeEnvironment(runnable: () -> Unit) {
+    inline fun executeEnvironment(runnable: () -> Unit) {
         try {
             if (war.isValid()) {
                 //使用地标

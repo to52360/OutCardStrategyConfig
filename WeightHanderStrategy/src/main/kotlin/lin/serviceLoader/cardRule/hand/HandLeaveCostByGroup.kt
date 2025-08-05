@@ -1,9 +1,9 @@
 package lin.serviceLoader.cardRule.hand
 
 import lin.bean.ComboCard
-import lin.serviceLoader.cardRule.utils.DepByWeightInfoDelegates
+import lin.serviceLoader.cardRule.utils.DepByWeightGroupDelegate
 import lin.serviceLoader.cardRule.utils.DepToPredicates
-import lin.serviceLoader.cardRule.utils.PredicateByGroup
+import lin.serviceLoader.cardRule.utils.PredicateByGroups
 import lin.weightHandler.condition.context.CostWeight
 import lin.weightHandler.condition.context.NotWeight
 
@@ -13,7 +13,7 @@ import lin.weightHandler.condition.context.NotWeight
  * 例如:玛克扎尔的小鬼+弃牌
  */
 class HandLeaveCostByGroup : CanUseHandByLeaveCost,
-    DepByWeightInfoDelegates<DepToPredicates> by PredicateByGroup() {
+    DepByWeightGroupDelegate<DepToPredicates> by PredicateByGroups() {
     override var groupWeight: Double = CostWeight
 
 

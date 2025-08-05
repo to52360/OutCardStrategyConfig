@@ -9,6 +9,8 @@ import lin.bean.*
 
 import lin.myLog
 import lin.utils.JarClassLoader
+import lin.warExt.base.getNowCost
+import lin.warExt.base.hasCost
 import java.util.ServiceConfigurationError
 
 

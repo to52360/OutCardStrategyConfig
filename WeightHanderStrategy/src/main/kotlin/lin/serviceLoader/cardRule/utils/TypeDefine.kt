@@ -1,6 +1,7 @@
 package lin.serviceLoader.cardRule.utils
 
 import lin.bean.ComboCard
+import lin.serviceLoader.cardRule.DepByWeightGroup
 import lin.serviceLoader.cardRule.DepByWeightInfo
 import lin.serviceLoader.cardRule.DepByWeightInfos
 
@@ -15,4 +16,8 @@ interface DepByWeightInfoDelegate<T>: DepByWeightInfo{
 
 interface DepByWeightInfoDelegates<T> : DepByWeightInfos {
     var depToPredicate: T
+}
+
+interface DepByWeightGroupDelegate<T>: DepByWeightGroup{
+    var depToPredicate :T
 }

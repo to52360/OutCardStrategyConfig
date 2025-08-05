@@ -4,6 +4,7 @@ package lin.weightHandler.condition
 import lin.bean.*
 import lin.domain.MyWarManage
 import lin.myLog
+import lin.serviceLoader.cardRule.DepByWeightGroup
 import lin.serviceLoader.cardRule.DepByWeightInfos
 import lin.serviceLoader.cardRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
@@ -73,7 +74,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
             //获取到对应id条件实现
             outCardCondition?.let {
 
-                //从权重表获取依赖数据
+                //从权重表获取绑定数据数据
                 val binWeightInfos = weightGroupInfos[conditionGroup.bindId]
                 if (binWeightInfos == null) {
                     val msg = "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId}"
@@ -83,25 +84,33 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
                 val copyCondition = it.copy()
 
 
-                //依赖数据处理
-                if (copyCondition is DepByWeightInfos) {
-                    //todo-future 万一以类型绑定卡牌,那打出条件如何冗余在卡牌信息里
-                    //绑定对象,
-                    val depWeightInfos = mutableListOf<List<CardWeightInfo>>()
-                    conditionGroup.depByWeightIds.forEach { depId ->
-                        weightGroupInfos[depId]?.run {
-                            depWeightInfos.add(this)
+                    //todo 逻辑存在问题
+
+                    //依赖数据处理
+                    if (copyCondition is DepByWeightInfos) {
+                        //todo-future 万一以类型绑定卡牌,那打出条件如何冗余在卡牌信息里
+                        //绑定对象,
+                        val depWeightInfos = mutableListOf<List<CardWeightInfo>>()
+                        conditionGroup.depByWeightIds.forEach { depId ->
+                            weightGroupInfos[depId]?.run {
+                                depWeightInfos.add(this)
+                            }
                         }
+
+
+                        if (depWeightInfos.isEmpty()) {
+                            val msg = "条件组需要绑定的数据没有在权重表找到,weight(depByWeightId)为${conditionGroup.depByWeightIds}"
+                            throw ConditionException(msg)
+
+                        }
+                        copyCondition.initByWeightInfos(depWeightInfos)
+                    }else if(copyCondition is DepByWeightGroup){
+                        if(conditionGroup.depByWeightIds.isEmpty()) {
+                            myLog.warn { "找不到对应分组信息${conditionGroup.depByWeightIds}" }
+                            copyCondition.initByGroupIds(conditionGroup.depByWeightIds)
+                        }
+
                     }
-
-
-                    if (depWeightInfos.isEmpty()) {
-                        val msg = "条件组需要绑定的数据没有在权重表找到,weight(depByWeightId)为${conditionGroup.depByWeightIds}"
-                        throw ConditionException(msg)
-
-                    }
-                    copyCondition.initByWeightInfos(depWeightInfos)
-                }
 
                 //完善条件信息
                 copyCondition.groupWeight = conditionGroup.basePriority
