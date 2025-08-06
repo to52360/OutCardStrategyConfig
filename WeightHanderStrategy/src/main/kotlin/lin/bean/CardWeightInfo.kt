@@ -2,7 +2,6 @@ package lin.bean
 
 
 
-import lin.domain.MyWarManage
 import lin.myLog
 import lin.serviceLoader.cardRule.WeightRule
 import lin.weightHandler.condition.context.ConditionException

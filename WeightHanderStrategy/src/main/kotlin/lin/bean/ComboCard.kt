@@ -6,12 +6,13 @@ import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.NotWeight
 
 
+
+typealias ComboRule = (ComboCard) -> Double
+
 /**
  * @param card select 状态逃逸,增加复杂性和不太安全可能会改变,优点灵活
  * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
  */
-typealias ComboRule = (ComboCard) -> Double
-
 class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     //select 打出刷新 针对改变手牌
     var useStrategy = cardWeightInfo?.useStrategy ?: DefUseStrategy
