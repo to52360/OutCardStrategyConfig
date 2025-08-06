@@ -16,6 +16,7 @@
 
     <properties>
         <serialization.version>1.7.0</serialization.version>
+        <ksp.version>2.1.21-2.0.1</ksp.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
@@ -37,6 +38,29 @@
         <finalName>${project.artifactId}</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version> <!-- 请根据需要调整版本号 -->
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>io.insert-koin:*</include> <!-- 包含特定组织的所有依赖 -->
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     <dependencies>
         <dependency>
@@ -53,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>io.insert-koin</groupId>
-            <artifactId>koin-core</artifactId>
+            <artifactId>koin-core-jvm</artifactId>
             <version>4.1.0</version>
         </dependency>
 

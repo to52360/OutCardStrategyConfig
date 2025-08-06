@@ -3,6 +3,7 @@ package lin.bean
 
 
 import lin.domain.MyWarManage
+import lin.myLog
 import lin.serviceLoader.cardRule.WeightRule
 import lin.weightHandler.condition.context.ConditionException
 
@@ -30,32 +31,27 @@ data class CardWeightInfo(
             }
         }
 
-    //todo 改成这样,为了实现val功能,但是不实用,看一下是否需要该 ,增加额外复杂性
-    var weightCalculate: WeightCalculate = DefWeightCalculate
-        set(value) {
-
-            when (val context = field) {
-                is OutCondition -> { //转化为集合
-                    if (value is OutCondition) {
-                        val outCondition = OutConditions(context.weightRule)
-                        outCondition.add(value.weightRule)
-                        field = outCondition
-                    } else {
-                        throw RuntimeException("设置类型错误")
-                    }
-
-                }
-
-                is OutConditions -> {
-                    if (value is OutCondition) {
-                        context.add(value.weightRule)
-                    } else {
-                        throw RuntimeException("设置类型错误")
-                    }
-                }
-                else ->  throw ConditionException("暂时无法重复设置")
-            }
+    var weightRules : List<WeightRule> = emptyList()
+        private set
+    fun addWeightRule(weightRule: WeightRule){
+        weightRules = if(weightRules.isEmpty()){
+            listOf(weightRule)
+        }else{
+            weightRules+weightRule
         }
+    }
+    fun clearWeightRule(){
+        weightRules = emptyList()
+    }
+    var combo : Combo? = null
+        private set
+    fun addCombo(combo: Combo){
+        this.combo?.let {
+            myLog.warn { "combo组,重复设置重复设置可能有问题" }
+        }
+        this.combo = combo
+    }
+
 }
 
 
@@ -67,32 +63,12 @@ class AddCostStrategy(val cost: Int) : UseStrategy(UseType.BEFORE)
 
 
 //todo-future 预留没有实现
-sealed class Combo
-data object DefCombo : Combo()
+open class Combo(val comboId: Int,val comboRule: ComboRule?,val priority:Boolean)
 
-/**
- * @param outCardPriority 打出优先级
- */
-data class ComboOrder(var comboId: Int, var outCardPriority: Int) : Combo()
+object DefCombo: Combo(0,null,false)
 
 
-sealed class WeightCalculate
-data object DefWeightCalculate : WeightCalculate()
-class OutCondition(val weightRule: WeightRule) : WeightCalculate() {
-    fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage) {
-        weightRule.calculateSetWeight(callCard, myWarManage)
-    }
-}
 
-class OutConditions(weightRule: WeightRule) : WeightCalculate() {
-    private val weightConditions = mutableListOf(weightRule)
-    fun add(weightRule: WeightRule) = weightConditions.add(weightRule)
-    fun calculateSetWeight(callCard: ComboCard, myWarManage: MyWarManage) {
-        weightConditions.forEach {
-            it.calculateSetWeight(callCard, myWarManage)
-        }
-    }
-}
 
 sealed class CardContext
 data object DefCardContext : CardContext()

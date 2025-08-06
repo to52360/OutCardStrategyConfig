@@ -13,13 +13,13 @@ class ComboConditionByRace : ComboCondition {
         var count : Int = 0
         handCards.forEach{
             //todo 判断依据没有写
-            it.setComboWeightAndId{ handCards ->
+/*            it.setComboWeightAndId{ handCards ->
                 if(handCards.first().groupId()==callCard.groupId()){
                     CostWeight
                 }else{
                     NotWeight
                 }
-            }
+            }*/
             count++
 
         }

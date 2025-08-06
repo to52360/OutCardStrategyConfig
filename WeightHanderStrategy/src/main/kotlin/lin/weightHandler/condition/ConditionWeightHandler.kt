@@ -11,40 +11,37 @@ import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ConditionGroup
-import lin.weightHandler.condition.config.WeightGroupConfig
+import lin.weightHandler.condition.config.GroupStrategyDao
 import lin.weightHandler.condition.context.ConditionException
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
 import kotlin.collections.HashMap
 /**
  * 条件权重处理器
  */
-class ConditionWeightHandler : WeightHandler, InitHandler {
+class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
 
 
     private val needManageCondition = mutableListOf<WeightCondition>()
+    val groupStrategyDao :GroupStrategyDao  by inject()
 
     /**
      * todo 没有配置信息ui 暂时硬编码 获取配置
      */
     private fun loadConfig(): List<ConditionGroup>? {
-
-        return WeightGroupConfig().configs()
+        return groupStrategyDao.getAll()
     }
     //todo-future 存在魔数
     override fun priority() = 5
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        val weightCalculate = callCard.weightCalculate
-        if(weightCalculate is OutCondition){
+        val weightCalculate = callCard.weightRules
+        weightCalculate.forEach {
             myLog.info { "条件处理权重前的权重值:${callCard.powerWeight}" }
-            weightCalculate.calculateSetWeight(callCard, warManage)
-            myLog.info { "条件处理权重后的权重值:${callCard.powerWeight}" }
-        }else if(weightCalculate is OutConditions){//多条件处理
-            myLog.info { "条件处理权重前的权重值:${callCard.powerWeight}" }
-            weightCalculate.calculateSetWeight(callCard, warManage)
+            it.calculateSetWeight(callCard, warManage)
             myLog.info { "条件处理权重后的权重值:${callCard.powerWeight}" }
         }
-
     }
 
     /**
@@ -114,13 +111,11 @@ class ConditionWeightHandler : WeightHandler, InitHandler {
 
                 //完善条件信息
                 copyCondition.groupWeight = conditionGroup.basePriority
-                //这里共用一个weightCalculate
-                val weightCalculate = OutCondition(copyCondition)
 
 
                 //在卡牌数据冗余打出条件
                 binWeightInfos.forEach { info ->
-                    info.weightCalculate = weightCalculate
+                    info.addWeightRule(copyCondition)
                 }
 
 

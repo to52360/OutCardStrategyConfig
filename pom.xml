@@ -64,7 +64,7 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>ksp </id>
+                        <id>kapt </id>
                         <goals>
                             <goal>kapt </goal>
                         </goals>
@@ -118,12 +118,6 @@
         <dependency>
             <groupId>com.github.xjw580.Hearthstone-Script</groupId>
             <artifactId>hs-script-base-strategy</artifactId>
-            <version>${sdk-version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.xjw580.Hearthstone-Script</groupId>
-            <artifactId>hs-script-base</artifactId>
             <version>${sdk-version}</version>
             <scope>provided</scope>
         </dependency>

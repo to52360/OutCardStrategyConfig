@@ -11,6 +11,7 @@ import lin.myLog
 import lin.utils.JarClassLoader
 import lin.warExt.base.getNowCost
 import lin.warExt.base.hasCost
+import org.koin.core.context.startKoin
 import java.util.ServiceConfigurationError
 
 
@@ -43,6 +44,9 @@ class ComboDomain(war: War) {
             val classLoader = JarClassLoader(parent = javaClass.classLoader).classLoader()?:run {
                 log.warn { "没有获取到类加载器" }
                 javaClass.classLoader
+            }
+            startKoin {
+                modules(DBModules)
             }
             Thread.currentThread().contextClassLoader = classLoader
             warManage = MyWarManage(war)
@@ -140,18 +144,13 @@ class ComboDomain(war: War) {
             }
 
             //todo-future  打出优先级处理
-/*            bestCombination.sortedBy {
-                val combo =it.combo
-                if(combo is ComboOrder){
-                    combo.outCardPriority
-                }else{
-                    0
-                }
-            }*/
+           val bestCombinationCombo =  bestCombination.sortedBy {
+                it.powerWeight
+            }
 
 
             val expectCost = warManage.getNowCost() - needCost
-            bestCombination.forEach { warManage.useCard(it) }
+            bestCombinationCombo.forEach { warManage.useCard(it) }
             //todo-future 直接遍历使用
             //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
