@@ -57,19 +57,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
 
     //在同一组会增加权重
     fun comboAddWeight(comboCard: ComboCard): Double {
-        return combo.comboRule?.let {
-
-            val weight = it(comboCard)
-
-            //优先级处理
-            if(weight!=NotWeight){//表示是同一组
-                if(combo.priority&&powerWeight<=comboCard.powerWeight){//增加权重
-                    val addWeight = comboCard.powerWeight - powerWeight+1 //保证同组优先级最高
-                    addWeight(addWeight)
-                }
-            }
-            weight
-        } ?: NotWeight
+        return combo.comboProcess(this, comboCard)
     }
 
 

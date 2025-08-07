@@ -1,9 +1,10 @@
-package lin.serviceLoader.cardRule.utils
+package lin.serviceLoader.weightRule.utils
 
 /**
  * 委托存在指定组判断函数
+ * 存在指定分组卡牌
  */
-class PredicateByGroups : DepByWeightGroupDelegate<DepToPredicates> {
+class PredicateByGroupsId : DepByWeightGroupIdDelegate<DepToPredicates> {
     override lateinit var depToPredicate: DepToPredicates
 
 
@@ -13,7 +14,8 @@ class PredicateByGroups : DepByWeightGroupDelegate<DepToPredicates> {
         }
     }
 }
-class PredicateByGroup : DepByWeightGroupDelegate<DepToPredicate> {
+
+class PredicateByGroupId : DepByWeightGroupIdDelegate<DepToPredicate> {
     override lateinit var depToPredicate: DepToPredicate
 
 

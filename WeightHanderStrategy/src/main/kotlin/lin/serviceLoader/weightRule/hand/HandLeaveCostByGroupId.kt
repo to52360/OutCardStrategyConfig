@@ -1,0 +1,33 @@
+package lin.serviceLoader.weightRule.hand
+
+import lin.bean.ComboCard
+import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
+import lin.serviceLoader.weightRule.utils.DepToPredicates
+import lin.serviceLoader.weightRule.utils.PredicateByGroupsId
+import lin.weightHandler.condition.context.CostWeight
+import lin.weightHandler.condition.context.NotWeight
+
+
+/**
+ * 存在足够费用使用配合牌,combo使用增加
+ * 例如:玛克扎尔的小鬼+弃牌
+ *
+ */
+class HandLeaveCostByGroupId : CanUseHandByLeaveCost,
+    DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupsId() {
+    override var groupWeight: Double = CostWeight
+
+
+
+    override fun id()=25072601
+
+
+    override fun onLeaveCostProcessWeight(
+        callCard: ComboCard,
+        leaveCostHandCards: List<ComboCard>
+    ) {
+        val weight = if (depToPredicate(leaveCostHandCards)) groupWeight else NotWeight
+        callCard.addWeight(weight)
+    }
+}
+

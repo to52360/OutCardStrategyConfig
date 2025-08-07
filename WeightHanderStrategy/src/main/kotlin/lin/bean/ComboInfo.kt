@@ -1,4 +1,4 @@
-package lin.serviceLoader.combo
+package lin.bean
 
 /**
  * @param depIds 数据库用String,用","分割

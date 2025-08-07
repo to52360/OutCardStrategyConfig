@@ -2,6 +2,8 @@ package lin
 
 import club.xiaojiawei.DeckStrategy
 import club.xiaojiawei.bean.Card
+import club.xiaojiawei.bean.CardWeight
+import club.xiaojiawei.bean.SimulateWeightCard
 
 
 import club.xiaojiawei.data.BaseData
@@ -14,7 +16,7 @@ import club.xiaojiawei.strategy.HsRadicalDeckStrategy
 import club.xiaojiawei.util.DeckStrategyUtil
 
 import lin.domain.ComboDomain
-
+import lin.weightHandler.condition.context.NotWeight
 
 
 /**
@@ -25,17 +27,22 @@ import lin.domain.ComboDomain
  * 权重表[CARD_WEIGHT_TRIE]
  * WeightHandlerPlugin
  */
-private val defaultStrategy: HsRadicalDeckStrategy by lazy {
-    HsRadicalDeckStrategy()
-}
-val defaultOutCardLambda: () -> Unit =defaultStrategy::executeOutCard
 class WeightHandlerStrategy : DeckStrategy() {
-    private val comboDomain  = ComboDomain(WAR)
+    private val comboDomain: ComboDomain
 
 
     init {
         myLog.info{
             "执行策略初始化"
+        }
+        try {
+            comboDomain = ComboDomain(WAR)
+        } catch (e: Throwable) {
+            myLog.error(e) {
+                "初始化错误"
+            }
+            throw e
+
         }
 
     }
@@ -60,16 +67,23 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     /**
      * [HsRadicalDeckStrategy]
+     * 参考
+     * [DeckStrategyUtil.convertToSimulateCard]
      */
     override fun executeChangeCard(cards: HashSet<Card>) {
-
-
         if (BaseData.enableChangeWeight) {
-            val weightCards = DeckStrategyUtil.convertToSimulateCard(cards.toList())
-            weightCards.sortByDescending { it.changeWeight }
-            for (card in weightCards) {
-                if (card.changeWeight < 0.0) {
-                    cards.remove(card.card)
+            val weightCards = sortedMapOf<Double, Card>()
+            for (card in cards) {
+                val cardWeight = CARD_WEIGHT_TRIE.getOrDefault(card.cardId) { CardWeight(1.0, 1.0, -1.0) }
+                weightCards.put(cardWeight.changeWeight, card)
+            }
+            var notHasCost2 = true
+            for (card in weightCards.reversed()) {
+                if (card.key < NotWeight) {
+                    cards.remove(card.value)
+                } else if (card.value.cost > 2) {
+                    if (notHasCost2) notHasCost2 = false //高权重只留一个
+                    else cards.remove(card.value)
                 }
             }
         } else {

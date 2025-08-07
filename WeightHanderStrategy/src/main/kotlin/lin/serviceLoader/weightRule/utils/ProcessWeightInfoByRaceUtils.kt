@@ -1,4 +1,4 @@
-package lin.serviceLoader.cardRule.utils
+package lin.serviceLoader.weightRule.utils
 
 
 import club.xiaojiawei.enums.CardRaceEnum

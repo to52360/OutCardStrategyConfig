@@ -1,7 +1,7 @@
-package lin.serviceLoader.cardRule.def
+package lin.serviceLoader.weightRule.def
 
 import lin.bean.CardWeightInfo
-import lin.serviceLoader.cardRule.DepByWeightInfos
+import lin.serviceLoader.weightRule.DepByWeightInfos
 
 /**
  * todo-future 不知道还要不要了

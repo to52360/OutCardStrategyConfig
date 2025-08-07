@@ -1,10 +1,8 @@
-package lin.serviceLoader.cardRule.after
+package lin.serviceLoader.weightRule.afterRule
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
-import lin.serviceLoader.cardRule.AddWeightByAll
-import lin.serviceLoader.cardRule.AddWeightByCondition
-import lin.serviceLoader.cardRule.WeightCondition
+import lin.serviceLoader.weightRule.AddWeightByAll
 import lin.warExt.common.hasTaunt
 import lin.warExt.rival.rivalIsNotCardByPlayArea
 import lin.weightHandler.condition.context.CostWeight
@@ -30,6 +28,10 @@ class HaloRule: AddWeightByAll {
             addWeight -= groupWeight
         }
         return addWeight
+    }
+
+    override fun description(): String {
+        return "光环类,后置规则,暂没有优先级,采用isBaseWeight,来判断有没有前置规则满足"
     }
 
     override var groupWeight = CostWeight

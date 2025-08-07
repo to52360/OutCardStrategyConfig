@@ -1,11 +1,11 @@
-package lin.serviceLoader.cardRule.hand
+package lin.serviceLoader.weightRule.hand
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.warExt.base.getNowCost
-import lin.serviceLoader.cardRule.AddWeightByCondition
+import lin.serviceLoader.weightRule.AddWeightByCondition
 
-import lin.serviceLoader.cardRule.WeightCondition
+import lin.serviceLoader.weightRule.WeightCondition
 import lin.weightHandler.condition.context.CostWeight
 
 interface HandArea : AddWeightByCondition {
@@ -19,14 +19,21 @@ abstract class AbstractHandArea : HandArea{
 
 }
 
+/**
+ * 除去本身剩余费用
+ */
 interface CanUseHandByLeaveCost : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo){
         val leaveCost =  warInfo.getNowCost() - callCard.getCost()
         val cardByLeaveCost =   warInfo.canUseCards.filter { it.getCost()<leaveCost }
-        onWarInfoProcessWeight(callCard,cardByLeaveCost)
+        onLeaveCostProcessWeight(callCard, cardByLeaveCost)
     }
 
-    fun onWarInfoProcessWeight(callCard: ComboCard, handCards: List<ComboCard>)
+    override fun description(): String {
+        return "除去本身剩余费用可以的手牌"
+    }
+
+    fun onLeaveCostProcessWeight(callCard: ComboCard, leaveCostHandCards: List<ComboCard>)
 }
 
 

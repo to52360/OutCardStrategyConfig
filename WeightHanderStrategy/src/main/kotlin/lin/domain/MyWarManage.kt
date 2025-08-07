@@ -9,9 +9,10 @@ import lin.bean.CardWeightInfo
 import lin.bean.Combo
 import lin.bean.ComboCard
 import lin.bean.ComboRule
+import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
-import lin.serviceLoader.cardRule.CardRule
+import lin.serviceLoader.weightRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
@@ -21,6 +22,8 @@ import lin.warExt.base.getNowCost
 import lin.warExt.base.getPlayCards
 import lin.weightHandler.condition.config.ComboInfoDao
 import lin.weightHandler.condition.context.NotWeight
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
 interface WarInfo {
@@ -36,7 +39,7 @@ interface WarInfo {
  * todo-future 有空的时候采用委托处理一下
  * select 没有使用私有修饰war,是为了灵活性,没有那个多精力为了安全性去编码,
  */
-class MyWarManage(override val war: War) : WarInfo {
+class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     override var handComboCards = emptyList<ComboCard>()
         private set
@@ -46,10 +49,12 @@ class MyWarManage(override val war: War) : WarInfo {
         private set
     override val infoMap: Map<String, CardWeightInfo>
 
+
     init {
 
         infoMap = getCardInfos()
         parseCondition(infoMap)
+        parseComboCard(infoMap)
         myLog.info {
             "MyWarManage初始化$infoMap"
         }
@@ -65,9 +70,13 @@ class MyWarManage(override val war: War) : WarInfo {
         return infoMap
     }
 
+    /**
+     * 解析Combo信息
+     */
     private fun parseComboCard(infoMap: Map<String, CardWeightInfo>) {
         val cardGroupInfos = infoMap.values.groupBy { it.groupId }
-        val comboInfos = ComboInfoDao().getAllCombos()
+        val comboInfoDao: ComboInfoDao by inject()
+        val comboInfos = comboInfoDao.findAll()
         comboInfos.forEach { comboInfo ->
             val bindId = comboInfo.bindId
             val bindCardGroup = cardGroupInfos[bindId]
@@ -211,9 +220,7 @@ class MyWarManage(override val war: War) : WarInfo {
      */
     fun isStart(): Boolean {
         val me = war.me
-        if (me.resources == 0 || me.resources == 1) {
-            //todo-future 看一下是0还是1
-            myLog.info { "resources属性值为" + me.resources }
+        if (me.resources == 1) {
             var isStart = true
             gameId?.run {
                 war.me.gameId
@@ -239,6 +246,7 @@ class MyWarManage(override val war: War) : WarInfo {
             if (war.isValid()) {
                 //使用地标
                 activeLocation()
+                cleanPlay()
                 //重新加载信息
                 reLoad()
                 runnable()
@@ -253,6 +261,9 @@ class MyWarManage(override val war: War) : WarInfo {
         } catch (e: Exception) {
             myLog.error(e) { "执行出牌逻辑出错" }
             throw e
+        } catch (t: Throwable) {
+            myLog.error(t) { "执行出牌逻辑出错" }
+            throw t
         }
     }
 }

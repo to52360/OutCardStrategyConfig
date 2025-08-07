@@ -1,11 +1,16 @@
 package lin.bean
 
 
-
+import lin.lifecycle.LifecycleRegister
 import lin.myLog
-import lin.serviceLoader.cardRule.WeightRule
+import lin.serviceLoader.weightRule.WeightRule
 import lin.weightHandler.condition.context.ConditionException
-
+import lin.weightHandler.condition.context.NotWeight
+import lin.weightHandler.condition.context.OrderWeight
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.component.get
+import kotlin.getValue
 
 
 /**
@@ -20,7 +25,7 @@ data class CardWeightInfo(
     val cardId: String,
     val powerWeight: Double,
     val groupId: Double = 0.0
-) {
+) : KoinComponent {
     var useStrategy: UseStrategy = DefUseStrategy
         set(value) {
             field = if (field == DefUseStrategy) {
@@ -33,14 +38,20 @@ data class CardWeightInfo(
     var weightRules : List<WeightRule> = emptyList()
         private set
     fun addWeightRule(weightRule: WeightRule){
+        val lifecycleRegister = get<LifecycleRegister>()
         weightRules = if(weightRules.isEmpty()){
             listOf(weightRule)
         }else{
             weightRules+weightRule
         }
+        //生命周期,游戏开始/回合开始结束调用对应方法,为了条件组有状态
+        lifecycleRegister.register(weightRule)
     }
     fun clearWeightRule(){
+        val lifecycleRegister = get<LifecycleRegister>()
+        lifecycleRegister.logout(weightRules)
         weightRules = emptyList()
+
     }
     var combo : Combo? = null
         private set
@@ -61,10 +72,39 @@ data object ChangeStrategy : UseStrategy(UseType.BEFORE)
 class AddCostStrategy(val cost: Int) : UseStrategy(UseType.BEFORE)
 
 
-//todo-future 预留没有实现
-open class Combo(val comboId: Int,val comboRule: ComboRule?,val priority:Boolean)
+/**
+ *@param comboId todo-future  comboId 不知道有没有用了
+ */
+open class Combo(val comboId: Int, val comboRule: ComboRule, val priority: Boolean) {
+    open fun comboProcess(callComboCard: ComboCard, comboCard: ComboCard): Double {
+        return comboRule.let {
+            val weight = it(comboCard)
+            //优先级处理
+            if (weight != NotWeight) {//表示是同一组
+                val powerWeight = callComboCard.powerWeight
+                //之前策略
+                if (priority && powerWeight <= comboCard.powerWeight) {//增加权重
+                    val addWeight = comboCard.powerWeight - powerWeight + OrderWeight //保证同组优先级最高
+                    callComboCard.addWeight(addWeight)
+                }
 
-object DefCombo: Combo(0,null,false)
+                //之后策略
+                if (!priority && powerWeight >= comboCard.powerWeight) {//之后 如果不是最小,修正权重为最小
+                    val addWeight = powerWeight - comboCard.powerWeight + OrderWeight //保证同组优先级最高
+                    comboCard.addWeight(addWeight)
+                }
+            }
+            weight
+        }
+
+    }
+}
+
+object DefCombo : Combo(0, { _ -> NotWeight }, false) {
+    override fun comboProcess(callComboCard: ComboCard, comboCard: ComboCard): Double {
+        return NotWeight
+    }
+}
 
 
 

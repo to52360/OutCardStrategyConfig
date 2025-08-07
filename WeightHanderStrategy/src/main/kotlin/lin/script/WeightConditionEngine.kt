@@ -3,7 +3,7 @@ package lin.script
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
 
-import lin.serviceLoader.cardRule.WeightCondition
+import lin.serviceLoader.weightRule.WeightCondition
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path

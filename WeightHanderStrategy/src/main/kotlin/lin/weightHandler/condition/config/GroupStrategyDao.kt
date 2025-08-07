@@ -13,34 +13,48 @@ class GroupStrategyDao(private val jdbcTemplate: JdbcTemplate) {
                 bindId = rs.getDouble("bindId"),
                 weightConditionId  = rs.getInt("weightConditionId"),
                 depByWeightIds = rs.toDouble("depByWeightIds"),
-                priority  = rs.safeGetDouble("basePriority")
+                priority = rs.getDoubleOrNull("basePriority")
             )
         }
     }
-    fun ResultSet.toDouble(columnName: String): Array<Double> {
-        val value = getString(columnName)
-        // 处理null值情况，返回空数组
-        if (value.isNullOrEmpty()) return emptyArray()
-        
-        // 检查是否包含逗号分隔符
-        return if (value.contains(',')) {
-            // 按逗号分割并转换为Double数组
-            value.split(',').map { it.toDouble() }.toTypedArray()
-        } else {
-            // 不包含逗号，视为单个值
-            arrayOf(value.toDouble())
-        }
-    }
-    fun ResultSet.safeGetDouble(columnName: String): Double? {
-        val value = getObject(columnName)
-        return when (value) {
-            null -> null
-            is Double -> value
-            is Float -> value.toDouble()
-            is Int -> value.toDouble()
-            is Long -> value.toDouble()
-            else -> throw IllegalArgumentException("Unsupported type for Double conversion: ${value.javaClass}")
-        }
-    }
 
+
+}
+
+fun ResultSet.toDouble(columnName: String): Array<Double> {
+    val value = getString(columnName)
+    // 处理null值情况，返回空数组
+    if (value.isNullOrEmpty()) return emptyArray()
+
+    // 检查是否包含逗号分隔符
+    return if (value.contains(',')) {
+        // 按逗号分割并转换为Double数组
+        value.split(',').map { it.toDouble() }.toTypedArray()
+    } else {
+        // 不包含逗号，视为单个值
+        arrayOf(value.toDouble())
+    }
+}
+
+fun ResultSet.getDoubleOrNull(columnName: String): Double? {
+    val value = getObject(columnName)
+    return when (value) {
+        null -> null
+        else -> anyToDouble(value)
+    }
+}
+
+fun ResultSet.getDouble(columnName: String): Double {
+    val value = getObject(columnName)
+    return anyToDouble(value)
+}
+
+private fun anyToDouble(value: Any): Double {
+    return when (value) {
+        is Double -> value
+        is Float -> value.toDouble()
+        is Int -> value.toDouble()
+        is Long -> value.toDouble()
+        else -> throw IllegalArgumentException("Unsupported type for Double conversion: ${value.javaClass}")
+    }
 }

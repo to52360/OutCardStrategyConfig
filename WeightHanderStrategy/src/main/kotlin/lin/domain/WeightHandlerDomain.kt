@@ -106,7 +106,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         if(canUseCardsByHandler.size<2){
             return canUseCardsByHandler
         }
-        this.canUseCardsByHandler = canUseCardsByHandler.sortedBy { it.powerWeight }
+        this.canUseCardsByHandler = canUseCardsByHandler.sortedByDescending { it.powerWeight }
         //需要组合之前,有特殊操作
         if(canUseCardsByHandler.first().useStrategy.useType== UseType.BEFORE){
             return listOf(canUseCardsByHandler.first())
@@ -203,7 +203,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
                     //同组加权
                     var comboBonus = 0.0
                     currentCombination.forEach { existingCard ->
-                        // 双向检查 combo 规则，因为 A 对 B 的 combo 和 B 对 A 的 combo 可能不同
+                        // combo加权
                         comboBonus += existingCard.comboAddWeight(newCard)
                     }
 

@@ -2,10 +2,8 @@ package lin.weightHandler.condition
 
 import lin.bean.CardWeightInfo
 import lin.myLog
-import lin.serviceLoader.cardRule.WeightCondition
+import lin.serviceLoader.weightRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
-import lin.weightHandler.condition.bean.ConditionGroup
-import lin.weightHandler.condition.config.WeightGroupConfig
 
 /**
  * 目的 降低ConditionWeightHandler的复杂

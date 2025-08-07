@@ -1,0 +1,5 @@
+lin.serviceLoader.weightRule.hand.HandAreaByRace
+lin.serviceLoader.weightRule.afterRule.HaloRule
+lin.serviceLoader.weightRule.hand.HandLeaveCostByGroupId
+lin.serviceLoader.weightRule.hand.HandNumWeightId
+lin.serviceLoader.weightRule.onWar.OnWarByGroupId

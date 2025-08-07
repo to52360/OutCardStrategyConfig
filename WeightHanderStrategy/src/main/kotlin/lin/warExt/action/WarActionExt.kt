@@ -24,7 +24,7 @@ fun MyWarManage.activeLocation(){
 /**
  * 清场
  */
-fun MyWarManage.cleanPlay(){
+fun cleanPlay() {
     DeckStrategyUtil.cleanPlay()
 }
 

@@ -1,4 +1,4 @@
-package lin.serviceLoader.cardRule
+package lin.serviceLoader.weightRule
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard

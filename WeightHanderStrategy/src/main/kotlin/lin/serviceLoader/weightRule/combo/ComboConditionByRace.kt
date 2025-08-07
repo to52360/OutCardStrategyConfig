@@ -1,8 +1,8 @@
-package lin.serviceLoader.cardRule.combo
+package lin.serviceLoader.weightRule.combo
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
-import lin.serviceLoader.cardRule.ComboCondition
+import lin.serviceLoader.weightRule.ComboCondition
 
 //todo-future 暂时这样 暂时没有想清楚一起打出的例子要怎么处理
 class ComboConditionByRace : ComboCondition {

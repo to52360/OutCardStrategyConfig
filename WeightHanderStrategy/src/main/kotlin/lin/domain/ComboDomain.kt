@@ -5,6 +5,8 @@ import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
 import lin.bean.*
+import lin.lifecycle.LifecycleRegister
+import lin.lifecycle.LifecycleRegisterImpl
 
 
 import lin.myLog
@@ -12,6 +14,9 @@ import lin.utils.JarClassLoader
 import lin.warExt.base.getNowCost
 import lin.warExt.base.hasCost
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.bind
+import org.koin.dsl.module
 import java.util.ServiceConfigurationError
 
 
@@ -31,53 +36,72 @@ class ComboDomain(war: War) {
     //SPI没法抛异常把把val 改为 lateinit var
     //存储转化权重信息
     private lateinit var warManage: MyWarManage
-    private lateinit var weightHandlerDomain:WeightHandlerDomain
-
+    private lateinit var weightHandlerDomain: WeightHandlerDomain
+    private val lifecycleRegisterImpl = LifecycleRegisterImpl()
+    private val classLoader = JarClassLoader(parent = javaClass.classLoader).classLoader() ?: run {
+        log.warn { "没有获取到类加载器" }
+        javaClass.classLoader
+    }
 
     //存储策略分组
     init {
-        myLog.info{
+        myLog.info {
             "ComboDao初始化"
         }
-        val  threadClassLoader = Thread.currentThread().contextClassLoader
+        val threadClassLoader = Thread.currentThread().contextClassLoader
         try {
-            val classLoader = JarClassLoader(parent = javaClass.classLoader).classLoader()?:run {
-                log.warn { "没有获取到类加载器" }
-                javaClass.classLoader
+            threadContext {
+
+                startKoin {
+                    modules(DBModules)
+                    modules(module { single { lifecycleRegisterImpl } bind LifecycleRegister::class })
+                }
+                Thread.currentThread().contextClassLoader = classLoader
+                warManage = MyWarManage(war)
+                weightHandlerDomain = WeightHandlerDomain(warManage = warManage)
             }
-            startKoin {
-                modules(DBModules)
-            }
-            Thread.currentThread().contextClassLoader = classLoader
-            warManage = MyWarManage(war)
-            weightHandlerDomain = WeightHandlerDomain(warManage = warManage)
-        } catch (serviceError: ServiceConfigurationError){
+
+        } catch (serviceError: ServiceConfigurationError) {
             serviceError.printStackTrace()
             myLog.error(serviceError) { "serviceError初始化失败" }
-        } finally {
-            Thread.currentThread().contextClassLoader = threadClassLoader
         }
 
 
     }
 
+    private inline fun threadContext(runnable: () -> Unit) {
+        val threadClassLoader = Thread.currentThread().contextClassLoader
+        try {
+            Thread.currentThread().contextClassLoader = classLoader
+            runnable()
+        } finally {
+            Thread.currentThread().contextClassLoader = threadClassLoader
+        }
+    }
+
+    private inline fun executeEnvironment(runnable: () -> Unit) {
+        lifecycleRegisterImpl.startAllRuleLifecycles()
+        val isStart = warManage.isStart()
+        if (isStart) {
+            lifecycleRegisterImpl.startAllGameLifecycles()
+        }
+        warManage.executeEnvironment { runnable() }
+    }
 
     /**
      * 出牌策略
      */
-     fun outCardStrategy() {
+    fun outCardStrategy() {
         myLog.info { "执行出牌策略" }
-
-
-        warManage.executeEnvironment {
+        executeEnvironment {
             //获取能够打出的卡牌
             val canUseCardsByCost = warManage.canUseCards
             //todo 看一下isChange能不能放入weightHandlerDao
-            val bestCombination = findBestCombination(canUseCardsByCost,false)
+            val bestCombination = findBestCombination(canUseCardsByCost, false)
 
             val canUseCardsByHandler = weightHandlerDomain.readCanUseCardsByHandler
             myLog.info { "找到需要使用的卡牌:$bestCombination" }
-            executeUseCard(canUseCardsByHandler,bestCombination)
+            executeUseCard(canUseCardsByHandler, bestCombination)
 
         }
     }
@@ -85,34 +109,36 @@ class ComboDomain(war: War) {
     /**
      *  处理使用策略,权重转发给权重处理器模型处理
      */
-    private fun findBestCombination(cards:List<ComboCard>, isChange:Boolean):List<ComboCard>{
-        if(isChange){//todo 这方案不太靠谱 重新计算权重并使用
+    private fun findBestCombination(cards: List<ComboCard>, isChange: Boolean): List<ComboCard> {
+        if (isChange) {//todo 这方案不太靠谱 重新计算权重并使用
             weightHandlerDomain.executeHandChaWeightProcess(cards)
-        }else{
+        } else {
             weightHandlerDomain.executeWeightProcess(cards)
         }
 
         val canUseCardsByHandler = weightHandlerDomain.findBeforeOrBestCombination()
 
-        when(canUseCardsByHandler.size){
-            0-> return emptyList()
-            1->{
+        when (canUseCardsByHandler.size) {
+            0 -> return emptyList()
+            1 -> {
                 val comboCard = canUseCardsByHandler.first()
-                when(val useStrategy = comboCard.useStrategy){
-                    DefUseStrategy ->  return canUseCardsByHandler
-                    ChangeStrategy ->{
+                when (val useStrategy = comboCard.useStrategy) {
+                    DefUseStrategy -> return canUseCardsByHandler
+                    ChangeStrategy -> {
                         warManage.useCardAndRemove(canUseCardsByHandler.first())
                         warManage.refreshComboCards()
                         //todo 这方案不太靠谱 重新计算权重并使用
-                        return findBestCombination(warManage.canUseCards,true)
+                        return findBestCombination(warManage.canUseCards, true)
                     }
+
                     is AddCostStrategy -> {
-                        val expectCost =   useStrategy.cost
-                        return  weightHandlerDomain.findBestCombinationByExpectCost(comboCard,expectCost)
+                        val expectCost = useStrategy.cost
+                        return weightHandlerDomain.findBestCombinationByExpectCost(comboCard, expectCost)
                     }
                 }
             }
-            else ->{
+
+            else -> {
                 return canUseCardsByHandler
             }
 
@@ -129,7 +155,7 @@ class ComboDomain(war: War) {
         if (bestCombination.isNotEmpty()) {
 
             //只有一个处理
-            if(bestCombination.size==1){
+            if (bestCombination.size == 1) {
                 warManage.useCard(bestCombination.first())
                 return
             }
@@ -140,11 +166,11 @@ class ComboDomain(war: War) {
                 val finalWeight = bestCombination.sumOf { it.powerWeight }
                 val msg =
                     "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
-                 msg
+                msg
             }
 
-            //todo-future  打出优先级处理
-           val bestCombinationCombo =  bestCombination.sortedBy {
+            //todo-future  打出优先级处理 combo情况处理
+            val bestCombinationCombo = bestCombination.sortedByDescending {
                 it.powerWeight
             }
 
@@ -169,7 +195,7 @@ class ComboDomain(war: War) {
         }
     }
 
-    fun executeDiscoverChooseCard(vararg cards: Card): Int{
+    fun executeDiscoverChooseCard(vararg cards: Card): Int {
         return weightHandlerDomain.executeDiscoverChooseCard(*cards)
     }
 
