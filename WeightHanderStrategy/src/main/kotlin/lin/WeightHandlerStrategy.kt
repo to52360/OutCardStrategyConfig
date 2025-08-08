@@ -107,7 +107,7 @@ class WeightHandlerStrategy : DeckStrategy() {
     override fun executeDiscoverChooseCard(vararg cards: Card): Int  {
         try{
           return   comboDomain.executeDiscoverChooseCard(*cards)
-        }catch(e:Exception){
+        } catch (e: Throwable) {
             e.printStackTrace()
             myLog.error(e){"发现策略出现错误"}
             throw  e

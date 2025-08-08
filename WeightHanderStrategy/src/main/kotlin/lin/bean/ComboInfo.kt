@@ -18,18 +18,13 @@ open class Combo(val comboId: Int, val comboRule: ComboRule, val priority: Boole
             val weight = it(comboCard)
             //优先级处理
             if (weight != NotWeight) {//表示是同一组
-                val powerWeight = callComboCard.powerWeight
+                val beforeWeight = callComboCard.powerWeight
                 //之前策略
-                if (priority && powerWeight <= comboCard.powerWeight) {//增加权重
-                    val addWeight = comboCard.powerWeight - powerWeight + OrderWeight //保证同组优先级最高
+                if (beforeWeight <= comboCard.powerWeight) {//增加权重
+                    val addWeight = comboCard.powerWeight - beforeWeight + OrderWeight //保证同组优先级最高
                     callComboCard.addWeight(addWeight)
                 }
 
-                //之后策略
-                if (!priority && powerWeight >= comboCard.powerWeight) {//之后 如果不是最小,修正权重为最小
-                    val addWeight = powerWeight - comboCard.powerWeight + OrderWeight //保证同组优先级最高
-                    comboCard.addWeight(addWeight)
-                }
             }
             weight
         }

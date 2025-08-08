@@ -15,12 +15,14 @@ typealias ProcessWeightByCostsFun = (WeightHandler, ComboCard) -> Unit
 class WeightHandlerDomain(private val warManage: MyWarManage) {
     private val weightHandlers: List<WeightHandler>
     private val cardWeightHandlers: List<CardWeightHandler>
+    var unUseCards = sortedSetOf<ComboCard>(comparator = compareByDescending { it.powerWeight })
+        private set
 
     private var canUseCardsByHandler:List<ComboCard> = emptyList()
     val readCanUseCardsByHandler: List<ComboCard>
         get() = canUseCardsByHandler
-    init {
 
+    init {
         try {
             val infos = warManage.infoMap
             myLog.info { "权重信息的id集合:${infos.keys}" }
@@ -51,6 +53,9 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
     }
 
+    fun clean() {
+        unUseCards = sortedSetOf<ComboCard>(comparator = compareByDescending { it.powerWeight })
+    }
 
     /**
      * 权重执行环境,为了优化留下扩展
@@ -67,6 +72,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
                 weightHandlers.forEach { processWeightByCostsFun(it,comboCard) }
                 //过滤出经过权重处理器能使用的卡牌
                 if (comboCard.useAble()) canUseCardsByHandler.add(comboCard)
+                else unUseCards.add(comboCard)
             }
             return canUseCardsByHandler
         }
@@ -239,12 +245,27 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
             cardWeightHandlers.forEach {
                 it.cardWeight(comboCard)
             }
-            if(comboCard.powerWeight>maxWeight){
+            comboCard.basePowerWeight
+            val extWeight = comboCard.powerWeight + pointToDouble(comboCard.basePowerWeight)
+            if (extWeight > maxWeight) {
                 maxWeight = comboCard.powerWeight
                 maxIndex = i
             }
         }
         return maxIndex
+
+    }
+
+    fun pointToDouble(number: Double): Double {
+        // 1. 获取小数部分
+        val decimalPart = number - number.toInt() // 结果: 0.14159
+        if (decimalPart == 0.0) return decimalPart
+        // 2. 将小数部分乘以 10^n（n 是你想要保留的小数位数），然后转换为 Int
+        // 例如，保留 5 位小数
+        val scaleFactor = 100 // 10^5
+        val result = decimalPart * scaleFactor
+        return result
+
 
     }
 

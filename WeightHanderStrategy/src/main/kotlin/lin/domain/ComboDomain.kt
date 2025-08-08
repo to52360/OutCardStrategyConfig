@@ -84,7 +84,16 @@ class ComboDomain(war: War) {
         if (isStart) {
             lifecycleRegisterImpl.startAllGameLifecycles()
         }
-        warManage.executeEnvironment { runnable() }
+        weightHandlerDomain.clean()
+        warManage.executeEnvironment {
+            runnable()
+            //todo-future 由负的权重决定剩余多少费用才能出  -10表示还有一费就可以出
+            if (warManage.getNowCost() > 3) {
+                weightHandlerDomain.unUseCards.forEach {
+                    warManage.useCard(it)
+                }
+            }
+        }
     }
 
     /**
