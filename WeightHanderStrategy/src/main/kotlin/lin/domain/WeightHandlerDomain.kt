@@ -25,10 +25,8 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
     init {
         try {
             val infos = warManage.infoMap
-            myLog.info { "权重信息的id集合:${infos.keys}" }
             val cardWeightInfos =  infos.values.toList()
             val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
-            myLog.info { "加载到的权重处理器的类名:${services.joinToString(","){it::class.simpleName.toString()}}" }
             val cardWeightHandler = mutableListOf<CardWeightHandler>()
             val weightHandler = services.sortedBy {
                 //按ai的说法会语义多重,实践看看有什么后果
@@ -248,10 +246,12 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
             comboCard.basePowerWeight
             val extWeight = comboCard.powerWeight + pointToDouble(comboCard.basePowerWeight)
             if (extWeight > maxWeight) {
+                myLog.info { "暂时最大值:id:${comboCard.card.cardId},名字:${comboCard.card.entityName}的发现权重:$extWeight" }
                 maxWeight = comboCard.powerWeight
                 maxIndex = i
             }
         }
+
         return maxIndex
 
     }

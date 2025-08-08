@@ -17,7 +17,6 @@ class OnWarByGroupId : OnWarInfo, DepByWeightGroupIdDelegate<DepToPredicates> by
         return "在战场有对应分组的卡"
     }
 
-    override fun id() = 25080701
     override var groupWeight: Double = CostWeight
 
 }

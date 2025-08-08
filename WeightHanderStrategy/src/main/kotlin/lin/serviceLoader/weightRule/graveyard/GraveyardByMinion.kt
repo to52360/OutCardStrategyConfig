@@ -19,7 +19,6 @@ class GraveyardByMinion : AddWeightByCondition, RuleGameLifecycle {
         return groupWeight * minionNum
     }
 
-    override fun id() = 25080801
     override fun description(): String {
         return "亡者复生"
     }

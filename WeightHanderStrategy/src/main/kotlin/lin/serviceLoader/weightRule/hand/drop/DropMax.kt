@@ -15,5 +15,5 @@ class DropMax : AbstractHandArea(), DepByWeightGroupIdDelegate<DepToPredicate> b
         return UnUseWeight
     }
 
-    override fun id() = 25080702
+
 }

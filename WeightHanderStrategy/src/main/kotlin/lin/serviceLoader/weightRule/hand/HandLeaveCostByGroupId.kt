@@ -18,10 +18,6 @@ class HandLeaveCostByGroupId : CanUseHandByLeaveCost,
     override var groupWeight: Double = CostWeight
 
 
-
-    override fun id()=25072601
-
-
     override fun onLeaveCostProcessWeight(
         callCard: ComboCard,
         leaveCostHandCards: List<ComboCard>

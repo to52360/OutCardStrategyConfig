@@ -34,6 +34,10 @@ data class CardWeightInfo(
 
     var weightRules : List<WeightRule> = emptyList()
         private set
+
+    /**
+     * 存在重复添加的问题
+     */
     fun addWeightRule(weightRule: WeightRule){
         val lifecycleRegister = get<LifecycleRegister>()
         weightRules = if(weightRules.isEmpty()){

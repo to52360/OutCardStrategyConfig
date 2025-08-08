@@ -1,12 +1,10 @@
 package lin.serviceLoader.weightRule.hand
 
 import lin.bean.ComboCard
-
 import lin.serviceLoader.weightRule.utils.DepByWeightInfoDelegate
-import lin.serviceLoader.weightRule.utils.PredicateByRace
 import lin.serviceLoader.weightRule.utils.DepToPredicates
+import lin.serviceLoader.weightRule.utils.PredicateByRace
 import lin.weightHandler.condition.context.NotWeight
-
 
 
 /**
@@ -21,5 +19,4 @@ class HandAreaByRace : AbstractHandArea(),
     override fun description(): String {
         return "以手牌含有种族作为打出条件"
     }
-    override fun id(): Int = 250625013
 }

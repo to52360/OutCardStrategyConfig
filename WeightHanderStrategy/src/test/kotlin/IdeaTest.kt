@@ -28,6 +28,11 @@ class IdeaTest {
         }
     }
 
+    @Test
+    fun test2() {
+        println(javaClass.simpleName)
+    }
+
 
 
 }

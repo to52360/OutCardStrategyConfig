@@ -17,6 +17,7 @@ fun MyWarManage.activeLocation(){
     cards.forEach { card ->
         if (card.cardType === CardTypeEnum.LOCATION && !card.isLocationActionCooldown) {
             card.action.lClick()
+            Thread.sleep(1000)
         }
     }
 }

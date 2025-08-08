@@ -4,5 +4,5 @@ package lin.weightHandler.condition.context
 const val CostWeight = 10.0
 const val NotWeight = 0.0
 const val BaseWeight = 1.0
-const val OrderWeight = 0.1
+const val OrderWeight = 1.0
 const val UnUseWeight = -100.0

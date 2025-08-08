@@ -38,7 +38,6 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
         weightCalculate.forEach {
             it.calculateSetWeight(callCard, warManage)
         }
-        myLog.info { "${callCard.card.entityName}增加的权重:${callCard.extPowerWeight}" }
     }
 
     /**
@@ -50,12 +49,9 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
 
 
         //条件实现数据
-        val groupCondition: HashMap<Int, WeightCondition> = hashMapOf()
+        val groupCondition: HashMap<String, WeightCondition> = hashMapOf()
         ServiceLoaderUtils.loadServices(WeightCondition::class.java).forEach {
             groupCondition[it.id()] = it
-        }
-        myLog.info {
-            "加载到的条件组id:${groupCondition.keys}"
         }
 
 

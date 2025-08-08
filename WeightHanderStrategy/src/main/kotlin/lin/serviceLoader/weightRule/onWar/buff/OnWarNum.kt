@@ -14,6 +14,5 @@ class OnWarNum : OnWarInfo {
         return "根据随从增加权重"
     }
 
-    override fun id() = 25080701
 
 }

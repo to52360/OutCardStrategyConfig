@@ -6,7 +6,6 @@ import lin.serviceLoader.weightRule.AddWeightByAll
 import lin.warExt.common.hasTaunt
 import lin.warExt.rival.rivalIsNotCardByPlayArea
 import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.UnUseWeight
 
 /**
  * 光环类,后置规则,暂没有优先级,采用isBaseWeight,来判断有没有前置规则满足
@@ -15,13 +14,12 @@ import lin.weightHandler.condition.context.UnUseWeight
  */
 
 class HaloRule: AddWeightByAll {
-    override fun id()= 25072901
 
     /**
      * 没有判断手牌是否存在后续收益
      */
     override fun calculateWeight(callCard:ComboCard,warInfo: WarInfo): Double {
-        var addWeight = UnUseWeight
+        var addWeight = 0.0
         if(callCard.isBaseWeight()){
             if(warInfo.rivalIsNotCardByPlayArea())  addWeight += groupWeight
             if (warInfo.hasTaunt()) addWeight += groupWeight/2

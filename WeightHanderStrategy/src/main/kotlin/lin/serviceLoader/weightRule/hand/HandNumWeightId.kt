@@ -23,6 +23,5 @@ class HandNumWeightId : AbstractHandArea(), DepByWeightGroupIdDelegate<DepToPred
         return "满足条件卡牌数量"
     }
 
-    override fun id() = 25073001
 
 }

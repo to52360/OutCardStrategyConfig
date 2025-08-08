@@ -47,13 +47,9 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
     init {
-
         infoMap = getCardInfos()
         parseCondition(infoMap)
         parseCombo(infoMap)
-        myLog.info {
-            "MyWarManage初始化$infoMap"
-        }
     }
 
     //把配置信息转化成上下文信息
@@ -160,9 +156,12 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
     }
 
+    /**
+     * todo-future 有问题使用需要特定组合,但是没有绑定在一起
+     */
     private fun isChange(): Boolean {
-        val change = handComboCards.size <= getHandCards().size
-        myLog.info { "之前数量:${handComboCards.size},目前的数量:${getHandCards().size}" }
+        val change = getHandCards().size >= handNum
+        myLog.info { "之前数量:${handNum},目前的数量:${getHandCards().size}" }
         return change
     }
 
@@ -213,10 +212,11 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             handComboCards -= comBoCard
         }
     }
-
+    private var handNum = 0
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
     //todo 可以判断最后一个下标等不等于最后下标
     fun useCard(comBoCard: ComboCard): Boolean {
+        handNum = getHandCards().size
         val card = comBoCard.card
         if (card.area !is HandArea) return false //修改区域
 
@@ -227,7 +227,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         } ?: run {
             result = card.action.power()?.let { true } ?: false
         }
-        return result
+        return result && card.area !is HandArea
 
     }
     //todo-future 不知道并发安全不,执行出牌策略和更新war是不是同一个线程

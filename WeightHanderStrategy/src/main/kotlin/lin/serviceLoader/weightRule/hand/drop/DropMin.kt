@@ -14,5 +14,4 @@ class DropMin : AbstractHandArea(), DepByWeightGroupIdDelegate<DepToPredicate> b
         return -groupWeight
     }
 
-    override fun id() = 25080703
 }

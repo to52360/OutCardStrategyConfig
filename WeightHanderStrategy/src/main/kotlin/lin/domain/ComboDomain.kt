@@ -73,27 +73,30 @@ class ComboDomain(war: War) {
         try {
             Thread.currentThread().contextClassLoader = classLoader
             runnable()
+        } catch (t: Throwable) {
+            myLog.error(t) { "出现错误" }
         } finally {
             Thread.currentThread().contextClassLoader = threadClassLoader
         }
     }
 
     private inline fun executeEnvironment(runnable: () -> Unit) {
-        lifecycleRegisterImpl.startAllRuleLifecycles()
-        val isStart = warManage.isStart()
-        if (isStart) {
-            lifecycleRegisterImpl.startAllGameLifecycles()
-        }
-        weightHandlerDomain.clean()
-        warManage.executeEnvironment {
-            runnable()
-            //todo-future 由负的权重决定剩余多少费用才能出  -10表示还有一费就可以出
-            if (warManage.getNowCost() > 3) {
-                weightHandlerDomain.unUseCards.forEach {
-                    warManage.useCard(it)
+        threadContext {
+            lifecycleRegisterImpl.startAllRuleLifecycles()
+            val isStart = warManage.isStart()
+            if (isStart) {
+                lifecycleRegisterImpl.startAllGameLifecycles()
+            }
+            weightHandlerDomain.clean()
+            warManage.executeEnvironment {
+                runnable()
+                //todo-future 由负的权重决定剩余多少费用才能出  -10表示还有一费就可以出
+                if (warManage.getNowCost() > 3) {
+                    useCards(weightHandlerDomain.unUseCards.toList())
                 }
             }
         }
+
     }
 
     /**
@@ -189,7 +192,7 @@ class ComboDomain(war: War) {
 
             val expectCost = warManage.getNowCost() - needCost
             //todo-fu这里使用
-            val afterUse = sortedSetOf<ComboCard>()//之后使用
+            val afterUse = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })//之后使用
             for (card in bestCombinationCombo) {
                 if (AfterStrategy == card.useStrategy) {
                     afterUse.add(card)
@@ -204,16 +207,20 @@ class ComboDomain(war: War) {
             //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = canUseCardsByHandler - bestCombination.toSet()
-                if (moreTryCard.isNotEmpty()) {
-                    for (card in moreTryCard) {
-                        if (warManage.getNowCost() >= card.getCost()) {
-                            warManage.useCard(card)
-                            if (!warManage.hasCost()) break
-                        }
-                    }
+                useCards(moreTryCard)
+
+
+            }
+        }
+    }
+
+    fun useCards(comboCards: List<ComboCard>) {
+        if (comboCards.isNotEmpty()) {
+            for (card in comboCards) {
+                if (warManage.getNowCost() >= card.getCost()) {
+                    warManage.useCard(card)
+                    if (!warManage.hasCost()) break
                 }
-
-
             }
         }
     }
@@ -236,22 +243,22 @@ class ComboDomain(war: War) {
      *
      */
     private fun isBreak(): Boolean {
-        if (warManage.hasCost()) {
-            val change = warManage.changeAndReload()
-            if (change) {
-                myLog.info { "有变化,重新执行" }
-                findAndUse()
+        val change = warManage.changeAndReload()
+        if (change) {
+            myLog.info { "有变化,重新执行" }
+            findAndUse()
 
-            }
-            return change
-        } else {
-            return false
         }
-
+        return change
     }
 
     fun executeDiscoverChooseCard(vararg cards: Card): Int {
-        return weightHandlerDomain.executeDiscoverChooseCard(*cards)
+        var index = 0
+        threadContext {
+            index = weightHandlerDomain.executeDiscoverChooseCard(*cards)
+        }
+
+        return index
     }
 
 }

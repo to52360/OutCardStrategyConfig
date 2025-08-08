@@ -21,7 +21,7 @@ class WeightConditionEngine(private val scriptDir: Path) {
         throw IllegalStateException("Kotlin script engine not available")
     }
 
-    private val strategies = mutableMapOf<Int, WeightCondition>()
+    private val strategies = mutableMapOf<String, WeightCondition>()
     private var lastReload = Instant.now()
 
     init {
@@ -30,7 +30,7 @@ class WeightConditionEngine(private val scriptDir: Path) {
     }
 
     private fun reloadStrategies() {
-        val newStrategies = mutableMapOf<Int, WeightCondition>()
+        val newStrategies = mutableMapOf<String, WeightCondition>()
 
         Files.list(scriptDir)
             .filter { it.toString().endsWith(".cardstrategy.kts") }

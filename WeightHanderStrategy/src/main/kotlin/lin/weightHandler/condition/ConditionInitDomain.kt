@@ -10,7 +10,7 @@ import lin.utils.serviceLoader.ServiceLoaderUtils
  * [ConditionWeightHandler]
  */
 class ConditionInitDomain(infos: List<CardWeightInfo>) {
-    val groupCondition: HashMap<Int, WeightCondition> = hashMapOf()
+    val groupCondition: HashMap<String, WeightCondition> = hashMapOf()
     val weightGroupInfos = infos.groupBy { it.groupId }
     init {
         ServiceLoaderUtils.loadServices(WeightCondition::class.java).forEach {

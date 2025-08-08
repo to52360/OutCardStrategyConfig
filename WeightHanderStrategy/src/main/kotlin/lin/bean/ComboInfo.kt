@@ -1,5 +1,6 @@
 package lin.bean
 
+import lin.myLog
 import lin.weightHandler.condition.context.NotWeight
 import lin.weightHandler.condition.context.OrderWeight
 
@@ -19,14 +20,18 @@ open class Combo(val comboId: Int, val comboRule: ComboRule, val priority: Boole
             //优先级处理
             if (weight != NotWeight) {//表示是同一组
                 val beforeWeight = callComboCard.powerWeight
+
                 //之前策略
                 if (beforeWeight <= comboCard.powerWeight) {//增加权重
                     val addWeight = comboCard.powerWeight - beforeWeight + OrderWeight //保证同组优先级最高
                     callComboCard.addWeight(addWeight)
                 }
+                myLog.info { "核心权重${callComboCard.powerWeight},成员权重${comboCard.powerWeight}" }
+                weight
 
             }
-            weight
+            NotWeight
+
         }
 
     }
