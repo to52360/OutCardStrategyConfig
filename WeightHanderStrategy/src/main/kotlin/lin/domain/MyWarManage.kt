@@ -9,7 +9,6 @@ import lin.bean.CardWeightInfo
 import lin.bean.Combo
 import lin.bean.ComboCard
 import lin.bean.ComboRule
-import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.weightRule.CardRule
@@ -144,6 +143,10 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         //select 先转换后再过滤考虑存在费用变更情况
         handComboCards = parseComboCard()
         canUseCards = canUseCardsByCost()
+        reloadPlayComboCards()
+    }
+
+    private fun reloadPlayComboCards() {
         playComboCards = parseComboCard(getPlayCards())
     }
 
@@ -246,7 +249,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             if (war.isValid()) {
                 //使用地标
                 activeLocation()
-                cleanPlay()
                 //重新加载信息
                 reLoad()
                 runnable()

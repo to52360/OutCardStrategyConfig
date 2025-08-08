@@ -1,7 +1,8 @@
 package lin.weightHandler.condition
 
 
-import lin.bean.*
+import lin.bean.CardWeightInfo
+import lin.bean.ComboCard
 import lin.domain.MyWarManage
 import lin.myLog
 import lin.serviceLoader.weightRule.DepByWeightGroupId
@@ -15,9 +16,6 @@ import lin.weightHandler.condition.config.GroupStrategyDao
 import lin.weightHandler.condition.context.ConditionException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-
-
-import kotlin.collections.HashMap
 
 /**
  * 条件权重处理器
@@ -38,10 +36,9 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
         val weightCalculate = callCard.weightRules
         weightCalculate.forEach {
-            myLog.info { "条件处理权重前的权重值:${callCard.powerWeight}" }
             it.calculateSetWeight(callCard, warManage)
-            myLog.info { "条件处理权重后的权重值:${callCard.powerWeight}" }
         }
+        myLog.info { "${callCard.card.entityName}增加的权重:${callCard.extPowerWeight}" }
     }
 
     /**

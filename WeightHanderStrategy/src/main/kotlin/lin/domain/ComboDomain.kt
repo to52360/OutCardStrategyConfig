@@ -4,20 +4,20 @@ package lin.domain
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
-import lin.bean.*
+import lin.bean.AddCostStrategy
+import lin.bean.ChangeStrategy
+import lin.bean.ComboCard
+import lin.bean.DefUseStrategy
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
-
-
 import lin.myLog
 import lin.utils.JarClassLoader
 import lin.warExt.base.getNowCost
 import lin.warExt.base.hasCost
 import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import java.util.ServiceConfigurationError
+import java.util.*
 
 
 /**
@@ -48,7 +48,6 @@ class ComboDomain(war: War) {
         myLog.info {
             "ComboDao初始化"
         }
-        val threadClassLoader = Thread.currentThread().contextClassLoader
         try {
             threadContext {
 

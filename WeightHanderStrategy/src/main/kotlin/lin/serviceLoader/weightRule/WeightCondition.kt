@@ -2,6 +2,7 @@ package lin.serviceLoader.weightRule
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
+import lin.weightHandler.condition.context.UnUseWeight
 
 /**
  * 加权条件
@@ -22,6 +23,10 @@ interface WeightCondition : WeightRule, GroupWeight {
  */
 interface AddWeightByCondition : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo) {
+        val result = calculateWeight(warInfo)
+        if (result == UnUseWeight) {
+            callCard.unUse()
+        } else
         callCard.addWeight(calculateWeight(warInfo))
     }
 
@@ -31,6 +36,9 @@ interface AddWeightByCondition : WeightCondition {
 interface AddWeightByAll : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo) {
         val weight = calculateWeight(callCard, warInfo)
+        if (weight == UnUseWeight) {
+            callCard.unUse()
+        } else
         callCard.addWeight(weight)
     }
 

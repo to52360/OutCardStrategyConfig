@@ -4,7 +4,7 @@ import club.xiaojiawei.bean.Card
 
 import lin.weightHandler.condition.context.BaseWeight
 import lin.weightHandler.condition.context.NotWeight
-
+import lin.weightHandler.condition.context.UnUseWeight
 
 
 typealias ComboRule = (ComboCard) -> Double
@@ -66,7 +66,9 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
      * 暂时 小于0为不可使用
      */
     fun useAble(): Boolean = powerWeight >= NotWeight
-
+    fun unUse() {
+        extPowerWeight = powerWeight - extPowerWeight - UnUseWeight
+    }
 
     /**
      * todo-future  用于处理重新生成comboCard时候判断是否重复,重新生成没有这么复杂的逻辑,但是效率有问题
