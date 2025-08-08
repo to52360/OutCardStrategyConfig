@@ -5,10 +5,7 @@ import club.xiaojiawei.bean.War
 import club.xiaojiawei.bean.area.HandArea
 import club.xiaojiawei.bean.isValid
 import club.xiaojiawei.data.CARD_INFO_TRIE
-import lin.bean.CardWeightInfo
-import lin.bean.Combo
-import lin.bean.ComboCard
-import lin.bean.ComboRule
+import lin.bean.*
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.weightRule.CardRule
@@ -53,7 +50,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
         infoMap = getCardInfos()
         parseCondition(infoMap)
-        parseComboCard(infoMap)
+        parseCombo(infoMap)
         myLog.info {
             "MyWarManage初始化$infoMap"
         }
@@ -72,7 +69,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     /**
      * 解析Combo信息
      */
-    private fun parseComboCard(infoMap: Map<String, CardWeightInfo>) {
+    private fun parseCombo(infoMap: Map<String, CardWeightInfo>) {
         val cardGroupInfos = infoMap.values.groupBy { it.groupId }
         val comboInfoDao: ComboInfoDao by inject()
         val comboInfos = comboInfoDao.findAll()
@@ -80,21 +77,28 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             val bindId = comboInfo.bindId
             val bindCardGroup = cardGroupInfos[bindId]
             bindCardGroup?.let { comboGroup ->
-                val comboRule: ComboRule = { comboCards ->
-                    if (comboInfo.depIds.any {
-                            it == comboCards.groupId()
-                        })
-                        comboInfo.comboWeight
-                    else
-                        NotWeight
+                if (comboInfo.isBefore) {
+                    val comboRule: ComboRule = { comboCards ->
+                        if (comboInfo.depIds.any {
+                                it == comboCards.groupId()
+                            })
+                            comboInfo.comboWeight
+                        else
+                            NotWeight
+                    }
+
+                    val combo = Combo(comboInfo.infoId, comboRule, comboInfo.isBefore)
+
+                    //赋值
+                    bindCardGroup.forEach {
+                        it.addCombo(combo)
+                    }
+                } else {//之后使用
+                    bindCardGroup.forEach {
+                        it.useStrategy = AfterStrategy
+                    }
                 }
 
-                val combo = Combo(comboInfo.infoId, comboRule, comboInfo.isBefore)
-
-                //赋值
-                bindCardGroup.forEach {
-                    it.addCombo(combo)
-                }
 
 
             } ?: run {
@@ -121,13 +125,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
     //转化
-    fun parseComboCard(cards: List<Card> = getHandCards()): List<ComboCard> {
+    fun parseCombo(cards: List<Card> = getHandCards()): List<ComboCard> {
         return cards.map {
-            parseComboCard(it)
+            parseCombo(it)
         }
     }
 
-    fun parseComboCard(card: Card): ComboCard {
+    fun parseCombo(card: Card): ComboCard {
         return ComboCard(
             cardWeightInfo = infoMap[card.cardId],
             card = card
@@ -141,13 +145,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      */
     fun reLoad() {
         //select 先转换后再过滤考虑存在费用变更情况
-        handComboCards = parseComboCard()
+        handComboCards = parseCombo()
         canUseCards = canUseCardsByCost()
         reloadPlayComboCards()
     }
 
     private fun reloadPlayComboCards() {
-        playComboCards = parseComboCard(getPlayCards())
+        playComboCards = parseCombo(getPlayCards())
     }
 
     fun cleanWeight() {
@@ -156,6 +160,19 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
     }
 
+    private fun isChange(): Boolean {
+        val change = handComboCards.size <= getHandCards().size
+        myLog.info { "之前数量:${handComboCards.size},目前的数量:${getHandCards().size}" }
+        return change
+    }
+
+    fun changeAndReload(): Boolean {
+        val change = isChange();
+        if (change) {
+            reLoad()
+        }
+        return change
+    }
     /**
      *
      * 节省性能方式,但是对于不是新增在右边会有问题,复杂策略往往来更多bug
@@ -171,7 +188,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             val tempList = mutableListOf<ComboCard>()
             for (i in handComboCards.size until handCards.size) {
                 val card = handCards[i]
-                tempList.add(ComboCard(infoMap[card.cardId], card))
+                tempList.add(parseCombo(card))
             }
             handComboCards += tempList
         }

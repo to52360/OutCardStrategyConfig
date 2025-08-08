@@ -2,13 +2,13 @@ package lin.domain
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
-import lin.myLog
-import lin.weightHandler.InitHandler
-import lin.weightHandler.WeightHandler
 import lin.bean.UseType
+import lin.myLog
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.base.getNowCost
 import lin.weightHandler.CardWeightHandler
+import lin.weightHandler.InitHandler
+import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.context.CostWeight
 
 typealias ProcessWeightByCostsFun = (WeightHandler, ComboCard) -> Unit
@@ -121,29 +121,30 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
     fun findBestCombinationByExpectCost(comboCard: ComboCard, expectCost:Int):List<ComboCard>{
          val nowCostCardsByWeight  = this.canUseCardsByHandler-comboCard
          val  nowCostCards =  findBestCombination(nowCostCardsByWeight)
-         val sumCost = nowCostCards.sumOf { it.powerWeight }
-         myLog.info { "现在费用的权重:${sumCost},成员:$nowCostCards" }
+        val nowWeight = nowCostCards.sumOf { it.powerWeight }
+        myLog.info { "现在费用的权重:${nowWeight},成员:$nowCostCards" }
 
 
          //todo-future 1.复杂状态关系要不要封装成对象,2.这里存在很多复制数组的操作,性能没问题就不优化
-         val expectCostCard = warManage.canUseCardsByCost(expectCost+warManage.getNowCost()).copy(comboCard)
+
+        val expectCostCard = warManage.canUseCardsByCost(expectCost).copy(comboCard)
         //todo-future  采用复制性能问题,但是应该不常用,到时再看
          val expectCostCardByWeight = weightProcess(expectCostCard)
          //todo-future 这里还可以提供
-         val expectCostCards =findBestCombination(expectCostCardByWeight)
+        val expectCostCards = findBestCombination(expectCostCardByWeight, expectCost)
 
 
         //todo 超模才用硬币,也可能一直不打硬币情况
         val reduceWeight = expectCost*5.0
-        val sumExpectCost = expectCostCard.sumOf { it.powerWeight }-reduceWeight
-        myLog.info { "期望费用的权重:${sumExpectCost},成员:$expectCostCards" }
+        val sumExpectWeight = expectCostCard.sumOf { it.powerWeight } - reduceWeight
+        myLog.info { "期望费用的权重:${sumExpectWeight},成员:$expectCostCards" }
 
 
-        return if(sumCost>sumExpectCost){
+        return if (nowWeight > sumExpectWeight) {
             this.canUseCardsByHandler = nowCostCardsByWeight
             nowCostCards
         }else{
-            warManage.useCard(comboCard)//使用
+            warManage.useCardAndRemove(comboCard)//使用增加费用
             //todo 没排序
             this.canUseCardsByHandler = expectCostCardByWeight
             expectCostCards
@@ -155,9 +156,12 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
     /**
      * 查询前置优化操作
      */
-    private fun findBestCombination(canUseCardsByHandler:List<ComboCard>):List<ComboCard>{
+    private fun findBestCombination(
+        canUseCardsByHandler: List<ComboCard>,
+        cost: Int = warManage.getNowCost()
+    ): List<ComboCard> {
         return if(canUseCardsByHandler.size>1){
-            findBestCombination(comboCards=canUseCardsByHandler)
+            findBestCombination(cost, comboCards = canUseCardsByHandler)
         }else{
             canUseCardsByHandler
         }
@@ -231,7 +235,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         var maxIndex = 0
         var maxWeight = 0.0
         for(i in cards.indices){
-            val comboCard = warManage.parseComboCard(cards[i])
+            val comboCard = warManage.parseCombo(cards[i])
             cardWeightHandlers.forEach {
                 it.cardWeight(comboCard)
             }
@@ -251,7 +255,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         val comboCards = mutableListOf<ComboCard>()
         forEach {
             if(skipComboCard != it.card){//重写的equals,不知道==起效不
-                val comboCard = warManage.parseComboCard(it.card)
+                val comboCard = warManage.parseCombo(it.card)
                 comboCards.add(comboCard)
             }
 

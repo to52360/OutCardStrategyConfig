@@ -67,7 +67,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
      */
     fun useAble(): Boolean = powerWeight >= NotWeight
     fun unUse() {
-        extPowerWeight = powerWeight - extPowerWeight - UnUseWeight
+        extPowerWeight = UnUseWeight
     }
 
     /**

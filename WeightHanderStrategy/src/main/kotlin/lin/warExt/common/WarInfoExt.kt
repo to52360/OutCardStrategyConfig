@@ -40,7 +40,19 @@ fun WarInfo.hasTaunt():Boolean{
 }
 
 
-
-
+/**
+ * 墓地牌
+ */
 fun WarInfo.getGraveyardCards() = war.me.graveyardArea.cards
+
+inline fun WarInfo.getGraveyardCards(filter: (Card) -> Boolean): List<Card> {
+    return getGraveyardCards().filter(filter)
+}
+
+fun WarInfo.getGraveyardCardsByType(cardTypeEnum: CardTypeEnum): List<Card> {
+    return getGraveyardCards { card -> card.cardType == cardTypeEnum }
+
+}
+
+
 

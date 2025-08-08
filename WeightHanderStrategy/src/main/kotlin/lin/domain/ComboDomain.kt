@@ -5,9 +5,9 @@ import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
 import lin.bean.AddCostStrategy
+import lin.bean.AfterStrategy
 import lin.bean.ChangeStrategy
 import lin.bean.ComboCard
-import lin.bean.DefUseStrategy
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
@@ -93,16 +93,19 @@ class ComboDomain(war: War) {
     fun outCardStrategy() {
         myLog.info { "执行出牌策略" }
         executeEnvironment {
-            //获取能够打出的卡牌
-            val canUseCardsByCost = warManage.canUseCards
-            //todo 看一下isChange能不能放入weightHandlerDao
-            val bestCombination = findBestCombination(canUseCardsByCost, false)
-
-            val canUseCardsByHandler = weightHandlerDomain.readCanUseCardsByHandler
-            myLog.info { "找到需要使用的卡牌:$bestCombination" }
-            executeUseCard(canUseCardsByHandler, bestCombination)
-
+            findAndUse()
         }
+    }
+
+    private fun findAndUse() {
+        //获取能够打出的卡牌
+        val canUseCardsByCost = warManage.canUseCards
+        //todo 看一下isChange能不能放入weightHandlerDao
+        val bestCombination = findBestCombination(canUseCardsByCost, false)
+
+        val canUseCardsByHandler = weightHandlerDomain.readCanUseCardsByHandler
+        myLog.info { "找到需要使用的卡牌:$bestCombination" }
+        executeUseCard(canUseCardsByHandler, bestCombination)
     }
 
     /**
@@ -122,7 +125,6 @@ class ComboDomain(war: War) {
             1 -> {
                 val comboCard = canUseCardsByHandler.first()
                 when (val useStrategy = comboCard.useStrategy) {
-                    DefUseStrategy -> return canUseCardsByHandler
                     ChangeStrategy -> {
                         warManage.useCardAndRemove(canUseCardsByHandler.first())
                         warManage.refreshComboCards()
@@ -131,9 +133,11 @@ class ComboDomain(war: War) {
                     }
 
                     is AddCostStrategy -> {
-                        val expectCost = useStrategy.cost
+                        val expectCost = useStrategy.cost + warManage.getNowCost()
                         return weightHandlerDomain.findBestCombinationByExpectCost(comboCard, expectCost)
                     }
+
+                    else -> return canUseCardsByHandler
                 }
             }
 
@@ -155,7 +159,7 @@ class ComboDomain(war: War) {
 
             //只有一个处理
             if (bestCombination.size == 1) {
-                warManage.useCard(bestCombination.first())
+                useCardAndIsBreak(bestCombination.first())
                 return
             }
 
@@ -175,7 +179,18 @@ class ComboDomain(war: War) {
 
 
             val expectCost = warManage.getNowCost() - needCost
-            bestCombinationCombo.forEach { warManage.useCard(it) }
+            //todo-fu这里使用
+            val afterUse = sortedSetOf<ComboCard>()//之后使用
+            for (card in bestCombinationCombo) {
+                if (AfterStrategy == card.useStrategy) {
+                    afterUse.add(card)
+                } else {
+                    if (useCardAndIsBreak(card)) return
+                }
+            }
+            if (afterUse.isNotEmpty()) {
+                afterUse.forEach { if (useCardAndIsBreak(it)) return }
+            }
             //todo-future 直接遍历使用
             //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
@@ -192,6 +207,38 @@ class ComboDomain(war: War) {
 
             }
         }
+    }
+
+
+    fun useCardAndIsBreak(card: ComboCard): Boolean {
+        val useResult = warManage.useCard(card)
+        myLog.info { "使用结果:$useResult" }
+        if (useResult) {
+            val isBreak = isBreak()
+            myLog.info { "是否有变化:$isBreak" }
+            return isBreak
+        }
+        return false
+    }
+
+    /**
+     * 刷新重新调用回溯查找 需要配合[MyWarManage.useCard]使用
+     * todo-future 先验证可行性
+     *
+     */
+    private fun isBreak(): Boolean {
+        if (warManage.hasCost()) {
+            val change = warManage.changeAndReload()
+            if (change) {
+                myLog.info { "有变化,重新执行" }
+                findAndUse()
+
+            }
+            return change
+        } else {
+            return false
+        }
+
     }
 
     fun executeDiscoverChooseCard(vararg cards: Card): Int {
