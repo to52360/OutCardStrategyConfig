@@ -2,7 +2,6 @@ package lin.bean
 
 
 import lin.lifecycle.LifecycleRegister
-import lin.myLog
 import lin.serviceLoader.weightRule.WeightRule
 import lin.weightHandler.condition.context.ConditionException
 import org.koin.core.component.KoinComponent
@@ -31,36 +30,44 @@ data class CardWeightInfo(
                 throw ConditionException("暂时无法重复设置")
             }
         }
+    private var _weightRules: MutableList<WeightRule>? = null
 
-    var weightRules : List<WeightRule> = emptyList()
-        private set
+    val weightRules: List<WeightRule>
+        get() = _weightRules ?: emptyList()
 
     /**
      * 存在重复添加的问题
      */
     fun addWeightRule(weightRule: WeightRule){
-        val lifecycleRegister = get<LifecycleRegister>()
-        weightRules = if(weightRules.isEmpty()){
-            listOf(weightRule)
-        }else{
-            weightRules+weightRule
+        if (_weightRules == null) {
+            _weightRules = mutableListOf(weightRule)
+        } else {
+            _weightRules!!.add(weightRule)
         }
+        val lifecycleRegister = get<LifecycleRegister>()
         //生命周期,游戏开始/回合开始结束调用对应方法,为了条件组有状态
         lifecycleRegister.register(weightRule)
     }
     fun clearWeightRule(){
         val lifecycleRegister = get<LifecycleRegister>()
         lifecycleRegister.logout(weightRules)
-        weightRules = emptyList()
-
+        _weightRules = null
     }
-    var combo : Combo? = null
-        private set
-    fun addCombo(combo: Combo){
-        this.combo?.let {
-            myLog.warn { "combo组,重复设置重复设置可能有问题" }
+
+    /**
+     * todo-future 这里用可变还是不可变集合
+     */
+    private var _combos: MutableList<Combo>? = null
+
+    val combos: List<Combo>
+        get() = _combos ?: emptyList()
+
+    fun addCombo(combo: Combo) {
+        if (_combos == null) {
+            _combos = mutableListOf(combo)
+        } else {
+            _combos!!.add(combo)
         }
-        this.combo = combo
     }
 
 }

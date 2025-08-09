@@ -17,7 +17,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     //select 打出刷新 针对改变手牌
     var useStrategy = cardWeightInfo?.useStrategy ?: DefUseStrategy
     val weightRules = cardWeightInfo?.weightRules ?: emptyList()
-    val combo = cardWeightInfo?.combo ?: DefCombo
+    val combo = cardWeightInfo?.combos ?: DefCombos
 
 
 
@@ -57,7 +57,11 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
 
     //在同一组会增加权重
     fun comboAddWeight(comboCard: ComboCard): Double {
-        return combo.comboProcess(this, comboCard)
+        var weight = NotWeight
+        combo.forEach {
+            weight = weight + it.comboProcess(this, comboCard)
+        }
+        return weight
     }
 
 
