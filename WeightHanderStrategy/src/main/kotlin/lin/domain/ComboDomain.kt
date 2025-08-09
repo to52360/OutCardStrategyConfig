@@ -17,7 +17,6 @@ import lin.warExt.base.hasCost
 import org.koin.core.context.startKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import java.util.*
 
 
 /**
@@ -48,24 +47,16 @@ class ComboDomain(war: War) {
         myLog.info {
             "ComboDao初始化"
         }
-        try {
-            threadContext {
+        threadContext {
 
-                startKoin {
-                    modules(DBModules)
-                    modules(module { single { lifecycleRegisterImpl } bind LifecycleRegister::class })
-                }
-                Thread.currentThread().contextClassLoader = classLoader
-                warManage = MyWarManage(war)
-                weightHandlerDomain = WeightHandlerDomain(warManage = warManage)
+            startKoin {
+                modules(DBModules)
+                modules(module { single { lifecycleRegisterImpl } bind LifecycleRegister::class })
             }
-
-        } catch (serviceError: ServiceConfigurationError) {
-            serviceError.printStackTrace()
-            myLog.error(serviceError) { "serviceError初始化失败" }
+            Thread.currentThread().contextClassLoader = classLoader
+            warManage = MyWarManage(war)
+            weightHandlerDomain = WeightHandlerDomain(warManage = warManage)
         }
-
-
     }
 
     private inline fun threadContext(runnable: () -> Unit) {
@@ -74,7 +65,8 @@ class ComboDomain(war: War) {
             Thread.currentThread().contextClassLoader = classLoader
             runnable()
         } catch (t: Throwable) {
-            myLog.error(t) { "出现错误" }
+            myLog.error(t) { "全局错误捕获" }
+            throw t
         } finally {
             Thread.currentThread().contextClassLoader = threadClassLoader
         }
@@ -171,7 +163,7 @@ class ComboDomain(war: War) {
 
             //只有一个处理
             if (bestCombination.size == 1) {
-                useCardAndIsBreak(bestCombination.first())
+                useCardAndIsReload(bestCombination.first())
                 return
             }
 
@@ -191,17 +183,17 @@ class ComboDomain(war: War) {
 
 
             val expectCost = warManage.getNowCost() - needCost
-            //todo-fu这里使用
+            //todo-future 这里使用策略有问题,要扩展要改源码
             val afterUse = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })//之后使用
             for (card in bestCombinationCombo) {
                 if (AfterStrategy == card.useStrategy) {
                     afterUse.add(card)
                 } else {
-                    if (useCardAndIsBreak(card)) return
+                    if (useCardAndIsReload(card)) return
                 }
             }
             if (afterUse.isNotEmpty()) {
-                afterUse.forEach { if (useCardAndIsBreak(it)) return }
+                afterUse.forEach { if (useCardAndIsReload(it)) return }
             }
             //todo-future 直接遍历使用
             //todo 还存在问题 ,万一新增卡牌
@@ -226,11 +218,13 @@ class ComboDomain(war: War) {
     }
 
 
-    fun useCardAndIsBreak(card: ComboCard): Boolean {
+    fun useCardAndIsReload(card: ComboCard): Boolean {
         val useResult = warManage.useCard(card)
         myLog.info { "使用结果:$useResult" }
         if (useResult) {
-            val isBreak = isBreak()
+            //todo 暂时使用休眠
+            Thread.sleep(2000)
+            val isBreak = isReload()
             myLog.info { "是否有变化:$isBreak" }
             return isBreak
         }
@@ -242,7 +236,7 @@ class ComboDomain(war: War) {
      * todo-future 先验证可行性
      *
      */
-    private fun isBreak(): Boolean {
+    private fun isReload(): Boolean {
         val change = warManage.changeAndReload()
         if (change) {
             myLog.info { "有变化,重新执行" }
