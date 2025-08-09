@@ -67,4 +67,4 @@ object DefCombo : Combo(0, { _ -> NotWeight }, ComboType.DEF) {
     }
 }
 
-val DefCombos = listOf<Combo>(DefCombo)
+val DefCombos1 = listOf<Combo>(DefCombo)
