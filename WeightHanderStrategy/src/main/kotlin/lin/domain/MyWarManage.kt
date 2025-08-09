@@ -73,7 +73,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             val bindId = comboInfo.bindId
             val bindCardGroup = cardGroupInfos[bindId]
             bindCardGroup?.let { comboGroup ->
-                if (comboInfo.isBefore) {
+                if (comboInfo.comboType != ComboType.AFTER) {
                     val comboRule: ComboRule = { comboCards ->
                         if (comboInfo.depIds.any {
                                 it == comboCards.groupId()
@@ -83,7 +83,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                             NotWeight
                     }
 
-                    val combo = Combo(comboInfo.infoId, comboRule, comboInfo.isBefore)
+                    val combo = Combo(comboInfo.infoId, comboRule, comboInfo.comboType)
 
                     //赋值
                     bindCardGroup.forEach {
@@ -121,13 +121,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
     //转化
-    fun parseCombo(cards: List<Card> = getHandCards()): List<ComboCard> {
+    fun parseComboCards(cards: List<Card> = getHandCards()): List<ComboCard> {
         return cards.map {
-            parseCombo(it)
+            parseComboCard(it)
         }
     }
 
-    fun parseCombo(card: Card): ComboCard {
+    fun parseComboCard(card: Card): ComboCard {
         return ComboCard(
             cardWeightInfo = infoMap[card.cardId],
             card = card
@@ -141,13 +141,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      */
     fun reLoad() {
         //select 先转换后再过滤考虑存在费用变更情况
-        handComboCards = parseCombo()
+        handComboCards = parseComboCards()
         canUseCards = canUseCardsByCost()
         reloadPlayComboCards()
     }
 
     private fun reloadPlayComboCards() {
-        playComboCards = parseCombo(getPlayCards())
+        playComboCards = parseComboCards(getPlayCards())
     }
 
     fun cleanWeight() {
@@ -187,7 +187,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             val tempList = mutableListOf<ComboCard>()
             for (i in handComboCards.size until handCards.size) {
                 val card = handCards[i]
-                tempList.add(parseCombo(card))
+                tempList.add(parseComboCard(card))
             }
             handComboCards += tempList
         }

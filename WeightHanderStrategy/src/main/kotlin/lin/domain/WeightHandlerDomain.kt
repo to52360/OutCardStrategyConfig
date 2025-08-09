@@ -10,6 +10,7 @@ import lin.weightHandler.CardWeightHandler
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.context.CostWeight
+import kotlin.math.absoluteValue
 
 typealias ProcessWeightByCostsFun = (WeightHandler, ComboCard) -> Unit
 class WeightHandlerDomain(private val warManage: MyWarManage) {
@@ -239,7 +240,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         var maxIndex = 0
         var maxWeight = 0.0
         for(i in cards.indices){
-            val comboCard = warManage.parseCombo(cards[i])
+            val comboCard = warManage.parseComboCard(cards[i])
             cardWeightHandlers.forEach {
                 it.cardWeight(comboCard)
             }
@@ -257,8 +258,9 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
     }
 
     fun pointToDouble(number: Double): Double {
+        val absNum = number.absoluteValue
         // 1. 获取小数部分
-        val decimalPart = number - number.toInt() // 结果: 0.14159
+        val decimalPart = absNum - absNum.toInt() // 结果: 0.14159
         if (decimalPart == 0.0) return decimalPart
         // 2. 将小数部分乘以 10^n（n 是你想要保留的小数位数），然后转换为 Int
         // 例如，保留 5 位小数
@@ -276,7 +278,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         val comboCards = mutableListOf<ComboCard>()
         forEach {
             if(skipComboCard != it.card){//重写的equals,不知道==起效不
-                val comboCard = warManage.parseCombo(it.card)
+                val comboCard = warManage.parseComboCard(it.card)
                 comboCards.add(comboCard)
             }
 
