@@ -191,7 +191,7 @@ class ComboDomain(war: War) {
 
 
             val expectCost = warManage.getNowCost() - needCost
-            //todo-fu这里使用
+            //todo-future 这里使用策略有问题,要扩展要改源码
             val afterUse = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })//之后使用
             for (card in bestCombinationCombo) {
                 if (AfterStrategy == card.useStrategy) {
