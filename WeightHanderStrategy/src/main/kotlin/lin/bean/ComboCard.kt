@@ -100,7 +100,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     }
 
     override fun toString(): String {
-        return "ComboCard{${cardId()},${card.entityName},${card.entityId},${powerWeight}}"
+        return "ComboCard{id=${cardId()},name=${card.entityName},weight=${powerWeight}}"
     }
 
 }

@@ -11,12 +11,14 @@ import lin.weightHandler.condition.context.UnUseWeight
 class GraveyardByMinion : AddWeightByCondition, RuleGameLifecycle {
     private var minionNum = 0
     override fun calculateWeight(warInfo: WarInfo): Double {
-        if (minionNum < 2) {
+        if (minionNum != 2) {
             minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size
             if (minionNum > 2) minionNum = 2
+            return groupWeight
+        } else {
+            return UnUseWeight
         }
-        if (minionNum == 0) return UnUseWeight
-        return groupWeight * minionNum
+
     }
 
     override fun description(): String {

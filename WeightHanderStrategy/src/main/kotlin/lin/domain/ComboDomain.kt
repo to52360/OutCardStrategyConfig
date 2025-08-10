@@ -4,9 +4,7 @@ package lin.domain
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
-import lin.bean.AddCostStrategy
 import lin.bean.AfterStrategy
-import lin.bean.ChangeStrategy
 import lin.bean.ComboCard
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
@@ -79,13 +77,9 @@ class ComboDomain(war: War) {
             if (isStart) {
                 lifecycleRegisterImpl.startAllGameLifecycles()
             }
-            weightHandlerDomain.clean()
             warManage.executeEnvironment {
                 runnable()
-                //todo-future 由负的权重决定剩余多少费用才能出  -10表示还有一费就可以出
-                if (warManage.getNowCost() > 3) {
-                    useCards(weightHandlerDomain.unUseCards.toList())
-                }
+
             }
         }
 
@@ -102,62 +96,24 @@ class ComboDomain(war: War) {
     }
 
     private fun findAndUse() {
-        //获取能够打出的卡牌
-        val canUseCardsByCost = warManage.canUseCards
-        //todo 看一下isChange能不能放入weightHandlerDao
-        val bestCombination = findBestCombination(canUseCardsByCost, false)
-
-        val canUseCardsByHandler = weightHandlerDomain.readCanUseCardsByHandler
-        myLog.info { "找到需要使用的卡牌:$bestCombination" }
-        executeUseCard(canUseCardsByHandler, bestCombination)
-    }
-
-    /**
-     *  处理使用策略,权重转发给权重处理器模型处理
-     */
-    private fun findBestCombination(cards: List<ComboCard>, isChange: Boolean): List<ComboCard> {
-        if (isChange) {//todo 这方案不太靠谱 重新计算权重并使用
-            weightHandlerDomain.executeHandChaWeightProcess(cards)
-        } else {
-            weightHandlerDomain.executeWeightProcess(cards)
-        }
-
-        val canUseCardsByHandler = weightHandlerDomain.findBeforeOrBestCombination()
-
-        when (canUseCardsByHandler.size) {
-            0 -> return emptyList()
-            1 -> {
-                val comboCard = canUseCardsByHandler.first()
-                when (val useStrategy = comboCard.useStrategy) {
-                    ChangeStrategy -> {
-                        warManage.useCardAndRemove(canUseCardsByHandler.first())
-                        warManage.refreshComboCards()
-                        //todo 这方案不太靠谱 重新计算权重并使用
-                        return findBestCombination(warManage.canUseCards, true)
-                    }
-
-                    is AddCostStrategy -> {
-                        val expectCost = useStrategy.cost + warManage.getNowCost()
-                        return weightHandlerDomain.findBestCombinationByExpectCost(comboCard, expectCost)
-                    }
-
-                    else -> return canUseCardsByHandler
-                }
+        val weightResult = weightHandlerDomain.findCombination()
+        when (weightResult) {
+            is EmptyWeightResult -> return
+            is EndWeightResult -> {
+                myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
+                executeUseCard(weightResult)
             }
-
-            else -> {
-                return canUseCardsByHandler
-            }
-
         }
 
     }
 
+
+
     /**
-     * @param canUseCardsByHandler 全部能打的卡牌
-     * @param bestCombination 回溯算法获取组合
+     *
      */
-    private fun executeUseCard(canUseCardsByHandler: List<ComboCard>, bestCombination: List<ComboCard>) {
+    private fun executeUseCard(weightResult: EndWeightResult) {
+        val bestCombination = weightResult.bestCombination
         // 5. 执行找到的最佳出牌组合
         if (bestCombination.isNotEmpty()) {
 
@@ -169,24 +125,26 @@ class ComboDomain(war: War) {
 
 
             val needCost = bestCombination.sumOf { it.getCost() }
-            myLog.info {
-                val finalWeight = bestCombination.sumOf { it.powerWeight }
-                val msg =
-                    "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): ${bestCombination.map { it.card.cardId }}"
-                msg
-            }
 
             //todo-future  打出优先级处理 combo情况处理
             val bestCombinationCombo = bestCombination.sortedByDescending {
                 it.powerWeight
             }
+            myLog.info {
+                val finalWeight = bestCombinationCombo.sumOf { it.powerWeight }
+                val msg =
+                    "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): $bestCombinationCombo"
+                msg
+            }
 
 
             val expectCost = warManage.getNowCost() - needCost
+
             //todo-future 这里使用策略有问题,要扩展要改源码
             val afterUse = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })//之后使用
             for (card in bestCombinationCombo) {
                 if (AfterStrategy == card.useStrategy) {
+                    myLog.info { "id:${card.cardId()},name:${card.card.entityName}添加到最后打出" }
                     afterUse.add(card)
                 } else {
                     if (useCardAndIsReload(card)) return
@@ -198,7 +156,7 @@ class ComboDomain(war: War) {
             //todo-future 直接遍历使用
             //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
-                val moreTryCard = canUseCardsByHandler - bestCombination.toSet()
+                val moreTryCard = weightResult.lessAbleUseCards()
                 useCards(moreTryCard)
 
 
@@ -223,7 +181,7 @@ class ComboDomain(war: War) {
         myLog.info { "使用结果:$useResult" }
         if (useResult) {
             //todo 暂时使用休眠
-            Thread.sleep(2000)
+            Thread.sleep(3000)
             val isBreak = isReload()
             myLog.info { "是否有变化:$isBreak" }
             return isBreak

@@ -73,18 +73,6 @@ data class CardWeightInfo(
 }
 
 
-sealed class UseStrategy(val useType: UseType)
-data object DefUseStrategy : UseStrategy(UseType.DEF)
-//
-data object ChangeStrategy : UseStrategy(UseType.BEFORE)
-class AddCostStrategy(val cost: Int) : UseStrategy(UseType.BEFORE)
-object AfterStrategy : UseStrategy(UseType.AFTER)
-
-
-
-
-
-
 sealed class CardContext
 data object DefCardContext : CardContext()
 class AnyContext : CardContext() {
@@ -101,10 +89,6 @@ class AnyContext : CardContext() {
 @JvmInline
 value class MetadataKey<T>(val name: String)
 
-enum class UseType {
-    BEFORE,
-    DEF,
-    AFTER
-}
+
 
 
