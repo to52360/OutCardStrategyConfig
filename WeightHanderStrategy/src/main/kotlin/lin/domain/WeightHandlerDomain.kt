@@ -2,7 +2,6 @@ package lin.domain
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
-import lin.bean.FindStage
 import lin.myLog
 
 import lin.utils.serviceLoader.ServiceLoaderUtils
@@ -13,7 +12,7 @@ import lin.weightHandler.WeightHandler
 import kotlin.math.absoluteValue
 
 
-class WeightHandlerDomain(private val warManage: MyWarManage) {
+class WeightHandlerDomain(val warManage: MyWarManage) {
     private val weightHandlers: List<WeightHandler>
     private val cardWeightHandlers: List<CardWeightHandler>
 
@@ -28,7 +27,7 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
                 if(it is InitHandler) {
                     it.init(cardWeightInfos)
                 }
-                //todo 存在一个问题没法单独扩展
+                //todo 存在一个问题没法单独扩展发现策略
                 if(it is CardWeightHandler){
                     cardWeightHandler.add(it)
                 }
@@ -46,12 +45,12 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
 
     }
 
-    fun processWeight(weightResult: EndWeightResult): EndWeightResult {
+    fun processWeight(weightResult: EndWeightResult) {
         weightResult.canUseCards.forEach { comboCard ->
             weightHandlers.forEach { it.cardWeightProcess(comboCard, warManage) }
             weightResult.processWeightAfterAdd(comboCard)
         }
-        return weightResult
+
     }
 
 
@@ -59,28 +58,27 @@ class WeightHandlerDomain(private val warManage: MyWarManage) {
         cost: Int = warManage.getNowCost(),
         canUseCardsByCost: List<ComboCard> = warManage.canUseCards
     ): WeightResult {
-        if (canUseCardsByCost.isEmpty()) return EmptyWeightResult
-        val canUseCardByOrder = canUseCardsByCost.sortedByDescending { it.powerWeight }
-        val weightResultByStrategy = processStrategy(canUseCardByOrder)
-        if (weightResultByStrategy != EmptyWeightResult) return weightResultByStrategy
+        val weightResult = EndWeightResult(canUseCardsByCost, cost)
+        processWeight(weightResult)
+        if (weightResult.notAbleUseCards()) return EmptyWeightResult
 
+        val weightResultByFindStrategy = processFindStrategy(weightResult)
+        if (weightResultByFindStrategy != EmptyWeightResult) return weightResultByFindStrategy
 
-        //todo-fut
-        val weightResult = EndWeightResult(canUseCardByOrder, cost)
-        if (weightResult.unAbleUseCards()) return EmptyWeightResult
-        val weightResultByProcess = processStrategy(weightResult.canUseCardsByHandler.toList())
-        if (weightResultByProcess != EmptyWeightResult) return weightResultByProcess
+        findBestCombination(weightResult)
+        return weightResult
+    }
+
+    fun findBestCombination(weightResult: EndWeightResult): EndWeightResult {
         if (weightResult.isLessCost()) return weightResult
         weightResult.findBestCombination()
         return weightResult
     }
 
-    private fun processStrategy(canUseCardByOrder: List<ComboCard>): WeightResult {
-        val useStrategy = canUseCardByOrder.first().useStrategy
-        if (useStrategy is FindStage) {
-            return useStrategy.find(warManage, TODO())
-        }
-        return EmptyWeightResult
+    private fun processFindStrategy(weightResult: EndWeightResult): WeightResult {
+        val firstCard = weightResult.canUseCardsByHandler.first()
+        val findStrategy = firstCard.findStrategy
+        return findStrategy?.find(weightResult, this) ?: run { EmptyWeightResult }
     }
 
 

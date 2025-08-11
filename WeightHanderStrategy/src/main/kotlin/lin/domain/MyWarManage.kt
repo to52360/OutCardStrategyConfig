@@ -5,9 +5,11 @@ import club.xiaojiawei.bean.War
 import club.xiaojiawei.bean.area.HandArea
 import club.xiaojiawei.bean.isValid
 import club.xiaojiawei.data.CARD_INFO_TRIE
-import lin.bean.*
+import lin.bean.CardWeightInfo
+import lin.bean.ComboCard
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
+import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.weightRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
@@ -16,10 +18,7 @@ import lin.warExt.action.usePower
 import lin.warExt.base.getHandCards
 import lin.warExt.base.getNowCost
 import lin.warExt.base.getPlayCards
-import lin.weightHandler.condition.config.ComboInfoDao
-import lin.weightHandler.condition.context.NotWeight
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 
 interface WarInfo {
@@ -66,49 +65,9 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      * 解析Combo信息
      */
     private fun parseCombo(infoMap: Map<String, CardWeightInfo>) {
-        val cardGroupInfos = infoMap.values.groupBy { it.groupId }
-        val comboInfoDao: ComboInfoDao by inject()
-        val comboInfos = comboInfoDao.findAll()
-        comboInfos.forEach { comboInfo ->
-            val bindId = comboInfo.bindId
-            val bindCardGroup = cardGroupInfos[bindId]
-            bindCardGroup?.let { comboGroup ->
-                if (comboInfo.comboType != ComboType.AFTER) {
-                    val comboRule: ComboRule = { comboCards ->
-                        if (comboInfo.depIds.any {
-                                it == comboCards.groupId()
-                            })
-                            comboInfo.comboWeight
-                        else
-                            NotWeight
-                    }
-
-                    val combo = Combo(comboInfo.infoId, comboRule, comboInfo.comboType)
-
-                    //赋值
-                    bindCardGroup.forEach {
-                        it.addCombo(combo)
-                    }
-                } else {//之后使用
-                    bindCardGroup.forEach {
-                        it.useStrategy = AfterStrategy
-                    }
-                }
-
-
-
-            } ?: run {
-                myLog.warn { "绑定在权重表没有找到对应信息,id为${bindId}" }
-            }
-
-
-        }
-
+        val parseCardWeightInfo = getKoin().getAll<ParseCardWeightInfo>()
+        parseCardWeightInfo.forEach { it.parse(infoMap) }
     }
-
-    /**
-     * 解析单卡条件并绑定
-     */
     private fun parseCondition(infoMap: Map<String, CardWeightInfo>) {
 
         ServiceLoaderUtils.loadServices(CardRule::class.java).forEach {
@@ -225,7 +184,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         actionInfo?.let {
             card.action.autoPower(it)
         } ?: run {
-            result = card.action.power()?.let { true } ?: false
+            result = card.action.power(comBoCard.pointCard)?.let { true } ?: false
         }
         return result && card.area !is HandArea
 

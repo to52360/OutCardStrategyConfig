@@ -1,9 +1,19 @@
 package lin.domain
 
 import lin.bean.ComboCard
+import lin.myLog
 import lin.weightHandler.condition.context.CostWeight
+import lin.weightHandler.condition.context.NotWeight
 
-sealed class WeightResult
+sealed class WeightResult {
+    open fun weightSum(): Double {
+        return NotWeight
+    }
+
+    open fun log() {
+        myLog.info { "Empty" }
+    }
+}
 
 object EmptyWeightResult : WeightResult()
 class EndWeightResult(
@@ -11,27 +21,39 @@ class EndWeightResult(
     val cost: Int
 ) : WeightResult() {
 
-    val canUseCardsByHandler = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })
-    val unUseCards = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })
+    private val _canUseCardsByHandler = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })
+    val canUseCardsByHandler: Set<ComboCard>
+        get() = _canUseCardsByHandler
+    val unUseCards: Set<ComboCard>
+        get() = _unUseCards
+    private val _unUseCards = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })
     var bestCombination: List<ComboCard> = emptyList()
         private set
 
     fun processWeightAfterAdd(comboCard: ComboCard) {
-        if (comboCard.useAble()) canUseCardsByHandler.add(comboCard)
-        else unUseCards.add(comboCard)
+        if (comboCard.useAble()) _canUseCardsByHandler.add(comboCard)
+        else _unUseCards.add(comboCard)
     }
 
     fun isLessCost(): Boolean {
-        val result = canUseCardsByHandler.size == 1 || canUseCardsByHandler.sumOf { it.getCost() } < cost
-        if (result) bestCombination = canUseCardsByHandler.toList()
+        val result = _canUseCardsByHandler.size == 1 || _canUseCardsByHandler.sumOf { it.getCost() } < cost
+        if (result) bestCombination = _canUseCardsByHandler.toList()
         return result
     }
 
-    fun unAbleUseCards(): Boolean = canUseCardsByHandler.isEmpty()
+    override fun weightSum() = bestCombination.sumOf { it.powerWeight }
+    fun costSum() = bestCombination.sumOf { it.getCost() }
+    fun notAbleUseCards(): Boolean = _canUseCardsByHandler.isEmpty()
+    fun pollFirstByHandler(): ComboCard =
+        _canUseCardsByHandler.pollFirst() ?: run { throw NoSuchElementException("不应该为null") }
 
-    fun lessAbleUseCards(): List<ComboCard> {
-        val lessAbleUseCards = canUseCardsByHandler - bestCombination
-        return lessAbleUseCards.toList()
+    override fun log() {
+        myLog.info { "costSum: ${costSum()},weightSum: ${weightSum()},成员:${bestCombination}" }
+    }
+
+    fun lessAbleUseCards(): Set<ComboCard> {
+        val lessAbleUseCards = _canUseCardsByHandler - bestCombination
+        return lessAbleUseCards
     }
 
     fun findBestCombination() {
@@ -41,7 +63,7 @@ class EndWeightResult(
         // 初始化为一个非常小的值，确保任何合法地出牌都比它好
         var maxEffectiveScore = Double.NEGATIVE_INFINITY
 
-        val comboCards = canUseCardsByHandler.toList()
+        val comboCards = _canUseCardsByHandler.toList()
 
         // 3. 定义一个递归函数（回溯）来查找所有可能的组合
         fun findBestCombination(

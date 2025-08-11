@@ -45,7 +45,8 @@ open class Combo(val comboId: Int, val comboRule: ComboRule, val comboType: Comb
 enum class ComboType {
     BEFORE,
     DEF,
-    AFTER,
+    AFTER,  //最后打出
+    CHANGE //变更手牌
     ;
 
     companion object {

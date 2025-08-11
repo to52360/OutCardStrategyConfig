@@ -4,8 +4,10 @@ package lin.domain
 import club.xiaojiawei.bean.Card
 import club.xiaojiawei.bean.War
 import club.xiaojiawei.config.log
-import lin.bean.AfterStrategy
+import club.xiaojiawei.data.BaseData
 import lin.bean.ComboCard
+import lin.bean.UseAfterStrategy
+import lin.bean.UseBeforeStrategy
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
@@ -13,6 +15,7 @@ import lin.utils.JarClassLoader
 import lin.warExt.base.getNowCost
 import lin.warExt.base.hasCost
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -39,6 +42,8 @@ class ComboDomain(war: War) {
         log.warn { "没有获取到类加载器" }
         javaClass.classLoader
     }
+    private var unAbleUseCards = emptySet<ComboCard>()
+    private val useStrategyUtils = UseStrategyUtils()
 
     //存储策略分组
     init {
@@ -48,12 +53,13 @@ class ComboDomain(war: War) {
         threadContext {
 
             startKoin {
-                modules(DBModules)
+                modules(DBModules, ParseCardWeightInfoModule)
                 modules(module { single { lifecycleRegisterImpl } bind LifecycleRegister::class })
             }
             Thread.currentThread().contextClassLoader = classLoader
             warManage = MyWarManage(war)
             weightHandlerDomain = WeightHandlerDomain(warManage = warManage)
+            stopKoin()
         }
     }
 
@@ -79,6 +85,9 @@ class ComboDomain(war: War) {
             }
             warManage.executeEnvironment {
                 runnable()
+                if (warManage.getNowCost() > 3) {
+                    useCards(unAbleUseCards)
+                }
 
             }
         }
@@ -101,6 +110,7 @@ class ComboDomain(war: War) {
             is EmptyWeightResult -> return
             is EndWeightResult -> {
                 myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
+                unAbleUseCards = weightResult.unUseCards
                 executeUseCard(weightResult)
             }
         }
@@ -141,30 +151,32 @@ class ComboDomain(war: War) {
             val expectCost = warManage.getNowCost() - needCost
 
             //todo-future 这里使用策略有问题,要扩展要改源码
-            val afterUse = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })//之后使用
+            var lastUse: MutableList<ComboCard>? = null
             for (card in bestCombinationCombo) {
-                if (AfterStrategy == card.useStrategy) {
+                if (card.lastUse) {
                     myLog.info { "id:${card.cardId()},name:${card.card.entityName}添加到最后打出" }
-                    afterUse.add(card)
+                    lastUse?.add(card) ?: {
+                        lastUse = mutableListOf(card)
+                    }
                 } else {
                     if (useCardAndIsReload(card)) return
                 }
             }
-            if (afterUse.isNotEmpty()) {
-                afterUse.forEach { if (useCardAndIsReload(it)) return }
+            lastUse?.let {
+                for (lastUseCard in it) {
+                    if (useCardAndIsReload(lastUseCard)) return
+                }
             }
-            //todo-future 直接遍历使用
+
             //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = weightResult.lessAbleUseCards()
                 useCards(moreTryCard)
-
-
             }
         }
     }
 
-    fun useCards(comboCards: List<ComboCard>) {
+    fun useCards(comboCards: Set<ComboCard>) {
         if (comboCards.isNotEmpty()) {
             for (card in comboCards) {
                 if (warManage.getNowCost() >= card.getCost()) {
@@ -175,13 +187,24 @@ class ComboDomain(war: War) {
         }
     }
 
+    fun List<UseBeforeStrategy>.executeAction(card: ComboCard, useStrategyUtils: UseStrategyUtils) {
+        this.forEach {
+            it.extAction(card, useStrategyUtils)
+        }
+    }
 
+    fun List<UseAfterStrategy>.executeAfterAction(card: ComboCard, useStrategyUtils: UseStrategyUtils) {
+        this.forEach {
+            it.afterExtAction(card, useStrategyUtils)
+        }
+    }
     fun useCardAndIsReload(card: ComboCard): Boolean {
+        card.useBeforeStrategy?.executeAction(card, useStrategyUtils)
         val useResult = warManage.useCard(card)
         myLog.info { "使用结果:$useResult" }
+        useStrategyUtils.useResult = useResult
+        card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
         if (useResult) {
-            //todo 暂时使用休眠
-            Thread.sleep(3000)
             val isBreak = isReload()
             myLog.info { "是否有变化:$isBreak" }
             return isBreak
@@ -203,14 +226,30 @@ class ComboDomain(war: War) {
         }
         return change
     }
-
-    fun executeDiscoverChooseCard(vararg cards: Card): Int {
-        var index = 0
+    fun executeChangeCard(cards: HashSet<Card>) {
         threadContext {
-            index = weightHandlerDomain.executeDiscoverChooseCard(*cards)
+            if (BaseData.enableChangeWeight) {
+                val changeWeightResult = ChangeWeightResult(cards, warManage.parseComboCards(cards.toList()))
+                changeWeightResult.processChangeCard()
+
+            } else {
+                cards.removeIf { card -> card.cost > 2 }
+            }
         }
 
-        return index
+    }
+
+    fun executeDiscoverChooseCard(vararg cards: Card): Int {
+        try {
+            var index = 0
+            threadContext {
+                index = weightHandlerDomain.executeDiscoverChooseCard(*cards)
+            }
+            return index
+        } finally {
+            useStrategyUtils.down()
+        }
+
     }
 
 }

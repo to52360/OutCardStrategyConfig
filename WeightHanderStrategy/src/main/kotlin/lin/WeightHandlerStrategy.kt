@@ -3,7 +3,6 @@ package lin
 
 import club.xiaojiawei.DeckStrategy
 import club.xiaojiawei.bean.Card
-import club.xiaojiawei.bean.CardWeight
 import club.xiaojiawei.data.BaseData
 import club.xiaojiawei.data.CARD_WEIGHT_TRIE
 import club.xiaojiawei.enums.RunModeEnum
@@ -11,7 +10,6 @@ import club.xiaojiawei.status.WAR
 import club.xiaojiawei.strategy.HsRadicalDeckStrategy
 import club.xiaojiawei.util.DeckStrategyUtil
 import lin.domain.ComboDomain
-import lin.weightHandler.condition.context.NotWeight
 
 
 /**
@@ -67,21 +65,7 @@ class WeightHandlerStrategy : DeckStrategy() {
      */
     override fun executeChangeCard(cards: HashSet<Card>) {
         if (BaseData.enableChangeWeight) {
-            val weightCards = mutableMapOf<CardWeight, Card>()
-            for (card in cards) {
-                val cardWeight = CARD_WEIGHT_TRIE.getOrDefault(card.cardId) { CardWeight(1.0, 1.0, -1.0) }
-                weightCards.put(cardWeight, card)
-            }
-            val chaWeights = weightCards.toList().sortedByDescending { (weight, _) -> weight.changeWeight }.toMap()
-            var notHasCost2 = true
-            for (card in chaWeights) {
-                if (card.key.changeWeight < NotWeight) {
-                    cards.remove(card.value)
-                } else if (card.value.cost > 2) {
-                    if (notHasCost2) notHasCost2 = false //高权重只留一个
-                    else cards.remove(card.value)
-                }
-            }
+            comboDomain.executeChangeCard(cards)
         } else {
             cards.removeIf { card -> card.cost > 2 }
         }
