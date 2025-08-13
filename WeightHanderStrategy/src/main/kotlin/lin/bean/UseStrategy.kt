@@ -1,6 +1,7 @@
 package lin.bean
 
 import lin.domain.UseStrategyUtils
+import lin.weightHandler.condition.context.AwaitAnimationTime
 
 
 interface UseStrategy
@@ -15,6 +16,7 @@ interface UseBeforeStrategy : UseStrategy {
 
 object UseAfterLClick : UseAfterStrategy {
     override fun afterExtAction(comboCard: ComboCard, useStrategyUtils: UseStrategyUtils) {
+        Thread.sleep(AwaitAnimationTime)
         comboCard.card.action.lClick()
     }
 }

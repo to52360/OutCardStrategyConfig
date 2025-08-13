@@ -2,7 +2,6 @@ package lin.warExt.base
 
 import club.xiaojiawei.bean.Card
 import lin.domain.WarInfo
-import lin.warExt.base.getNowCost
 
 
 fun WarInfo.getPlayCards(): List<Card> {
@@ -11,6 +10,9 @@ fun WarInfo.getPlayCards(): List<Card> {
 
 fun WarInfo.getHandCards(): List<Card> {
     return war.me.handArea.cards
+}
+fun WarInfo.playCardIsFull(): Boolean {
+    return getPlayCards().size == 7
 }
 
 fun WarInfo.getNowCost() = war.me.usableResource

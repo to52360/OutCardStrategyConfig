@@ -3,13 +3,13 @@ package lin.lifecycle
 /**
  * 回合开始
  */
-interface RuleLifecycle {
+interface RoundLifecycle {
     fun start()
 }
 
 /**
  * 游戏开始
  */
-interface RuleGameLifecycle {
+interface GameLifecycle {
     fun start()
 }

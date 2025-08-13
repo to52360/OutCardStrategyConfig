@@ -21,12 +21,13 @@ class EndWeightResult(
     val cost: Int
 ) : WeightResult() {
 
-    private val _canUseCardsByHandler = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })
+    private val _canUseCardsByHandler =
+        sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
     val canUseCardsByHandler: Set<ComboCard>
         get() = _canUseCardsByHandler
     val unUseCards: Set<ComboCard>
         get() = _unUseCards
-    private val _unUseCards = sortedSetOf<ComboCard>(compareByDescending { it.powerWeight })
+    private val _unUseCards = sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
     var bestCombination: List<ComboCard> = emptyList()
         private set
 
@@ -36,13 +37,13 @@ class EndWeightResult(
     }
 
     fun isLessCost(): Boolean {
-        val result = _canUseCardsByHandler.size == 1 || _canUseCardsByHandler.sumOf { it.getCost() } < cost
+        val result = _canUseCardsByHandler.size == 1 || _canUseCardsByHandler.sumOf { it.cost() } < cost
         if (result) bestCombination = _canUseCardsByHandler.toList()
         return result
     }
 
     override fun weightSum() = bestCombination.sumOf { it.powerWeight }
-    fun costSum() = bestCombination.sumOf { it.getCost() }
+    fun costSum() = bestCombination.sumOf { it.cost() }
     fun notAbleUseCards(): Boolean = _canUseCardsByHandler.isEmpty()
     fun pollFirstByHandler(): ComboCard =
         _canUseCardsByHandler.pollFirst() ?: run { throw NoSuchElementException("不应该为null") }
@@ -88,7 +89,7 @@ class EndWeightResult(
             // 从 startIndex 开始遍历，继续添加新的牌来探索更深的组合
             for (i in startIndex until comboCards.size) {
                 val newCard = comboCards[i]
-                if (newCard.getCost() <= remainingCost) {
+                if (newCard.cost() <= remainingCost) {
                     //同组加权
                     var comboBonus = 0.0
                     currentCombination.forEach { existingCard ->
@@ -98,7 +99,7 @@ class EndWeightResult(
 
                     findBestCombination(
                         startIndex = i + 1,
-                        currentCost = currentCost + newCard.getCost(),
+                        currentCost = currentCost + newCard.cost(),
                         currentWeight = currentWeight + newCard.powerWeight + comboBonus,
                         currentCombination = currentCombination + newCard
                     )

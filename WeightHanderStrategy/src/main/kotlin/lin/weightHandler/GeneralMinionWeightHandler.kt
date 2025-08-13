@@ -1,26 +1,36 @@
 package lin.weightHandler
 
 import club.xiaojiawei.bean.Card
-
 import club.xiaojiawei.enums.CardTypeEnum
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
+import lin.lifecycle.RoundLifecycle
 import lin.myLog
-import lin.weightHandler.condition.context.CostWeight
+import lin.warExt.action.cleanPlay
+import lin.warExt.base.playCardIsFull
 import lin.weightHandler.condition.context.BaseWeight
+import lin.weightHandler.condition.context.CostWeight
+import lin.weightHandler.condition.context.NotWeight
+import lin.weightHandler.condition.context.UnUseWeight
 
 /**
  * 通用随从权重计算
  */
-class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
+class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler, RoundLifecycle {
 
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        callCard.addWeight(cardWeight(callCard))
+        val result = processPlayFull(callCard, warManage)
+        if (result == UnUseWeight) {
+            callCard.unUse()
+        } else {
+            callCard.addWeight(cardWeight(callCard))
+        }
     }
     override fun cardWeight(comboCard: ComboCard):Double{
+        val card = comboCard.card
+
         if(comboCard.powerWeight == BaseWeight ) {
-            val card = comboCard.card
             if (CardTypeEnum.MINION == card.cardType) {
                 val c = cache[card.cardId + card.cost]
                 if (c == null) {
@@ -40,9 +50,41 @@ class GeneralMinionWeightHandler : WeightHandler,CardWeightHandler {
 
             }
         }
-        return BaseWeight
+        return NotWeight
     }
 
+    fun processPlayFull(callCard: ComboCard, warManage: MyWarManage): Double {
+        if (CardTypeEnum.MINION == callCard.card.cardType) {
+            if (CardTypeEnum.MINION == callCard.card.cardType) {
+                // 如果战场未满，先检查是否已满
+                if (!isFull) {
+                    isFull = warManage.playCardIsFull()
+                }
+
+                // 如果战场已满
+                if (isFull) {
+                    // 若已清理过战场则直接返回
+                    if (isCleanWar) {
+                        return UnUseWeight
+                    }
+
+                    // 清理战场并更新状态
+                    warManage.cleanPlay()
+                    isFull = warManage.playCardIsFull()
+                    isCleanWar = true
+                    if (isFull) return UnUseWeight
+                }
+            }
+        }
+        return NotWeight
+    }
+
+    var isCleanWar = false
+    var isFull = false
+    override fun start() {
+        isCleanWar = false
+        isFull = false
+    }
 
 
 }

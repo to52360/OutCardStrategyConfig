@@ -2,13 +2,13 @@ package lin.serviceLoader.weightRule.graveyard
 
 import club.xiaojiawei.enums.CardTypeEnum
 import lin.domain.WarInfo
-import lin.lifecycle.RuleGameLifecycle
+import lin.lifecycle.GameLifecycle
 import lin.serviceLoader.weightRule.AddWeightByCondition
 import lin.warExt.common.getGraveyardCardsByType
 import lin.weightHandler.condition.context.CostWeight
 import lin.weightHandler.condition.context.UnUseWeight
 
-class GraveyardByMinion : AddWeightByCondition, RuleGameLifecycle {
+class GraveyardByMinion : AddWeightByCondition, GameLifecycle {
     private var minionNum = 0
     override fun calculateWeight(warInfo: WarInfo): Double {
         if (minionNum != 2) {

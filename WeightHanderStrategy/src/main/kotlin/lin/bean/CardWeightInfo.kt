@@ -30,10 +30,10 @@ data class CardWeightInfo(
 
     fun addUseStrategy(useStrategy: UseStrategy) {
         if (useStrategy is UseBeforeStrategy) {
-            _useBeforeStrategy.addSafe(useStrategy)
+            _useBeforeStrategy = _useBeforeStrategy.addSafe(useStrategy)
         }
         if (useStrategy is UseAfterStrategy) {
-            _useAfterStrategy.addSafe(useStrategy)
+            _useAfterStrategy = _useAfterStrategy.addSafe(useStrategy)
         }
     }
 
@@ -50,16 +50,20 @@ data class CardWeightInfo(
         get() = _weightRules ?: emptyList()
 
     fun addChangeComboRule(comboRule: ComboRule) {
-        _changeComboRule.addSafe(comboRule)
+        _changeComboRule = _changeComboRule.addSafe(comboRule)
     }
     /**
      * 存在重复添加的问题
      */
     fun addWeightRule(weightRule: WeightRule){
-        _weightRules.addSafe(weightRule)
+        setWeightRule(weightRule)
         val lifecycleRegister = get<LifecycleRegister>()
         //生命周期,游戏开始/回合开始结束调用对应方法,为了条件组有状态
         lifecycleRegister.register(weightRule)
+    }
+
+    fun setWeightRule(weightRule: WeightRule) {
+        _weightRules = _weightRules.addSafe(weightRule)
     }
     fun clearWeightRule(){
         val lifecycleRegister = get<LifecycleRegister>()
@@ -74,7 +78,7 @@ data class CardWeightInfo(
         get() = _combos ?: emptyList()
 
     fun addCombo(combo: Combo) {
-        _combos.addSafe(combo)
+        _combos = _combos.addSafe(combo)
     }
 
     // 扩展函数：安全添加元素到可空列表

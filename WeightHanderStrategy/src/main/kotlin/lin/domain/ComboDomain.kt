@@ -134,7 +134,7 @@ class ComboDomain(war: War) {
             }
 
 
-            val needCost = bestCombination.sumOf { it.getCost() }
+            val needCost = bestCombination.sumOf { it.cost() }
 
             //todo-future  打出优先级处理 combo情况处理
             val bestCombinationCombo = bestCombination.sortedByDescending {
@@ -154,16 +154,18 @@ class ComboDomain(war: War) {
             var lastUse: MutableList<ComboCard>? = null
             for (card in bestCombinationCombo) {
                 if (card.lastUse) {
-                    myLog.info { "id:${card.cardId()},name:${card.card.entityName}添加到最后打出" }
-                    lastUse?.add(card) ?: {
+                    lastUse?.run {
+                        add(card)
+                    } ?: run {
                         lastUse = mutableListOf(card)
                     }
+                    myLog.info { "id:${card.cardId()},name:${card.card.entityName}添加到最后打出" }
                 } else {
                     if (useCardAndIsReload(card)) return
                 }
             }
-            lastUse?.let {
-                for (lastUseCard in it) {
+            if (lastUse != null) {
+                for (lastUseCard in lastUse) {
                     if (useCardAndIsReload(lastUseCard)) return
                 }
             }
@@ -177,9 +179,10 @@ class ComboDomain(war: War) {
     }
 
     fun useCards(comboCards: Set<ComboCard>) {
+
         if (comboCards.isNotEmpty()) {
             for (card in comboCards) {
-                if (warManage.getNowCost() >= card.getCost()) {
+                if (warManage.getNowCost() >= card.cost()) {
                     warManage.useCard(card)
                     if (!warManage.hasCost()) break
                 }
@@ -201,12 +204,11 @@ class ComboDomain(war: War) {
     fun useCardAndIsReload(card: ComboCard): Boolean {
         card.useBeforeStrategy?.executeAction(card, useStrategyUtils)
         val useResult = warManage.useCard(card)
-        myLog.info { "使用结果:$useResult" }
+        myLog.info { "打出$card,使用结果:$useResult" }
         useStrategyUtils.useResult = useResult
         card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
         if (useResult) {
             val isBreak = isReload()
-            myLog.info { "是否有变化:$isBreak" }
             return isBreak
         }
         return false
@@ -220,7 +222,7 @@ class ComboDomain(war: War) {
     private fun isReload(): Boolean {
         val change = warManage.changeAndReload()
         if (change) {
-            myLog.info { "有变化,重新执行" }
+            myLog.info { "有变化,重新查询combo" }
             findAndUse()
 
         }

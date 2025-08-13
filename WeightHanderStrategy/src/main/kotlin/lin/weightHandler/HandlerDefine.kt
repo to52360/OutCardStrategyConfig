@@ -1,6 +1,5 @@
 package lin.weightHandler
 
-import club.xiaojiawei.bean.Card
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
@@ -31,7 +30,7 @@ interface InitHandler{
     fun init(infos:List<CardWeightInfo>)
 }
 
-interface CardWeightHandler{
+interface DiscoverWeightHandler {
     fun cardWeight(comboCard: ComboCard):Double
 }
 

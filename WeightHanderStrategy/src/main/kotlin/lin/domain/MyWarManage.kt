@@ -104,6 +104,8 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         canUseCards = canUseCardsByCost()
         reloadPlayComboCards()
     }
+    var executeCleanWar = false
+
 
     private fun reloadPlayComboCards() {
         playComboCards = parseComboCards(getPlayCards())
@@ -120,7 +122,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      */
     private fun isChange(): Boolean {
         val change = getHandCards().size >= handNum
-        myLog.info { "之前数量:${handNum},目前的数量:${getHandCards().size}" }
         return change
     }
 
@@ -172,6 +173,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
     }
     private var handNum = 0
+
     //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
     //todo 可以判断最后一个下标等不等于最后下标
     fun useCard(comBoCard: ComboCard): Boolean {
@@ -179,12 +181,17 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         val card = comBoCard.card
         if (card.area !is HandArea) return false //修改区域
 
+
         val actionInfo = CARD_INFO_TRIE[card.cardId]
         var result = true
         actionInfo?.let {
             card.action.autoPower(it)
         } ?: run {
-            result = card.action.power(comBoCard.pointCard)?.let { true } ?: false
+            result = comBoCard.pointCard?.let {
+                card.action.power(comBoCard.pointCard)?.let { true } ?: false
+            } ?: run {
+                card.action.power()?.let { true } ?: false
+            }
         }
         return result && card.area !is HandArea
 
@@ -221,12 +228,12 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      * todo-future 可见性原因,不支持内联
      */
     inline fun executeEnvironment(runnable: () -> Unit) {
-        try {
             if (war.isValid()) {
                 //使用地标
                 activeLocation()
                 //重新加载信息
                 reLoad()
+
                 runnable()
                 usePower()//使用技能
                 activeLocation()
@@ -236,12 +243,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 myLog.warn { "战场无效,不知道为啥会这样" }
             }
 
-        } catch (e: Exception) {
-            myLog.error(e) { "执行出牌逻辑出错" }
-            throw e
-        } catch (t: Throwable) {
-            myLog.error(t) { "执行出牌逻辑出错" }
-            throw t
-        }
+
     }
 }

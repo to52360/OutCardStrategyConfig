@@ -9,7 +9,7 @@ import lin.weightHandler.condition.context.UnUseWeight
 
 class DropMax : AbstractHandArea(), DepByWeightGroupIdDelegate<DepToPredicate> by PredicateByGroupId() {
     override fun onWarInfoProcessWeight(handCards: List<ComboCard>): Double {
-        handCards.maxByOrNull { it.getCost() }?.let {
+        handCards.maxByOrNull { it.cost() }?.let {
             if (depToPredicate(it)) return groupWeight
         }
         return UnUseWeight

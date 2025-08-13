@@ -16,7 +16,7 @@ class UseStrategyUtils {
 
     fun await() {
         if (useResult) {
-            log.info { "等待发现" }
+            log.info { "进入阻塞,等待发现" }
             countDownLatch?.await(DealyActionTime, TimeUnit.MILLISECONDS)
         } else clean()
     }

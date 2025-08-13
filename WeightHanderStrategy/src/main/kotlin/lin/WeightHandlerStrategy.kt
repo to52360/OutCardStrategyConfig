@@ -90,6 +90,7 @@ class WeightHandlerStrategy : DeckStrategy() {
 
     override fun executeDiscoverChooseCard(vararg cards: Card): Int  {
         try{
+            if (cards.size < 2) return 0
           return   comboDomain.executeDiscoverChooseCard(*cards)
         } catch (e: Throwable) {
             e.printStackTrace()

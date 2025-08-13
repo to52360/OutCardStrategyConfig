@@ -9,7 +9,8 @@ class DefCardWeightInfoProvide : CardWeightInfoProvide {
         return weightConfigs.associateBy(
             keySelector = { it.key }
         ) { weightCard ->
-            CardWeightInfo(weightCard.key, weightCard.value.powerWeight, weightCard.value.weight)
+            val card = weightCard.value
+            CardWeightInfo(weightCard.key, card.powerWeight, card.weight, card.weight)
         }
     }
 }

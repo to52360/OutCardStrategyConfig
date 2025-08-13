@@ -2,39 +2,44 @@ package lin.domain
 
 import club.xiaojiawei.bean.Card
 import lin.bean.ComboCard
+import lin.lifecycle.LifecycleRegister
 import lin.myLog
 
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.base.getNowCost
-import lin.weightHandler.CardWeightHandler
+import lin.weightHandler.DiscoverWeightHandler
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import kotlin.math.absoluteValue
 
 
-class WeightHandlerDomain(val warManage: MyWarManage) {
+class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
     private val weightHandlers: List<WeightHandler>
-    private val cardWeightHandlers: List<CardWeightHandler>
+    private val discoverWeightHandlers: List<DiscoverWeightHandler>
 
     init {
         try {
             val infos = warManage.infoMap
             val cardWeightInfos =  infos.values.toList()
             val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
-            val cardWeightHandler = mutableListOf<CardWeightHandler>()
+            val discoverWeightHandler = mutableListOf<DiscoverWeightHandler>()
+            val lifecycle = get<LifecycleRegister>()
             val weightHandler = services.sortedBy {
                 //按ai的说法会语义多重,实践看看有什么后果
                 if(it is InitHandler) {
                     it.init(cardWeightInfos)
                 }
+                lifecycle.register(it)
                 //todo 存在一个问题没法单独扩展发现策略
-                if(it is CardWeightHandler){
-                    cardWeightHandler.add(it)
+                if (it is DiscoverWeightHandler) {
+                    discoverWeightHandler.add(it)
                 }
                 it.priority()
             }
             this.weightHandlers = weightHandler
-            this.cardWeightHandlers = cardWeightHandler.toList()
+            this.discoverWeightHandlers = discoverWeightHandler.toList()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -113,7 +118,7 @@ class WeightHandlerDomain(val warManage: MyWarManage) {
         var maxWeight = 0.0
         for(i in cards.indices){
             val comboCard = warManage.parseComboCard(cards[i])
-            cardWeightHandlers.forEach {
+            discoverWeightHandlers.forEach {
                 it.cardWeight(comboCard)
             }
             comboCard.basePowerWeight
