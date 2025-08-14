@@ -1,7 +1,7 @@
-import club.xiaojiawei.enums.CardRaceEnum
-import club.xiaojiawei.util.CardDBUtil
-import lin.bean.ComboCard
+import club.xiaojiawei.hsscriptcardsdk.enums.CardRaceEnum
+import club.xiaojiawei.hsscriptcardsdk.util.CardDBUtil
 import lin.bean.CardWeightInfo
+import lin.bean.ComboCard
 
 class 内联测试 {
 }

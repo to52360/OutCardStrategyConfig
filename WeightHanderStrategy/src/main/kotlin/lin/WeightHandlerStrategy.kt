@@ -1,20 +1,17 @@
 package lin
 
 
-import club.xiaojiawei.DeckStrategy
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.data.BaseData
-import club.xiaojiawei.data.CARD_WEIGHT_TRIE
-import club.xiaojiawei.enums.RunModeEnum
-import club.xiaojiawei.status.WAR
-import club.xiaojiawei.strategy.HsRadicalDeckStrategy
-import club.xiaojiawei.util.DeckStrategyUtil
+import club.xiaojiawei.hsscriptbase.enums.RunModeEnum
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.data.BaseData
+import club.xiaojiawei.hsscriptcardsdk.status.WAR
+import club.xiaojiawei.hsscriptstrategysdk.DeckStrategy
 import lin.domain.ComboDomain
 
 
 /**
- * @see club.xiaojiawei.bean.BaseCard
- * @see club.xiaojiawei.bean.Player
+ * @see club.xiaojiawei.hsscriptcardsdk.bean.BaseCard
+ * @see club.xiaojiawei.hsscriptcardsdk.bean.Player
  * 插件管理
  * 参考[HsRadicalDeckStrategy]
  * 权重表[CARD_WEIGHT_TRIE]
@@ -28,15 +25,8 @@ class WeightHandlerStrategy : DeckStrategy() {
         myLog.info{
             "执行策略初始化"
         }
-        try {
-            comboDomain = ComboDomain(WAR)
-        } catch (e: Throwable) {
-            myLog.error(e) {
-                "初始化错误"
-            }
-            throw e
+        comboDomain = ComboDomain(WAR)
 
-        }
 
     }
 
@@ -74,13 +64,8 @@ class WeightHandlerStrategy : DeckStrategy() {
 
 
     override fun executeOutCard() {
-        try{
             comboDomain.outCardStrategy()
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            myLog.error(e){"出牌策略出现错误"}
-            throw  e
-        }
+
 
     }
 
@@ -89,14 +74,10 @@ class WeightHandlerStrategy : DeckStrategy() {
      */
 
     override fun executeDiscoverChooseCard(vararg cards: Card): Int  {
-        try{
-            if (cards.size < 2) return 0
+
+        if (cards.size < 2) return 0
           return   comboDomain.executeDiscoverChooseCard(*cards)
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            myLog.error(e){"发现策略出现错误"}
-            throw  e
-        }
+
 
     }
 }

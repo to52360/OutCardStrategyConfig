@@ -1,9 +1,13 @@
 package lin.warExt.action
 
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.enums.CardTypeEnum
-import club.xiaojiawei.util.DeckStrategyUtil
+
+import club.xiaojiawei.hsscriptbasestrategy.util.DeckStrategyUtil
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.domain.MyWarManage
+import lin.domain.WarInfo
+import lin.domain.context.ThreeAnimationTime
+import lin.myLog
 
 /**
  * 怕战场管理太多代码,功能性代码移到这里
@@ -16,16 +20,20 @@ fun MyWarManage.activeLocation(){
     val cards = war.me.playArea.cards
     cards.forEach { card ->
         if (card.cardType === CardTypeEnum.LOCATION && !card.isLocationActionCooldown) {
-            card.action.lClick()
-            Thread.sleep(3000)
+            card.action.lClick()?.also {
+                myLog.info { "阻塞等待地标动画" }
+                Thread.sleep(ThreeAnimationTime)
+            }
+
         }
     }
 }
 
+
 /**
  * 清场
  */
-fun MyWarManage.cleanPlay() {
+fun WarInfo.cleanPlay() {
     DeckStrategyUtil.cleanPlay()
 }
 

@@ -1,7 +1,5 @@
-import club.xiaojiawei.bean.CardWeight
-import club.xiaojiawei.bean.LikeTrie
-
-
+import club.xiaojiawei.hsscriptbase.bean.CardWeight
+import club.xiaojiawei.hsscriptbase.bean.LikeTrie
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 

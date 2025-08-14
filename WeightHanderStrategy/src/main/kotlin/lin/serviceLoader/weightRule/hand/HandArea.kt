@@ -2,12 +2,12 @@ package lin.serviceLoader.weightRule.hand
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
-import lin.serviceLoader.weightRule.AddWeightByCondition
+import lin.domain.context.CostWeight
+import lin.serviceLoader.weightRule.AddWeightByWarInfo
 import lin.serviceLoader.weightRule.WeightCondition
 import lin.warExt.base.getNowCost
-import lin.weightHandler.condition.context.CostWeight
 
-interface HandArea : AddWeightByCondition {
+interface HandArea : AddWeightByWarInfo {
     override fun calculateWeight(warInfo: WarInfo): Double {
         return  onWarInfoProcessWeight(warInfo.handComboCards)
     }

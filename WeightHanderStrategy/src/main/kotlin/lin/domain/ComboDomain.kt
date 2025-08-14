@@ -1,23 +1,28 @@
 package lin.domain
 
 
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.bean.War
-import club.xiaojiawei.config.log
-import club.xiaojiawei.data.BaseData
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.bean.War
+import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
 import lin.bean.UseAfterStrategy
 import lin.bean.UseBeforeStrategy
+import lin.domain.combo.ChangeWeightResult
+import lin.domain.combo.EmptyWeightResult
+import lin.domain.combo.EndWeightResult
+import lin.domain.combo.UseStrategyUtils
+import lin.domain.context.AwaitAnimationTime
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
-import lin.utils.JarClassLoader
+import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.base.getNowCost
 import lin.warExt.base.hasCost
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.util.*
 
 
 /**
@@ -39,7 +44,7 @@ class ComboDomain(war: War) {
     private lateinit var weightHandlerDomain: WeightHandlerDomain
     private val lifecycleRegisterImpl = LifecycleRegisterImpl()
     private val classLoader = JarClassLoader(parent = javaClass.classLoader).classLoader() ?: run {
-        log.warn { "没有获取到类加载器" }
+        myLog.warn { "没有获取到类加载器" }
         javaClass.classLoader
     }
     private var unAbleUseCards = emptySet<ComboCard>()
@@ -151,16 +156,21 @@ class ComboDomain(war: War) {
             val expectCost = warManage.getNowCost() - needCost
 
             //todo-future 这里使用策略有问题,要扩展要改源码
-            var lastUse: MutableList<ComboCard>? = null
+            var lastUse: SortedSet<ComboCard>? = null
             for (card in bestCombinationCombo) {
-                if (card.lastUse) {
+                card.lastUse?.let {
                     lastUse?.run {
                         add(card)
                     } ?: run {
-                        lastUse = mutableListOf(card)
+                        lastUse = sortedSetOf(
+                            compareByDescending<ComboCard> { it.lastUse!!.comboWeight }.thenBy {
+                                it.card.entityId
+                            }
+                        )
+                        lastUse.add(card)
                     }
                     myLog.info { "id:${card.cardId()},name:${card.card.entityName}添加到最后打出" }
-                } else {
+                } ?: run {
                     if (useCardAndIsReload(card)) return
                 }
             }
@@ -208,6 +218,8 @@ class ComboDomain(war: War) {
         useStrategyUtils.useResult = useResult
         card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
         if (useResult) {
+            myLog.info { "打出等待动画" }
+            Thread.sleep(AwaitAnimationTime)
             val isBreak = isReload()
             return isBreak
         }

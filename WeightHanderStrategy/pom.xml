@@ -80,6 +80,12 @@
             <artifactId>koin-core-jvm</artifactId>
             <version>4.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.xjw580</groupId>
+            <artifactId>hs-script-base-strategy-plugin</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

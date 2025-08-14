@@ -1,17 +1,17 @@
 package lin.weightHandler
 
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.enums.CardTypeEnum
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
+import lin.domain.context.BaseWeight
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
+import lin.domain.context.UnUseWeight
 import lin.lifecycle.RoundLifecycle
 import lin.myLog
 import lin.warExt.action.cleanPlay
 import lin.warExt.base.playCardIsFull
-import lin.weightHandler.condition.context.BaseWeight
-import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.NotWeight
-import lin.weightHandler.condition.context.UnUseWeight
 
 /**
  * 通用随从权重计算

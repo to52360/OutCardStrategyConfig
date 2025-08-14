@@ -1,7 +1,8 @@
 package lin.warExt.rival
 
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.enums.CardTypeEnum
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
+
 import lin.domain.WarInfo
 
 /**

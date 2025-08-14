@@ -1,10 +1,10 @@
 package lin.bean
 
-import club.xiaojiawei.bean.Card
 
-import lin.weightHandler.condition.context.BaseWeight
-import lin.weightHandler.condition.context.NotWeight
-import lin.weightHandler.condition.context.UnUseWeight
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import lin.domain.context.BaseWeight
+import lin.domain.context.NotWeight
+import lin.domain.context.UnUseWeight
 
 
 typealias ComboRule = (ComboCard) -> Double
@@ -14,21 +14,21 @@ typealias ComboRule = (ComboCard) -> Double
  * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
  */
 class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
-
+    //com相关
     val weightRules = cardWeightInfo?.weightRules
     val combo = cardWeightInfo?.combos ?: DefCombos
     val changeWeight: Double
         get() = cardWeightInfo?.changeWeight ?: NotWeight
 
     //查询组合策略
-    val findStrategy: FindStrategy? = cardWeightInfo?.findStrategy
+    var findStrategy: FindStrategy? = cardWeightInfo?.findStrategy
 
     //指定目标
     var pointCard: Card? = null
 
     //使用策略
-    val lastUse: Boolean
-        get() = cardWeightInfo?.lastUse ?: false
+    val lastUse: LastUse?
+        get() = cardWeightInfo?.lastUse
     val useAfterStrategy
         get() = cardWeightInfo?.useAfterStrategy
     val useBeforeStrategy
@@ -68,6 +68,11 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     fun isBaseWeight(): Boolean {
         return extPowerWeight == NotWeight
     }
+
+    /**
+     * 战场相关
+     */
+    val toDie = cardWeightInfo?.toDie ?: false
 
 
 
@@ -117,6 +122,8 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     }
 
     override fun toString(): String {
+        if (card.entityName == "UNKNOWN ENTITY")
+            return "ComboCard{id=${cardId()},weight=${powerWeight}}"
         return "ComboCard{id=${cardId()},name=${card.entityName},weight=${powerWeight}}"
     }
 

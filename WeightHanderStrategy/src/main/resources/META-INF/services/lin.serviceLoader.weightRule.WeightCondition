@@ -7,3 +7,4 @@ lin.serviceLoader.weightRule.onWar.buff.OnWarNum
 lin.serviceLoader.weightRule.hand.drop.DropMax
 lin.serviceLoader.weightRule.hand.drop.DropMin
 lin.serviceLoader.weightRule.graveyard.GraveyardByMinion
+lin.serviceLoader.weightRule.hand.ChangeCardStrategy

@@ -1,7 +1,8 @@
 package lin.warExt.common
 
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.enums.CardTypeEnum
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
+
 import lin.domain.WarInfo
 
 /**
@@ -31,7 +32,7 @@ fun WarInfo.findMeMaxAttackMinion(): Card? {
 }
 
 
-fun WarInfo.findMePlayAreaNum(): Int{
+fun WarInfo.findMePlayAreaNum(): Int {
     return war.me.playArea.cards.size
 }
 fun WarInfo.hasTaunt():Boolean{

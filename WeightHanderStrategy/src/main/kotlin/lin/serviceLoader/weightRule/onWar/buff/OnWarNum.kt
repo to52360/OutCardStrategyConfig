@@ -1,8 +1,8 @@
 package lin.serviceLoader.weightRule.onWar.buff
 
 import lin.bean.ComboCard
+import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.onWar.OnWarInfo
-import lin.weightHandler.condition.context.CostWeight
 
 class OnWarNum : OnWarInfo {
     override var groupWeight: Double = CostWeight

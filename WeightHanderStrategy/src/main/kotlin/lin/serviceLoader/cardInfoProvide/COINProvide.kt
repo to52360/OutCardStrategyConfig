@@ -1,6 +1,7 @@
 package lin.serviceLoader.cardInfoProvide
 
-import club.xiaojiawei.data.COIN_CARD_ID
+
+import club.xiaojiawei.hsscriptcardsdk.data.COIN_CARD_ID
 import lin.bean.CardWeightInfo
 import lin.bean.ExtCostStrategy
 

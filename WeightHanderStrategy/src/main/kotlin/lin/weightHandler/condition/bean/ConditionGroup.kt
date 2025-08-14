@@ -1,10 +1,10 @@
 package lin.weightHandler.condition.bean
 
-import lin.weightHandler.condition.context.CostWeight
+import lin.domain.context.CostWeight
 
 
 /**
- * [club.xiaojiawei.bean.CardWeight.weight]整数部分条件组
+ * [club.xiaojiawei.hsscriptcardsdk.bean.CardWeight.weight]整数部分条件组
  * 配置信息
  * [lin.weightHandler.condition.OutCardCondition]
  * todo-future 组优先级没写

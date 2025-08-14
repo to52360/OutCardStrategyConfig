@@ -1,11 +1,11 @@
 package lin.bean
 
-import lin.domain.EmptyWeightResult
-import lin.domain.EndWeightResult
 import lin.domain.WeightHandlerDomain
-import lin.domain.WeightResult
+import lin.domain.combo.EmptyWeightResult
+import lin.domain.combo.EndWeightResult
+import lin.domain.combo.WeightResult
+import lin.domain.context.HalfCostWeight
 import lin.warExt.base.getNowCost
-import lin.weightHandler.condition.context.HalfCostWeight
 
 /**
  * 查询组合策略
@@ -70,6 +70,7 @@ class ExtCostStrategy(val cost: Int) : FindStrategy {
 
 /**
  * 变更手牌策略
+ * 主要是优化性能
  */
 object ChangeStrategy : FindStrategy {
     override fun find(

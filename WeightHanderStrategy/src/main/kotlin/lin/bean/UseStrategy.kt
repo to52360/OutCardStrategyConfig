@@ -1,7 +1,7 @@
 package lin.bean
 
-import lin.domain.UseStrategyUtils
-import lin.weightHandler.condition.context.AwaitAnimationTime
+import lin.domain.combo.UseStrategyUtils
+import lin.domain.context.AwaitAnimationTime
 
 
 interface UseStrategy

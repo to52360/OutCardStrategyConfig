@@ -45,11 +45,12 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
             }
             //这里采用反射复制,为了简洁和快速实现 没有采用工厂模式
             val copyCondition = it.copy()
+            //处理依赖
             processDep(copyCondition, conditionGroup)
             //完善条件信息
             copyCondition.groupWeight = conditionGroup.basePriority
-
-            bind(weightCondition, bindWeightInfos)
+            //冗余信息
+            bind(copyCondition, bindWeightInfos)
 
 
         } ?: run {//没有对应条件id实现

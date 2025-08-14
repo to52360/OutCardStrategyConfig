@@ -1,12 +1,9 @@
 package lin.serviceLoader.parse
 
-import lin.bean.CardWeightInfo
-import lin.bean.Combo
-import lin.bean.ComboRule
-import lin.bean.ComboType
+import lin.bean.*
+import lin.domain.context.NotWeight
 import lin.myLog
 import lin.weightHandler.condition.config.ComboInfoDao
-import lin.weightHandler.condition.context.NotWeight
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -33,7 +30,7 @@ class ParseCombo : ParseCardWeightInfo, KoinComponent {
                 when (comboInfo.comboType) {
                     ComboType.AFTER -> {
                         bindCardGroup.forEach {
-                            it.lastUse = true
+                            it.lastUse = LastUse(comboInfo.comboWeight)
                         }
                     }
 

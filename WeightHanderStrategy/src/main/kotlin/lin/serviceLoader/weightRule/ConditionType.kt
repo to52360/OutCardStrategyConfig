@@ -1,6 +1,6 @@
 package lin.serviceLoader.weightRule
 
-import club.xiaojiawei.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
 
 import lin.domain.WarInfo

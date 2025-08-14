@@ -1,4 +1,4 @@
-package lin.weightHandler.condition.context
+package lin.domain.context
 
 //一费10点权重
 const val CostWeight = 10.0
@@ -12,4 +12,6 @@ const val UnUseWeight = -100.0
 const val DealyActionTime: Long = 5000
 
 //每个人都不同 等待打出动画时间
-const val AwaitAnimationTime: Long = 3000
+const val AwaitAnimationTime: Long = 1000
+
+const val ThreeAnimationTime: Long = AwaitAnimationTime * 3

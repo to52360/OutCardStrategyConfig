@@ -1,11 +1,11 @@
 package lin.serviceLoader.weightRule.utils
 
 
-import club.xiaojiawei.enums.CardRaceEnum
-import club.xiaojiawei.util.CardDBUtil
+import club.xiaojiawei.hsscriptcardsdk.enums.CardRaceEnum
+import club.xiaojiawei.hsscriptcardsdk.util.CardDBUtil
+import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.myLog
-import lin.bean.CardWeightInfo
 
 //select 多种实现要转化为接口
 fun CardWeightInfo.parseRace(): CardRaceEnum =

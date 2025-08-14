@@ -1,9 +1,10 @@
-package lin.domain
+package lin.domain.combo
 
-import club.xiaojiawei.bean.Card
+
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
+import lin.domain.context.NotWeight
 import lin.myLog
-import lin.weightHandler.condition.context.NotWeight
 
 /**
  * 卡牌权重变更结果处理类
@@ -18,6 +19,8 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
 
     // 需要变更权重的卡牌列表
     val changeWeight = mutableListOf<ComboCard>()
+
+    //todo-future 存在直接操作权重,导致查找不到元素
     val hasChangeRule = sortedSetOf(compareByDescending<ComboCard> {
         it.changeWeight
     }.thenBy { it.card.entityId })
@@ -49,13 +52,14 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
      */
     fun processChangeCard() {
         if (hasChangeRule.isEmpty()) {
-            myLog.info { "没有换牌规则" }
+            myLog.info { "没有组合规则启用默认规则" }
             processNotChangeRule()
             return
         }
 
         val fitRule = evaluateRulesAndFindFitCards()
         if (fitRule.isEmpty()) {
+            myLog.info { "没有符合组合规则启用默认规则" }
             processNotChangeRule()
         } else {
             processUnmatchedCards(fitRule)
@@ -98,20 +102,26 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
             if (ruleComboCard == currentCard) continue
 
             val ruleWeight = calculateRuleWeight(ruleComboCard, currentCard)
-            myLog.info { "ruleComboCard: $ruleComboCard 和 currentCard: $currentCard 的组合权重:$ruleWeight" }
+
 
             when {
                 ruleWeight < NotWeight -> {
-                    iterator.remove()
-                    removeCards.add(currentCard)
+                    if (currentCard.cost() >= keepCost) {//小于费不移除
+                        iterator.remove()
+                        myLog.info { "移除互斥卡:$currentCard" }
+                        removeCards.add(currentCard)
+                    }
                 }
 
                 ruleWeight > NotWeight -> {
+                    myLog.info { "规则卡: ${ruleComboCard.cardId()} 和 配合卡: ${currentCard.cardId()} 的配合卡权重:${currentCard.changeWeight}" }
                     if (currentCard.changeWeight > maxWeight) {
+                        myLog.info { "${currentCard}设置最佳配合牌" }
                         maxWeight = currentCard.changeWeight
-                        maxWeightComboCard?.run { removeCards.add(this) }
+                        maxWeightComboCard?.run { removeCards.add(this) } //这里不能用迭代器删除
                         maxWeightComboCard = currentCard
                     } else {
+                        myLog.info { "${currentCard}不是最佳配合牌移除" }
                         iterator.remove()
                         removeCards.add(currentCard)
                     }
@@ -158,13 +168,10 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
         var removeAll = true
         changeWeight.forEach {
             val cost = it.cost()
-            if (removeAll) {
-                //todo-future 这里费用判断要不要写死
-                if (cost < keepCost || (cost <= keepCost && it.changeWeight > NotWeight))
-                    removeAll = false
-            }
-            val isMore2 = cost > keepCost
-            if (isMore2) {
+            //todo-future 这里费用判断要不要写死,2费需要权重大于NotWeight
+            if (cost < keepCost || (cost <= keepCost && it.changeWeight > NotWeight))
+                removeAll = false
+            else {
                 removeCards.add(it)
             }
         }

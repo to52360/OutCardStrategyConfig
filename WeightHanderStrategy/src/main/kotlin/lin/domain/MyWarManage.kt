@@ -1,12 +1,14 @@
 package lin.domain
 
-import club.xiaojiawei.bean.Card
-import club.xiaojiawei.bean.War
-import club.xiaojiawei.bean.area.HandArea
-import club.xiaojiawei.bean.isValid
-import club.xiaojiawei.data.CARD_INFO_TRIE
+
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.bean.War
+import club.xiaojiawei.hsscriptcardsdk.bean.area.HandArea
+import club.xiaojiawei.hsscriptcardsdk.bean.isValid
+import club.xiaojiawei.hsscriptcardsdk.data.CARD_INFO_TRIE
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
+import lin.domain.war.SimpleCleanWar
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
@@ -23,9 +25,17 @@ import org.koin.core.component.KoinComponent
 
 interface WarInfo {
     val war: War
+
+    //手牌
     val handComboCards: List<ComboCard>
+
+    //能够使用的手牌
     val canUseCards: List<ComboCard>
+
+    //我方战场区域的牌
     val playComboCards: List<ComboCard>
+
+    //权重信息
     val infoMap: Map<String, CardWeightInfo>
 }
 
@@ -104,7 +114,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         canUseCards = canUseCardsByCost()
         reloadPlayComboCards()
     }
-    var executeCleanWar = false
 
 
     private fun reloadPlayComboCards() {
@@ -131,6 +140,16 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             reLoad()
         }
         return change
+    }
+
+    fun processToDie() {
+        val canAttacks = playComboCards.filterTo(mutableListOf()) { it.toDie && it.card.canAttack() }
+        if (canAttacks.isNotEmpty()) {
+            val simpleCleanWar = SimpleCleanWar(canAttacks, war.rival)
+            simpleCleanWar.executeAttack()
+            reloadPlayComboCards()
+        }
+
     }
     /**
      *
@@ -193,7 +212,8 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 card.action.power()?.let { true } ?: false
             }
         }
-        return result && card.area !is HandArea
+        result = result && card.area !is HandArea
+        return result
 
     }
     //todo-future 不知道并发安全不,执行出牌策略和更新war是不是同一个线程
@@ -233,6 +253,9 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 activeLocation()
                 //重新加载信息
                 reLoad()
+                //送亡语,送墓场操作
+                processToDie()
+
 
                 runnable()
                 usePower()//使用技能
@@ -242,7 +265,5 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             } else {
                 myLog.warn { "战场无效,不知道为啥会这样" }
             }
-
-
     }
 }

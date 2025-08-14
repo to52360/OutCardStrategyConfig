@@ -1,9 +1,9 @@
-package lin.domain
+package lin.domain.combo
 
 import lin.bean.ComboCard
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
 import lin.myLog
-import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.NotWeight
 
 sealed class WeightResult {
     open fun weightSum(): Double {
@@ -20,13 +20,15 @@ class EndWeightResult(
     val canUseCards: List<ComboCard>,
     val cost: Int
 ) : WeightResult() {
-
+    //todo-future 存在直接操作权重,导致查找不到元素
     private val _canUseCardsByHandler =
         sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
     val canUseCardsByHandler: Set<ComboCard>
         get() = _canUseCardsByHandler
     val unUseCards: Set<ComboCard>
         get() = _unUseCards
+
+    //todo-future 存在直接操作权重,导致查找不到元素
     private val _unUseCards = sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
     var bestCombination: List<ComboCard> = emptyList()
         private set

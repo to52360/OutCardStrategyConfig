@@ -1,11 +1,11 @@
 package lin.serviceLoader.weightRule.hand
 
 import lin.bean.ComboCard
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicates
 import lin.serviceLoader.weightRule.utils.PredicateByGroupsId
-import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.NotWeight
 
 
 /**

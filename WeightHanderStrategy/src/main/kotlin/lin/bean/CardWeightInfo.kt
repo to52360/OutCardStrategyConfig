@@ -1,9 +1,9 @@
 package lin.bean
 
 
+import lin.domain.context.NotWeight
 import lin.lifecycle.LifecycleRegister
 import lin.serviceLoader.weightRule.WeightRule
-import lin.weightHandler.condition.context.NotWeight
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -11,8 +11,10 @@ import org.koin.core.component.get
 /**
  * 转化位置
  * [lin.serviceLoader.cardInfoProvide.DefCardWeightInfoProvide]
- * @param groupId 使用weight的值 [club.xiaojiawei.bean.CardWeight.weight]
+ * @param groupId 使用weight的值 [club.xiaojiawei.hsscriptcardsdk.bean.CardWeight.weight]
  * @param powerWeight 检测优先级
+ *
+ * todo-future (三合一了)信息太多可以拆分.集合类的变量应该添加处理上下文(操作日志和处理器之间的通信)
  */
 data class CardWeightInfo(
     val cardId: String,
@@ -21,6 +23,7 @@ data class CardWeightInfo(
     val changeWeight: Double = NotWeight
 ) : KoinComponent {
 
+    //使用相关
     private var _useAfterStrategy: MutableList<UseAfterStrategy>? = null
     val useAfterStrategy: List<UseAfterStrategy>
         get() = _useAfterStrategy ?: emptyList()
@@ -37,23 +40,18 @@ data class CardWeightInfo(
         }
     }
 
-    private var _changeComboRule: MutableList<ComboRule>? = null
-    val changeComboRule: List<ComboRule>
-        get() = _changeComboRule ?: emptyList()
+    //查找策略
     var findStrategy: FindStrategy? = null
 
-    //最后使用暂时这样,没想到其他方案
-    var lastUse = false
+
 
     private var _weightRules: MutableList<WeightRule>? = null
     val weightRules: List<WeightRule>
         get() = _weightRules ?: emptyList()
 
-    fun addChangeComboRule(comboRule: ComboRule) {
-        _changeComboRule = _changeComboRule.addSafe(comboRule)
-    }
+
     /**
-     * 存在重复添加的问题
+     * 添加权重规则
      */
     fun addWeightRule(weightRule: WeightRule){
         setWeightRule(weightRule)
@@ -72,6 +70,9 @@ data class CardWeightInfo(
     }
 
 
+    //combo相关
+    //最后使用暂时这样,没想到其他方案
+    var lastUse: LastUse? = null
     private var _combos: MutableList<Combo>? = null
 
     val combos: List<Combo>
@@ -85,6 +86,19 @@ data class CardWeightInfo(
     fun <T> MutableList<T>?.addSafe(item: T): MutableList<T> {
         return this?.apply { add(item) } ?: mutableListOf(item)
     }
+
+    //换牌相关
+
+    private var _changeComboRule: MutableList<ComboRule>? = null
+    val changeComboRule: List<ComboRule>
+        get() = _changeComboRule ?: emptyList()
+
+    fun addChangeComboRule(comboRule: ComboRule) {
+        _changeComboRule = _changeComboRule.addSafe(comboRule)
+    }
+
+    //战场相关
+    var toDie = false
 
 }
 

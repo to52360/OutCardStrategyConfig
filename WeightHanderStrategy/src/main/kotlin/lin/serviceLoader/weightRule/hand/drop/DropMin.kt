@@ -1,14 +1,14 @@
 package lin.serviceLoader.weightRule.hand.drop
 
 import lin.domain.WarInfo
-import lin.serviceLoader.weightRule.AddWeightByCondition
+import lin.domain.context.CostWeight
+import lin.serviceLoader.weightRule.AddWeightByWarInfo
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicate
 import lin.serviceLoader.weightRule.utils.PredicateByGroupId
 import lin.warExt.base.getNowCost
-import lin.weightHandler.condition.context.CostWeight
 
-class DropMin : AddWeightByCondition, DepByWeightGroupIdDelegate<DepToPredicate> by PredicateByGroupId() {
+class DropMin : AddWeightByWarInfo, DepByWeightGroupIdDelegate<DepToPredicate> by PredicateByGroupId() {
     /**
      * 通常都适应
      */

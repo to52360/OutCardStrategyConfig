@@ -1,9 +1,9 @@
 package lin.domain
 
+import lin.serviceLoader.parse.DropParse
 import lin.serviceLoader.parse.ParseCardRule
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.parse.ParseCombo
-import lin.serviceLoader.parse.TempParse
 import lin.utils.database.DefDBUrl
 import lin.utils.database.SqliteJdbcProvider
 import lin.weightHandler.condition.config.ComboInfoDao
@@ -20,5 +20,5 @@ val DBModules = module  {
 val ParseCardWeightInfoModule = module {
     singleOf(::ParseCardRule) bind ParseCardWeightInfo::class
     singleOf(::ParseCombo) bind ParseCardWeightInfo::class
-    singleOf(::TempParse) bind ParseCardWeightInfo::class
+    singleOf(::DropParse) bind ParseCardWeightInfo::class
 }

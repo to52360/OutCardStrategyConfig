@@ -1,11 +1,11 @@
 package lin.serviceLoader.weightRule.onWar
 
 import lin.bean.ComboCard
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicates
 import lin.serviceLoader.weightRule.utils.PredicateByGroupsId
-import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.NotWeight
 
 class OnWarByGroupId : OnWarInfo, DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupsId() {
     override fun onPlayAreaCalcWeightByMe(playAreaCards: List<ComboCard>): Double {

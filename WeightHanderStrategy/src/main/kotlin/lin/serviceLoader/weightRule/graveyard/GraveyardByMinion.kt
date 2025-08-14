@@ -1,23 +1,29 @@
 package lin.serviceLoader.weightRule.graveyard
 
-import club.xiaojiawei.enums.CardTypeEnum
-import lin.domain.WarInfo
-import lin.lifecycle.GameLifecycle
-import lin.serviceLoader.weightRule.AddWeightByCondition
-import lin.warExt.common.getGraveyardCardsByType
-import lin.weightHandler.condition.context.CostWeight
-import lin.weightHandler.condition.context.UnUseWeight
 
-class GraveyardByMinion : AddWeightByCondition, GameLifecycle {
+import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
+import lin.domain.WarInfo
+import lin.domain.context.CostWeight
+import lin.domain.context.UnUseWeight
+import lin.lifecycle.GameLifecycle
+import lin.myLog
+import lin.serviceLoader.weightRule.AddWeightByWarInfo
+import lin.warExt.action.cleanPlay
+import lin.warExt.common.getGraveyardCardsByType
+
+class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle {
     private var minionNum = 0
     override fun calculateWeight(warInfo: WarInfo): Double {
         if (minionNum != 2) {
-            minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size
+            warInfo.cleanPlay()
+            minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size / 2
+            myLog.info { "墓场随从数量:$minionNum" }
             if (minionNum > 2) minionNum = 2
-            return groupWeight
-        } else {
-            return UnUseWeight
         }
+        return if (minionNum == 2)
+            groupWeight
+        else
+            UnUseWeight
 
     }
 

@@ -1,8 +1,8 @@
 package lin.bean
 
+import lin.domain.context.NotWeight
+import lin.domain.context.OrderWeight
 import lin.myLog
-import lin.weightHandler.condition.context.NotWeight
-import lin.weightHandler.condition.context.OrderWeight
 
 /**
  * @param depIds 数据库用String,用","分割
@@ -69,3 +69,6 @@ object DefCombo : Combo(0, { _ -> NotWeight }, ComboType.DEF) {
 }
 
 val DefCombos = listOf<Combo>(DefCombo)
+
+@JvmInline
+value class LastUse(val comboWeight: Double)

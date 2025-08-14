@@ -1,6 +1,6 @@
 package lin.warExt.option
 
-import club.xiaojiawei.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.WarInfo
 
 /**

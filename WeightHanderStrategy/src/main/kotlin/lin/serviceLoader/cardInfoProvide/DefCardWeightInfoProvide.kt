@@ -1,6 +1,7 @@
 package lin.serviceLoader.cardInfoProvide
 
-import club.xiaojiawei.data.CARD_WEIGHT_TRIE
+
+import club.xiaojiawei.hsscriptcardsdk.data.CARD_WEIGHT_TRIE
 import lin.bean.CardWeightInfo
 
 class DefCardWeightInfoProvide : CardWeightInfoProvide {
@@ -10,7 +11,7 @@ class DefCardWeightInfoProvide : CardWeightInfoProvide {
             keySelector = { it.key }
         ) { weightCard ->
             val card = weightCard.value
-            CardWeightInfo(weightCard.key, card.powerWeight, card.weight, card.weight)
+            CardWeightInfo(weightCard.key, card.powerWeight, card.weight, card.changeWeight)
         }
     }
 }
