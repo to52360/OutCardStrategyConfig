@@ -2,6 +2,7 @@ package lin.serviceLoader.weightRule
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
+import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.myLog
 
@@ -36,12 +37,11 @@ interface AddWeightByWarInfo : AddWeightByAllInfo {
 interface AddWeightByAllInfo : WeightCondition {
     override fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo) {
         val weight = calculateWeight(callCard, warInfo)
-        myLog.info { "id:${id()},计算的权重权重:${weight}" }
         if (weight == UnUseWeight) {
             callCard.unUse()
         } else
         callCard.addWeight(weight)
-        myLog.info { "id:${callCard.cardId()},总权重:${callCard.powerWeight}" }
+        myLog.info { if (weight != NotWeight) "处理id:${id()},计算的权重权重:${weight},id:${callCard.cardId()},总权重:${callCard.powerWeight}" }
     }
 
     fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double

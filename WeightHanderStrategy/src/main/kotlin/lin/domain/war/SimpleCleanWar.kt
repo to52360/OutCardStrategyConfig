@@ -51,16 +51,15 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
                 }
             }
         }
-
-
     }
 
     private fun processHero(): Boolean {
         val sumAtc = canAttacks.sumOf { it.card.atc }
         val rivalPlayArea = rival.playArea
-        val rivalHero = rivalPlayArea.hero!!
+        val rivalHero = rivalPlayArea.hero ?: return true
+
         val rivalHeroBlood = rivalHero.blood()
-        if (sumAtc > rivalHeroBlood) {
+        if (sumAtc >= rivalHeroBlood) {
             processAttack(canAttacks, mutableListOf(rivalHero))
             return false
         }
@@ -78,7 +77,7 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
                 iterator.remove()//只能攻击一次
             }
         }
-        return canAttacks.isEmpty()
+        return canAttacks.isNotEmpty()
     }
 
 }

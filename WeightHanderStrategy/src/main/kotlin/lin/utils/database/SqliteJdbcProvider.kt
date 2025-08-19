@@ -3,10 +3,12 @@ package lin.utils.database
 import lin.weightHandler.condition.context.ConditionException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.DriverManagerDataSource
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.Path
 import javax.sql.DataSource
 
 /**
+ * 参考
  * [club.xiaojiawei.config.DBConfig]
  */
 class SqliteJdbcProvider(private val dbPath: Path) {
@@ -50,4 +52,4 @@ class SqliteJdbcProvider(private val dbPath: Path) {
     }
 }
 private val rootPath = System.getProperty("user.dir")
-val DefDBUrl = Path.of(rootPath,"weightHandlerStrategy.db")
+val DefDBUrl: Path = Path.of(rootPath, "weightHandlerStrategy.db")

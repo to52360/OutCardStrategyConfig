@@ -90,7 +90,8 @@ class ComboDomain(war: War) {
             }
             warManage.executeEnvironment {
                 runnable()
-                if (warManage.getNowCost() > 3) {
+                if (warManage.getNowCost() > 2) {
+                    warManage.war.me
                     useCards(unAbleUseCards)
                 }
 

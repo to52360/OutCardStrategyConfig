@@ -9,6 +9,7 @@ import lin.lifecycle.GameLifecycle
 import lin.myLog
 import lin.serviceLoader.weightRule.AddWeightByWarInfo
 import lin.warExt.action.cleanPlay
+import lin.warExt.base.getNowCost
 import lin.warExt.common.getGraveyardCardsByType
 
 class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle {
@@ -16,8 +17,11 @@ class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle {
     override fun calculateWeight(warInfo: WarInfo): Double {
         if (minionNum != 2) {
             warInfo.cleanPlay()
-            minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size / 2
+            minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size
             myLog.info { "墓场随从数量:$minionNum" }
+            //todo-future 墓场的随从统计数据有问题,暂时这样写
+            if (warInfo.getNowCost() < 3) minionNum = minionNum / 2
+
             if (minionNum > 2) minionNum = 2
         }
         return if (minionNum == 2)
