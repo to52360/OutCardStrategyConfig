@@ -12,12 +12,14 @@ import lin.domain.combo.EmptyWeightResult
 import lin.domain.combo.EndWeightResult
 import lin.domain.combo.UseStrategyUtils
 import lin.domain.context.AwaitAnimationTime
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
+import lin.domain.context.UseSkillWeight
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.base.getNowCost
-import lin.warExt.base.hasCost
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.bind
@@ -47,7 +49,7 @@ class ComboDomain(war: War) {
         myLog.warn { "没有获取到类加载器" }
         javaClass.classLoader
     }
-    private var unAbleUseCards = emptySet<ComboCard>()
+    private var unAbleUseCards: TreeSet<ComboCard>? = null
     private val useStrategyUtils = UseStrategyUtils()
 
     //存储策略分组
@@ -90,14 +92,40 @@ class ComboDomain(war: War) {
             }
             warManage.executeEnvironment {
                 runnable()
-                if (warManage.getNowCost() > 2) {
-                    warManage.war.me
-                    useCards(unAbleUseCards)
-                }
+
 
             }
         }
 
+    }
+
+    private fun processLessCost(): Boolean {
+        val costWeight = CostWeight * warManage.getNowCost()
+
+        if (costWeight == NotWeight) return false
+        val skillComboCard: ComboCard? = warManage.war.me.playArea.power?.let {
+            if (costWeight + UseSkillWeight < 0) return@let null
+            val skill = ComboCard(null, it)
+            skill.addWeight(UseSkillWeight)
+            skill
+        }
+        unAbleUseCards?.let { unAbleUseCards ->
+            skillComboCard?.also {
+                unAbleUseCards.add(it)
+            }
+            for (unAbleUseCard in unAbleUseCards) {
+                if (costWeight + unAbleUseCard.powerWeight < 0) return false
+                if (unAbleUseCard.cost() <= warManage.getNowCost()) {
+                    if (useCardAndIsReload(unAbleUseCard)) return true
+                }
+            }
+        } ?: run {
+            skillComboCard?.also {
+                return useCardAndIsReload(it)
+            }
+        }
+
+        return false
     }
 
     /**
@@ -107,6 +135,7 @@ class ComboDomain(war: War) {
         myLog.info { "执行出牌策略" }
         executeEnvironment {
             findAndUse()
+            if (processLessCost()) return
         }
     }
 
@@ -184,18 +213,10 @@ class ComboDomain(war: War) {
             //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = weightResult.lessAbleUseCards()
-                useCards(moreTryCard)
-            }
-        }
-    }
-
-    fun useCards(comboCards: Set<ComboCard>) {
-
-        if (comboCards.isNotEmpty()) {
-            for (card in comboCards) {
-                if (warManage.getNowCost() >= card.cost()) {
-                    warManage.useCard(card)
-                    if (!warManage.hasCost()) break
+                if (moreTryCard.isNotEmpty()) {
+                    for (moreCard in moreTryCard) {
+                        if (useCardAndIsReload(moreCard)) return
+                    }
                 }
             }
         }

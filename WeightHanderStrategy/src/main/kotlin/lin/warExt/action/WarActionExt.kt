@@ -56,7 +56,7 @@ fun MyWarManage.usePower(){
     val me = war.me
 //        使用技能
     me.playArea.power?.let {
-        if (me.usableResource >= it.cost || it.cost == 0) {
+        if (it.cost == 0 || me.usableResource >= it.cost) {
             it.action.power()
         }
     }

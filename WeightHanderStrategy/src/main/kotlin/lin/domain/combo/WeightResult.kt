@@ -4,6 +4,7 @@ import lin.bean.ComboCard
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.myLog
+import java.util.*
 
 sealed class WeightResult {
     open fun weightSum(): Double {
@@ -25,7 +26,7 @@ class EndWeightResult(
         sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
     val canUseCardsByHandler: Set<ComboCard>
         get() = _canUseCardsByHandler
-    val unUseCards: Set<ComboCard>
+    val unUseCards: TreeSet<ComboCard>
         get() = _unUseCards
 
     //todo-future 存在直接操作权重,导致查找不到元素

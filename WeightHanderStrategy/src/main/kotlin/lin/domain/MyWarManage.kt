@@ -16,11 +16,11 @@ import lin.serviceLoader.weightRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
-import lin.warExt.action.usePower
 import lin.warExt.base.getHandCards
 import lin.warExt.base.getNowCost
 import lin.warExt.base.getPlayCards
 import org.koin.core.component.KoinComponent
+import java.util.*
 
 
 interface WarInfo {
@@ -143,7 +143,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     }
 
     fun processToDie() {
-        val canAttacks = playComboCards.filterTo(mutableListOf()) { it.toDie && it.card.canAttack() }
+        val canAttacks = playComboCards.filterTo(LinkedList()) { it.toDie && it.card.canAttack() }
         if (canAttacks.isNotEmpty()) {
             val simpleCleanWar = SimpleCleanWar(canAttacks, war.rival)
             simpleCleanWar.executeAttack()
@@ -258,7 +258,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
                 runnable()
-                usePower()//使用技能
+                //usePower()//使用技能
                 activeLocation()
                 //清场
                 cleanPlay()
