@@ -9,7 +9,8 @@ import lin.myLog
 /**
  * 卡牌权重变更结果处理类
  * 负责处理卡牌权重变化后的结果，包括卡牌的移除、替换和规则匹配等逻辑
- *
+ * 属性
+ * [lin.serviceLoader.parse.ParseCombo]
  * @property cards 需要处理的卡牌集合
  * @property comboCards 组合卡牌列表
  */

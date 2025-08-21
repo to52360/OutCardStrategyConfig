@@ -41,7 +41,8 @@ interface AddWeightByAllInfo : WeightCondition {
             callCard.unUse()
         } else
         callCard.addWeight(weight)
-        myLog.info { if (weight != NotWeight) "处理id:${id()},计算的权重权重:${weight},id:${callCard.cardId()},总权重:${callCard.powerWeight}" }
+        if (weight != NotWeight)
+            myLog.info { "处理id:${id()},计算的权重权重:${weight},id:${callCard.cardId()},总权重:${callCard.powerWeight}" }
     }
 
     fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double

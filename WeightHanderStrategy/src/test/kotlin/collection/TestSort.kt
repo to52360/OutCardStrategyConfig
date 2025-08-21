@@ -23,7 +23,7 @@ class TestSort {
         // 打印排序结果
         println("排序后的结果：")
         sortedData.forEach { comboCard ->
-            println("changeWeight: \${comboCard.changeWeight}, entityId: \${comboCard.card.entityId}")
+            println("changeWeight: ${comboCard.changeWeight}, entityId: ${comboCard.card.entityId}")
         }
     }
 }

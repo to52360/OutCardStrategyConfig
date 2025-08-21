@@ -7,9 +7,6 @@ import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
 
 class ComboInfoDao(private val jdbcTemplate: JdbcTemplate) {
-    fun getAllCombos(): List<ComboInfo> {
-        return listOf(ComboInfo(1, 1.4, ComboType.BEFORE, arrayOf(1.3, 1.1), 10.0))
-    }
 
     /**
      * 查询所有combo_info数据

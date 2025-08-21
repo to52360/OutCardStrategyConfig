@@ -7,7 +7,6 @@ import lin.domain.combo.EndWeightResult
 import lin.domain.combo.WeightResult
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
-
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.base.getNowCost
 import lin.weightHandler.DiscoverWeightHandler
@@ -15,7 +14,6 @@ import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import kotlin.math.absoluteValue
 
 
 class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
@@ -124,29 +122,31 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
             discoverWeightHandlers.forEach {
                 it.cardWeight(comboCard)
             }
-            comboCard.basePowerWeight
-            val extWeight = comboCard.powerWeight + pointToDouble(comboCard.basePowerWeight)
-            if (extWeight > maxWeight) {
-                myLog.info { "暂时最大值:id:${comboCard.card.cardId},名字:${comboCard.card.entityName}的发现权重:$extWeight" }
+            val extWeight = pointToDouble(comboCard.basePowerWeight)
+            if (extWeight != 0) {
+                myLog.info { "id:${comboCard.cardId()},额外权重:$extWeight,也就是weight小数部分" }
+            }
+            val finalWeight = comboCard.powerWeight + extWeight
+            if (finalWeight > maxWeight) {
                 maxWeight = comboCard.powerWeight
                 maxIndex = i
             }
         }
-
+        val maxWeightCard = cards[maxIndex]
+        myLog.info { "发现权最大值:id:${maxWeightCard.cardId},名字:${maxWeightCard.entityName}的发现权重:$maxWeight,选择下标:$maxIndex" }
         return maxIndex
 
     }
 
-    fun pointToDouble(number: Double): Double {
-        val absNum = number.absoluteValue
-        // 1. 获取小数部分
-        val decimalPart = absNum - absNum.toInt() // 结果: 0.14159
-        if (decimalPart == 0.0) return decimalPart
-        // 2. 将小数部分乘以 10^n（n 是你想要保留的小数位数），然后转换为 Int
-        // 例如，保留 5 位小数
-        val scaleFactor = 100 // 10^5
-        val result = decimalPart * scaleFactor
-        return result
+    fun pointToDouble(number: Double): Int {
+        val decimalStr = "%.3f".format(number)  // 使用足够精度格式化
+        val decimalIndex = decimalStr.indexOf('.')
+
+        if (decimalIndex == -1) return 0
+
+        val decimalPart = decimalStr.substring(decimalIndex + 1)
+        // 移除开头的零并转换为整数
+        return decimalPart.trimStart('0').toIntOrNull() ?: 0
 
 
     }

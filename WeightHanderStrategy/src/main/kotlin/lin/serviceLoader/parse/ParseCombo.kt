@@ -34,7 +34,7 @@ class ParseCombo : ParseCardWeightInfo, KoinComponent {
                         }
                     }
 
-                    ComboType.CHANGE -> {
+                    ComboType.CHANGE -> {//
                         val comboRule: ComboRule = getRule()
                         bindCardGroup.forEach { it.addChangeComboRule(comboRule) }
                     }

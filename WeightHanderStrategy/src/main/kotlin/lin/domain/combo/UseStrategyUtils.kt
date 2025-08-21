@@ -1,6 +1,5 @@
 package lin.domain.combo
 
-import lin.domain.context.DealyActionTime
 import lin.domain.context.ThreeAnimationTime
 import lin.myLog
 import java.util.concurrent.CountDownLatch
@@ -18,12 +17,10 @@ class UseStrategyUtils {
         if (useResult) {
             countDownLatch?.run {
                 myLog.info { "进入阻塞,等待发现" }
-                val result = await(DealyActionTime, TimeUnit.MILLISECONDS)
-                if (result) {
-                    myLog.info { "阻塞等待发现动画" }
-                    //等待发现动画
-                    Thread.sleep(ThreeAnimationTime)
-                }
+                await(ThreeAnimationTime, TimeUnit.MILLISECONDS)
+                myLog.info { "阻塞等待发现动画" }
+                //等待发现动画
+                Thread.sleep(ThreeAnimationTime)
 
             }
         }
@@ -33,6 +30,7 @@ class UseStrategyUtils {
     fun down() {
         countDownLatch?.run {
             myLog.info { "唤醒发现" }
+
             countDown()
         }
     }

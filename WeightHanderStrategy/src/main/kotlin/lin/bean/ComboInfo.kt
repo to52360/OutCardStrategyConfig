@@ -6,6 +6,8 @@ import lin.myLog
 
 /**
  * @param depIds 数据库用String,用","分割
+ * todo-future comboWeight多种语义(对扩展和维护有麻烦,暂时没空整理)
+ * @param comboWeight  当换牌只用到正负,负数互斥 ,最后打出作为打出顺序使用
  */
 class ComboInfo(
     val infoId: Int,
