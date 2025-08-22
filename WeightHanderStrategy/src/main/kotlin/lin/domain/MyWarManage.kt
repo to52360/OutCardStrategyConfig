@@ -102,6 +102,17 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             card = card
         )
     }
+    inline fun isChange(useCard: () -> ComboCard?): Boolean {
+        val beginCard = getHandCards().lastOrNull()
+        val useCard = useCard()
+        useCard?.let {
+            val endCard = getHandCards().lastOrNull()
+            if (beginCard != endCard && useCard != beginCard) //排除打出最后一张的情况
+                return true
+        }
+        return false
+    }
+
 
 
     /**
@@ -126,21 +137,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
     }
 
-    /**
-     * todo-future 有问题使用需要特定组合,但是没有绑定在一起
-     */
-    private fun isChange(): Boolean {
-        val change = getHandCards().size >= handNum
-        return change
-    }
 
-    fun changeAndReload(): Boolean {
-        val change = isChange();
-        if (change) {
-            reLoad()
-        }
-        return change
-    }
 
     fun processToDie() {
         val canAttacks = playComboCards.filterTo(LinkedList()) { it.toDie && it.card.canAttack() }
@@ -187,27 +184,20 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      *
      */
     fun useCardAndRemove(comBoCard: ComboCard) {
-        if (useCard(comBoCard)) {
+        if (tryUseCard(comBoCard)) {
             handComboCards -= comBoCard
         }
     }
-    private var handNum = 0
 
-    //todo-future 不一定能使用出去  打不出去尝试指向关联组 ,该方法好像也不符合战场范畴
-    //todo 可以判断最后一个下标等不等于最后下标
-    fun useCard(comBoCard: ComboCard): Boolean {
-        handNum = getHandCards().size
-        val card = comBoCard.card
-        if (card.area !is HandArea) return false //修改区域
-
-
+    fun useCard(comboCard: ComboCard): Boolean {
+        val card = comboCard.card
         val actionInfo = CARD_INFO_TRIE[card.cardId]
         var result = true
         actionInfo?.let {
             card.action.autoPower(it)
         } ?: run {
-            result = comBoCard.pointCard?.let {
-                card.action.power(comBoCard.pointCard)?.let { true } ?: false
+            result = comboCard.pointCard?.let {
+                card.action.power(comboCard.pointCard)?.let { true } ?: false
             } ?: run {
                 card.action.power()?.let { true } ?: false
             }
@@ -216,7 +206,22 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         return result
 
     }
-    //todo-future 不知道并发安全不,执行出牌策略和更新war是不是同一个线程
+
+
+    fun tryUseCard(comboCard: ComboCard): Boolean {
+        val card = comboCard.card
+        if (card.area !is HandArea) {//区域判断
+            if (war.me.playArea.power != comboCard.card) //技能的处理
+                return false
+        }
+        var useResult = useCard(comboCard)
+        if (!useResult && card.area is HandArea) {//再次尝试
+            myLog.info { "再次尝试打出" }
+            useResult = useCard(comboCard)
+        }
+        return useResult
+    }
+
 
 
     private var gameId: String? = null
@@ -249,17 +254,18 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      */
     inline fun executeEnvironment(runnable: () -> Unit) {
             if (war.isValid()) {
-                //使用地标
-                activeLocation()
                 //重新加载信息
                 reLoad()
+                val startNum = getHandCards().size
                 //送亡语,送墓场操作
                 processToDie()
-
+                //使用地标
+                activeLocation()
+                if (startNum > getHandCards().size) reLoad() //重新加载
 
                 runnable()
                 //usePower()//使用技能
-                activeLocation()
+                //activeLocation()
                 //清场
                 cleanPlay()
             } else {

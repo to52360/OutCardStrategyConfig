@@ -5,12 +5,7 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.bean.War
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
-import lin.bean.UseAfterStrategy
-import lin.bean.UseBeforeStrategy
-import lin.domain.combo.ChangeWeightResult
-import lin.domain.combo.EmptyWeightResult
-import lin.domain.combo.EndWeightResult
-import lin.domain.combo.UseStrategyUtils
+import lin.domain.combo.*
 import lin.domain.context.AwaitAnimationTime
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
@@ -19,6 +14,7 @@ import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
+import lin.warExt.base.getHandCards
 import lin.warExt.base.getNowCost
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -92,8 +88,6 @@ class ComboDomain(war: War) {
             }
             warManage.executeEnvironment {
                 runnable()
-
-
             }
         }
 
@@ -102,9 +96,10 @@ class ComboDomain(war: War) {
     private fun processLessCost(): Boolean {
         val costWeight = CostWeight * warManage.getNowCost()
 
+        //todo-future 可能报纸不打零费牌
         if (costWeight == NotWeight) return false
         val skillComboCard: ComboCard? = warManage.war.me.playArea.power?.let {
-            if (costWeight + UseSkillWeight < 0) return@let null
+            if (costWeight + UseSkillWeight < NotWeight) return@let null
             val skill = ComboCard(null, it)
             skill.addWeight(UseSkillWeight)
             skill
@@ -114,7 +109,7 @@ class ComboDomain(war: War) {
                 unAbleUseCards.add(it)
             }
             for (unAbleUseCard in unAbleUseCards) {
-                if (costWeight + unAbleUseCard.powerWeight < 0) return false
+                if (costWeight + unAbleUseCard.powerWeight < NotWeight) return false
                 if (unAbleUseCard.cost() <= warManage.getNowCost()) {
                     if (useCardAndIsReload(unAbleUseCard)) return true
                 }
@@ -135,7 +130,6 @@ class ComboDomain(war: War) {
         myLog.info { "执行出牌策略" }
         executeEnvironment {
             findAndUse()
-            if (processLessCost()) return
         }
     }
 
@@ -210,7 +204,6 @@ class ComboDomain(war: War) {
                 }
             }
 
-            //todo 还存在问题 ,万一新增卡牌
             if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = weightResult.lessAbleUseCards()
                 if (moreTryCard.isNotEmpty()) {
@@ -219,6 +212,8 @@ class ComboDomain(war: War) {
                     }
                 }
             }
+
+            if (processLessCost()) return
         }
     }
 
@@ -235,33 +230,25 @@ class ComboDomain(war: War) {
     }
     fun useCardAndIsReload(card: ComboCard): Boolean {
         card.useBeforeStrategy?.executeAction(card, useStrategyUtils)
-        val useResult = warManage.useCard(card)
+        val startHandCardNum = warManage.getHandCards().size
+        val useResult = warManage.tryUseCard(card)
         myLog.info { "打出$card,使用结果:$useResult" }
         useStrategyUtils.useResult = useResult
         card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
         if (useResult) {
             myLog.info { "打出等待动画" }
             Thread.sleep(AwaitAnimationTime)
-            val isBreak = isReload()
-            return isBreak
+            val change = warManage.getHandCards().size >= startHandCardNum
+            if (change) {
+                myLog.info { "有变化,重新查询combo" }
+                warManage.reLoad()
+                findAndUse()
+            }
+            return change
         }
         return false
     }
 
-    /**
-     * 刷新重新调用回溯查找 需要配合[MyWarManage.useCard]使用
-     * todo-future 先验证可行性
-     *
-     */
-    private fun isReload(): Boolean {
-        val change = warManage.changeAndReload()
-        if (change) {
-            myLog.info { "有变化,重新查询combo" }
-            findAndUse()
-
-        }
-        return change
-    }
     fun executeChangeCard(cards: HashSet<Card>) {
         threadContext {
             if (BaseData.enableChangeWeight) {

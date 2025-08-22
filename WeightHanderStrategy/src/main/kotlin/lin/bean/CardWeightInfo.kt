@@ -1,6 +1,10 @@
 package lin.bean
 
 
+import lin.domain.combo.FindStrategy
+import lin.domain.combo.UseAfterStrategy
+import lin.domain.combo.UseBeforeStrategy
+import lin.domain.combo.UseStrategy
 import lin.domain.context.NotWeight
 import lin.lifecycle.LifecycleRegister
 import lin.serviceLoader.weightRule.WeightRule

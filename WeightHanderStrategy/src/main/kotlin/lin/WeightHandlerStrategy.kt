@@ -77,7 +77,5 @@ class WeightHandlerStrategy : DeckStrategy() {
 
         if (cards.size < 2) return 0
           return   comboDomain.executeDiscoverChooseCard(*cards)
-
-
     }
 }

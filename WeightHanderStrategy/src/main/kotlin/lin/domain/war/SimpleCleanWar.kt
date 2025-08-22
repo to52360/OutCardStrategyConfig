@@ -4,6 +4,7 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.bean.Player
 import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
+import lin.myLog
 import java.util.*
 
 class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) {
@@ -40,8 +41,11 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
     }
 
     fun executeAttack() {
-        if (initAttack())
+        if (initAttack()) {
+            myLog.info { "执行送随从" }
             attack()
+        }
+
     }
 
     private fun attack() {
@@ -83,7 +87,7 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
 
     /**
      * 选择攻击开始位置
-     * chatGpt生成的算法
+     * chatgpt生成的算法
      */
     private fun buildAttackOrder(targetCards: MutableList<Card>): List<Card> {
         val atcSum = canAttacks.sumOf { it.card.atc }

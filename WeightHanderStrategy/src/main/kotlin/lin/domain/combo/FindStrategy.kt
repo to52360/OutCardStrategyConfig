@@ -1,9 +1,7 @@
-package lin.bean
+package lin.domain.combo
 
+import lin.bean.ComboCard
 import lin.domain.WeightHandlerDomain
-import lin.domain.combo.EmptyWeightResult
-import lin.domain.combo.EndWeightResult
-import lin.domain.combo.WeightResult
 import lin.domain.context.HalfCostWeight
 import lin.warExt.base.getNowCost
 

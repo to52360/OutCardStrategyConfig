@@ -3,7 +3,7 @@ package lin.serviceLoader.weightRule.afterRule
 import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
-import lin.serviceLoader.weightRule.AddWeightByAllInfo
+import lin.serviceLoader.weightRule.WeightCondition
 import lin.warExt.common.hasTaunt
 import lin.warExt.rival.rivalIsNotCardByPlayArea
 
@@ -13,7 +13,7 @@ import lin.warExt.rival.rivalIsNotCardByPlayArea
  * todo-future 此类可以作为全局权重处理,但需要卡牌类型数据支持
  */
 
-class HaloRule : AddWeightByAllInfo {
+class HaloRule : WeightCondition {
 
     /**
      * 没有判断手牌是否存在后续收益

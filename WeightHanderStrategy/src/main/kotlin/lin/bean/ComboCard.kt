@@ -2,6 +2,7 @@ package lin.bean
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import lin.domain.combo.FindStrategy
 import lin.domain.context.BaseWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
@@ -122,9 +123,9 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     }
 
     override fun toString(): String {
-        if (card.entityName == "UNKNOWN ENTITY")
-            return "ComboCard{id=${cardId()},weight=${powerWeight}}"
-        return "ComboCard{id=${cardId()},name=${card.entityName},weight=${powerWeight}}"
+        if (card.entityName.startsWith("UNK"))
+            return "{id=${cardId()},weight=${powerWeight}}"
+        return "{id=${cardId()},name=${card.entityName},weight=${powerWeight}}"
     }
 
 }

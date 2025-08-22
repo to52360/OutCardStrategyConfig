@@ -34,7 +34,10 @@ open class Combo(val comboId: Int, val comboRule: ComboRule, val comboType: Comb
                         val addWeight = comboCard.powerWeight - beforeWeight + OrderWeight //保证同组优先级最高
                         callComboCard.addWeight(addWeight)
                     }
-                    myLog.info { "核心权重${callComboCard.powerWeight},成员权重${comboCard.powerWeight}" }
+                    if (callComboCard.powerWeight < comboCard.powerWeight) {
+                        myLog.warn { "${comboId}的组核心权重应该大于成员权重,可现在核心权重${callComboCard.powerWeight},成员权重${comboCard.powerWeight}" }
+                    }
+
                 }
             }
             weight

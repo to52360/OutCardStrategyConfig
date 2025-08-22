@@ -1,7 +1,8 @@
-package lin.bean
+package lin.domain.combo
 
-import lin.domain.combo.UseStrategyUtils
+import lin.bean.ComboCard
 import lin.domain.context.AwaitAnimationTime
+import lin.myLog
 
 
 interface UseStrategy
@@ -16,6 +17,7 @@ interface UseBeforeStrategy : UseStrategy {
 
 object UseAfterLClick : UseAfterStrategy {
     override fun afterExtAction(comboCard: ComboCard, useStrategyUtils: UseStrategyUtils) {
+        myLog.info { "等待地标动画" }
         Thread.sleep(AwaitAnimationTime)
         comboCard.card.action.lClick()
     }

@@ -22,17 +22,17 @@ abstract class AbstractHandArea : HandArea{
  * 除去本身剩余费用
  */
 interface CanUseHandByLeaveCost : WeightCondition {
-    override fun calculateSetWeight(callCard: ComboCard, warInfo: WarInfo){
+    override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val leaveCost = warInfo.getNowCost() - callCard.cost()
         val cardByLeaveCost = warInfo.canUseCards.filter { it.cost() < leaveCost }
-        onLeaveCostProcessWeight(callCard, cardByLeaveCost)
+        return onLeaveCostProcessWeight(callCard, cardByLeaveCost)
     }
 
     override fun description(): String {
         return "除去本身剩余费用可以的手牌"
     }
 
-    fun onLeaveCostProcessWeight(callCard: ComboCard, leaveCostHandCards: List<ComboCard>)
+    fun onLeaveCostProcessWeight(callCard: ComboCard, leaveCostHandCards: List<ComboCard>): Double
 }
 
 

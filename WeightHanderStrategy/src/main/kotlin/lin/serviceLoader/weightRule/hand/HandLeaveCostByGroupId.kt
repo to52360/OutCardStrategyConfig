@@ -21,9 +21,8 @@ class HandLeaveCostByGroupId : CanUseHandByLeaveCost,
     override fun onLeaveCostProcessWeight(
         callCard: ComboCard,
         leaveCostHandCards: List<ComboCard>
-    ) {
-        val weight = if (depToPredicate(leaveCostHandCards)) groupWeight else NotWeight
-        callCard.addWeight(weight)
+    ): Double {
+        return if (depToPredicate(leaveCostHandCards)) groupWeight else NotWeight
     }
 }
 

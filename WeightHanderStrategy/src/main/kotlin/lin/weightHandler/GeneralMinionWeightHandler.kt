@@ -67,7 +67,7 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler, RoundLi
                     if (isCleanWar) {
                         return UnUseWeight
                     }
-
+                    myLog.info { "随从太多清理一下战场" }
                     // 清理战场并更新状态
                     warManage.cleanPlay()
                     isFull = warManage.playCardIsFull()
