@@ -26,7 +26,7 @@ import java.util.*
  * todo-future 名字还没有想好
  * 参考数据
  * 执行攻击动作
- * [club.xiaojiawei.util.DeckStrategyUtil.Result.execAction]
+ * club.xiaojiawei.util.DeckStrategyUtil.Result.execAction
  * mapstruct DaoDao复制 Mapper
  *
  * []

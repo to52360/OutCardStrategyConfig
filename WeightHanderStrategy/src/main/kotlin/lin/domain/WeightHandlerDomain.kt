@@ -98,20 +98,6 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
 
 
     /**
-     * 存在性能问题,暂时这样了
-     */
-    fun List<ComboCard>.copy(skipComboCard: ComboCard): List<ComboCard> {
-        val comboCards = mutableListOf<ComboCard>()
-        forEach {
-            if (skipComboCard != it.card) {//重写的equals,不知道==起效不
-                val comboCard = warManage.parseComboCard(it.card)
-                comboCards.add(comboCard)
-            }
-
-        }
-        return comboCards
-    }
-    /**
      * 发现策略
      */
     fun executeDiscoverChooseCard(vararg cards: Card): Int{

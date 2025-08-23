@@ -50,8 +50,8 @@ fun MyWarManage.useLaunch(){
     }
 }
 /**
- * 使用技能
- * [club.xiaojiawei.strategy.HsCommonDeckStrategy.executeOutCard]
+ * 使用技能参考
+ * club.xiaojiawei.strategy.HsCommonDeckStrategy.executeOutCard
  */
 fun MyWarManage.usePower(){
     val me = war.me
