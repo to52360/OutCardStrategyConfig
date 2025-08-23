@@ -134,12 +134,7 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         }
         val maxWeightCard = cards[maxIndex]
         myLog.info { "发现权最大值:id:${maxWeightCard.cardId},名字:${maxWeightCard.entityName}的发现权重:$maxWeight,选择下标:$maxIndex" }
-        //todo-future 处理顺序错误
-        val index = maxIndex
-        when (index) {
-            0 -> maxIndex = 2
-            2 -> maxIndex = 0
-        }
+
         return maxIndex
 
     }

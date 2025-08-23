@@ -16,11 +16,12 @@ class DropMin : AddWeightByWarInfo, DepByWeightGroupIdDelegate<DepToPredicate> b
         val handCards = warInfo.handComboCards.sortedBy { it.cost() }
         var cost = warInfo.getNowCost()
         for (card in handCards) {
-            if (cost < 0) return -groupWeight
+            if (card.cost() < 0) return -groupWeight
             if (depToPredicate(card)) return groupWeight
             if (card.useAble())//能够使用则减费用
                 cost -= card.cost()
-            else -groupWeight
+            else
+                return -groupWeight
         }
         return -groupWeight
     }

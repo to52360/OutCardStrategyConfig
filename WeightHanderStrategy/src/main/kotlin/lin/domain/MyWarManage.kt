@@ -12,7 +12,6 @@ import lin.domain.war.SimpleCleanWar
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
-import lin.serviceLoader.weightRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
@@ -57,7 +56,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     init {
         infoMap = getCardInfos()
-        parseCondition(infoMap)
         parseCombo(infoMap)
     }
 
@@ -78,15 +76,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         val parseCardWeightInfo = getKoin().getAll<ParseCardWeightInfo>()
         parseCardWeightInfo.forEach { it.parse(infoMap) }
     }
-    private fun parseCondition(infoMap: Map<String, CardWeightInfo>) {
-
-        ServiceLoaderUtils.loadServices(CardRule::class.java).forEach {
-            val card = infoMap[it.cardId()]
-            card?.run {
-                addWeightRule(it)
-            }
-        }
-    }
 
 
     //转化
@@ -102,13 +91,23 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             card = card
         )
     }
+
+    /**
+     * todo-future 使用最后一张的情况处理不了,会有问题
+     */
     inline fun isChange(useCard: () -> ComboCard?): Boolean {
         val beginCard = getHandCards().lastOrNull()
+        val expNum = getHandCards().size
         val useCard = useCard()
-        useCard?.let {
-            val endCard = getHandCards().lastOrNull()
-            if (beginCard != endCard && useCard != beginCard) //排除打出最后一张的情况
-                return true
+        val nowNum = getHandCards().size
+        if (nowNum >= expNum) {
+            return true
+        } else {//为弃牌写的
+            useCard?.let {
+                val endCard = getHandCards().lastOrNull()
+                if (beginCard != endCard && useCard != beginCard) //排除打出最后一张的情况
+                    return true
+            }
         }
         return false
     }

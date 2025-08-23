@@ -23,7 +23,7 @@ interface WeightRule {
         val weight = calculateWeight(callCard, warInfo)
         if (weight == UnUseWeight) {
             callCard.unUse()
-        } else
+        } else if (weight != NotWeight)
             callCard.addWeight(weight)
         if (weight != NotWeight)
             myLog.info { "处理id:${id()},计算的权重权重:${weight},id:${callCard.cardId()},总权重:${callCard.powerWeight}" }

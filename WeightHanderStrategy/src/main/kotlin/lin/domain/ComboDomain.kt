@@ -14,7 +14,6 @@ import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
-import lin.warExt.base.getHandCards
 import lin.warExt.base.getNowCost
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -94,6 +93,7 @@ class ComboDomain(war: War) {
     }
 
     private fun processLessCost(): Boolean {
+        myLog.info { "处理剩余费用" }
         val costWeight = CostWeight * warManage.getNowCost()
 
         //todo-future 可能报纸不打零费牌
@@ -130,20 +130,17 @@ class ComboDomain(war: War) {
         myLog.info { "执行出牌策略" }
         executeEnvironment {
             findAndUse()
+            processLessCost()
         }
     }
 
     private fun findAndUse() {
         val weightResult = weightHandlerDomain.findCombination()
-        when (weightResult) {
-            is EmptyWeightResult -> return
-            is EndWeightResult -> {
-                myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
-                unAbleUseCards = weightResult.unUseCards
-                executeUseCard(weightResult)
-            }
+        if (weightResult is EndWeightResult) {
+            myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
+            unAbleUseCards = weightResult.unUseCards
+            executeUseCard(weightResult)
         }
-
     }
 
 
@@ -213,7 +210,7 @@ class ComboDomain(war: War) {
                 }
             }
 
-            if (processLessCost()) return
+
         }
     }
 
@@ -229,24 +226,24 @@ class ComboDomain(war: War) {
         }
     }
     fun useCardAndIsReload(card: ComboCard): Boolean {
-        card.useBeforeStrategy?.executeAction(card, useStrategyUtils)
-        val startHandCardNum = warManage.getHandCards().size
-        val useResult = warManage.tryUseCard(card)
-        myLog.info { "打出$card,使用结果:$useResult" }
-        useStrategyUtils.useResult = useResult
-        card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
-        if (useResult) {
-            myLog.info { "打出等待动画" }
-            Thread.sleep(AwaitAnimationTime)
-            val change = warManage.getHandCards().size >= startHandCardNum
-            if (change) {
-                myLog.info { "有变化,重新查询combo" }
-                warManage.reLoad()
-                findAndUse()
-            }
-            return change
+        val changeResult = warManage.isChange {
+            card.useBeforeStrategy?.executeAction(card, useStrategyUtils)
+            val useResult = warManage.tryUseCard(card)
+            myLog.info { "打出$card,使用结果:$useResult" }
+            useStrategyUtils.useResult = useResult
+            card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
+            if (useResult) {
+                myLog.info { "打出等待动画" }
+                Thread.sleep(AwaitAnimationTime)
+                card
+            } else null
         }
-        return false
+        if (changeResult) {
+            myLog.info { "有变化,重新查询combo" }
+            warManage.reLoad()
+            findAndUse()
+        }
+        return changeResult
     }
 
     fun executeChangeCard(cards: HashSet<Card>) {

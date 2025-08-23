@@ -8,8 +8,8 @@ import java.nio.file.Path
 import javax.sql.DataSource
 
 /**
- * 参考
- * [club.xiaojiawei.config.DBConfig]
+ * 参考:
+ * club.xiaojiawei.config.DBConfig
  */
 class SqliteJdbcProvider(private val dbPath: Path) {
     /**

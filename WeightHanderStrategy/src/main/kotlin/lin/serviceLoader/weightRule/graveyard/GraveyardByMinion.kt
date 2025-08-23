@@ -11,17 +11,21 @@ import lin.serviceLoader.weightRule.AddWeightByWarInfo
 import lin.warExt.action.cleanPlay
 import lin.warExt.base.getNowCost
 import lin.warExt.common.getGraveyardCardsByType
+import lin.warExt.rival.rivalAllCardsByPlayArea
 
 class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle {
     private var minionNum = 0
     override fun calculateWeight(warInfo: WarInfo): Double {
         if (minionNum != 2) {
-            myLog.info { "清理战场之后再使用" }
-            warInfo.cleanPlay()
+            if (warInfo.rivalAllCardsByPlayArea().isNotEmpty()) {
+                myLog.info { "清理战场之后再使用" }
+                warInfo.cleanPlay()
+            }
             minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size
             myLog.info { "墓场随从数量:$minionNum" }
             //todo-future 墓场的随从统计数据有问题,暂时这样写
             if (warInfo.getNowCost() < 6) minionNum = minionNum / 2
+
 
             if (minionNum > 2) minionNum = 2
         }

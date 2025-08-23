@@ -68,7 +68,7 @@ class ExtCostStrategy(val cost: Int) : FindStrategy {
 
 /**
  * 变更手牌策略
- * 主要是优化性能
+ * 主要是优化性能,加不加都没区别
  */
 object ChangeStrategy : FindStrategy {
     override fun find(

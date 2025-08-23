@@ -6,7 +6,6 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.domain.MyWarManage
 import lin.domain.WarInfo
-import lin.domain.context.FourAnimationTime
 import lin.myLog
 
 /**
@@ -21,11 +20,7 @@ fun MyWarManage.activeLocation(){
     try {
         cards.forEach { card ->
             if (card.cardType === CardTypeEnum.LOCATION && !card.isLocationActionCooldown) {
-                card.action.lClick()?.also {
-                    myLog.info { "阻塞等待地标动画" }
-                    Thread.sleep(FourAnimationTime)
-                }
-
+                card.action.lClick()
             }
         }
     } catch (_: ConcurrentModificationException) {
