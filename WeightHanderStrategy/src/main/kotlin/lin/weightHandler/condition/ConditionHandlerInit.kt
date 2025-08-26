@@ -37,12 +37,17 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
         weightCondition?.let {
 
             //从权重表获取绑定数据数据
-            val bindWeightInfos = weightGroupInfos[conditionGroup.bindId]
-            if (bindWeightInfos == null) {
-                val msg = "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId}"
-                myLog.warn { msg }
-                return
+            val bindWeightInfos = mutableListOf<CardWeightInfo>()
+            for (bindId in conditionGroup.bindId) {
+                val weightGroupInfo = weightGroupInfos[bindId]
+                if (weightGroupInfo == null) {
+                    val msg = "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId}"
+                    myLog.warn { msg }
+                    return
+                }
+                bindWeightInfos.addAll(weightGroupInfo)
             }
+
             //这里采用反射复制,为了简洁和快速实现 没有采用工厂模式
             val copyCondition = it.copy()
             //处理依赖

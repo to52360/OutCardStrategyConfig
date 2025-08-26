@@ -5,7 +5,7 @@ import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicates
-import lin.serviceLoader.weightRule.utils.PredicateByGroupsId
+import lin.serviceLoader.weightRule.utils.PredicateByGroupIds
 
 
 /**
@@ -14,7 +14,7 @@ import lin.serviceLoader.weightRule.utils.PredicateByGroupsId
  *
  */
 class HandLeaveCostByGroupId : CanUseHandByLeaveCost,
-    DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupsId() {
+    DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupIds() {
     override var groupWeight: Double = CostWeight
 
 

@@ -16,7 +16,10 @@ class HandNumWeightId : AbstractHandArea(), DepByWeightGroupIdDelegate<DepToPred
              if(depToPredicate(it))
                  num++
          }
-         return (num/handCards.size)*groupWeight
+        if (num == 0) return -groupWeight
+        val prob = num.toFloat() / handCards.size
+        if (prob < 0.4F) return -groupWeight * prob
+        return prob * groupWeight
     }
 
     override fun description(): String {

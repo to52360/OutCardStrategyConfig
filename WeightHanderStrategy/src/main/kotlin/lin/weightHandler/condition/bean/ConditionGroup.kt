@@ -12,7 +12,7 @@ import lin.domain.context.CostWeight
 
  class ConditionGroup(
     val groupId: Int, //唯一标识
-    val bindId: Double,
+    val bindId: Array<Double>,
     val weightConditionId: String, //打出策略,依赖关联组 ,辅助类:核心卡没上手,依赖项:在手牌
     val depByWeightIds : Array<Double>,  //依赖权重数据
     priority: Double?, //基础优先度 ,不符合条件减优先级也就是减少权重

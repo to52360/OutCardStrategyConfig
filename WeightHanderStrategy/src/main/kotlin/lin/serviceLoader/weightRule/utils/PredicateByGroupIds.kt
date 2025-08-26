@@ -4,7 +4,7 @@ package lin.serviceLoader.weightRule.utils
  * 委托存在指定组判断函数
  * 存在指定分组卡牌
  */
-class PredicateByGroupsId : DepByWeightGroupIdDelegate<DepToPredicates> {
+class PredicateByGroupIds : DepByWeightGroupIdDelegate<DepToPredicates> {
     override lateinit var depToPredicate: DepToPredicates
 
 

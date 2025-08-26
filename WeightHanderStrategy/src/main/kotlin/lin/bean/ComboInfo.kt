@@ -6,8 +6,8 @@ import lin.myLog
 
 /**
  * @param depIds 数据库用String,用","分割
- * todo-future comboWeight多种语义(对扩展和维护有麻烦,暂时没空整理)
- * @param comboWeight  当换牌只用到正负,负数互斥 ,最后打出作为打出顺序使用
+ * todo-future comboWeight多种语义(对扩展和维护有麻烦,暂时没空整理,主要没兴趣了)
+ * @param comboWeight  当换牌只用到正负,负数互斥 ,最后打出作为打出顺序使用,作为combo,==0表示不符合条件
  */
 class ComboInfo(
     val infoId: Int,
@@ -28,7 +28,7 @@ open class Combo(val comboId: Int, val comboRule: ComboRule, val comboType: Comb
             //优先级处理
             if (weight != NotWeight) {//表示是同一组
                 val beforeWeight = callComboCard.powerWeight
-                if (ComboType.BEFORE == comboType) {
+                if (ComboType.BEFORE == comboType) {//如果是before会增加排序权重
                     //之前策略
                     if (beforeWeight <= comboCard.powerWeight) {//增加权重
                         val addWeight = comboCard.powerWeight - beforeWeight + OrderWeight //保证同组优先级最高

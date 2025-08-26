@@ -4,6 +4,7 @@ package lin.domain.combo
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
 import lin.domain.context.NotWeight
+import lin.domain.context.UnUseWeight
 import lin.myLog
 
 /**
@@ -12,7 +13,7 @@ import lin.myLog
  * 属性
  * [lin.serviceLoader.parse.ParseCombo]
  * @property cards 需要处理的卡牌集合
- * @property comboCards 组合卡牌列表
+ * @property comboCards 额外卡牌列表
  */
 class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) {
     // 保留卡牌的最大费用阈值
@@ -35,14 +36,10 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
      */
     init {
         comboCards.forEach { comboCard ->
-            if (comboCard.changeWeight < NotWeight) {
-                removeCards.add(comboCard)
-            } else {
                 changeWeight.add(comboCard)
                 // 如果卡牌有变更规则，则添加到hasChangeRule集合
                 comboCard.changeComboRule?.let { rule ->
                     hasChangeRule.add(comboCard)
-                }
             }
         }
     }
@@ -79,12 +76,22 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
             val bestMatch = findBestMatchingCard(ruleComboCard)
             bestMatch?.also {
                 fitRule.add(it)
+                fitRule.add(ruleComboCard)
+                changeWeight.remove(it)
                 changeWeight.remove(ruleComboCard)//不参与后续匹配
             } ?: run {
-                if (ruleComboCard.cost() > keepCost) removeCards.add(ruleComboCard)
+                //大于保持费用,也不是其他规则配合牌就移除
+                if ((isRemove(ruleComboCard)) && !fitRule.contains(ruleComboCard)) {
+                    myLog.info { "没配合牌移除:$ruleComboCard" }
+                    removeCards.add(ruleComboCard)
+                }
             }
         }
         return fitRule
+    }
+
+    private fun isRemove(comboCard: ComboCard): Boolean {
+        return comboCard.changeWeight < NotWeight || comboCard.cost() > keepCost
     }
 
     /**
@@ -94,7 +101,7 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
      * @return 最匹配的卡牌，如果没有匹配则返回null
      */
     private fun findBestMatchingCard(ruleComboCard: ComboCard): ComboCard? {
-        var maxWeight = NotWeight
+        var maxWeight = UnUseWeight
         var maxWeightComboCard: ComboCard? = null
 
         val iterator = changeWeight.iterator()
@@ -155,7 +162,7 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
     private fun
             processUnmatchedCards(fitRule: HashSet<ComboCard>) {
         changeWeight.forEach { card ->
-            if (!fitRule.contains(card) && card.cost() > keepCost) {
+            if (!fitRule.contains(card) && isRemove(card)) {
                 removeCards.add(card)
             }
         }
@@ -190,6 +197,17 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
      */
     private fun remove() {
         myLog.info { "移除的卡牌:$removeCards" }
+        /*        if(cards.size==BeginHandCardNum&&removeCards.isEmpty()){
+                    for (card in changeWeight){
+                        //等于0等于可抛弃
+                        if(card.changeWeight==NotWeight){
+                            removeCards.remove(card)
+                            //只移除一个
+                            break
+                        }
+                    }
+
+                }*/
         removeCards.forEach {
             cards.remove(it.card)
         }

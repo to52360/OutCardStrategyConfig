@@ -28,17 +28,20 @@ class ParseCombo : ParseCardWeightInfo, KoinComponent {
                     return comboRule
                 }
                 when (comboInfo.comboType) {
+                    //最后打出
                     ComboType.AFTER -> {
                         bindCardGroup.forEach {
                             it.lastUse = LastUse(comboInfo.comboWeight)
                         }
                     }
 
-                    ComboType.CHANGE -> {//
+                    //起始换牌
+                    ComboType.CHANGE -> {
                         val comboRule: ComboRule = getRule()
                         bindCardGroup.forEach { it.addChangeComboRule(comboRule) }
                     }
 
+                    // 默认情况
                     else -> {
                         val comboRule: ComboRule = getRule()
                         val combo = Combo(comboInfo.infoId, comboRule, comboInfo.comboType)

@@ -8,7 +8,7 @@ import lin.serviceLoader.weightRule.hand.ChangeCardStrategy
 /**
  * 玛克扎尔的小鬼
  */
-class ChangeCard : CardRule {
+class KAR089 : CardRule {
     val delegate = ChangeCardStrategy()
     override fun cardId(): String = "KAR_089"
 

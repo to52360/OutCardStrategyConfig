@@ -10,7 +10,7 @@ class GroupStrategyDao(private val jdbcTemplate: JdbcTemplate) {
         return jdbcTemplate.query("SELECT * FROM weight_group") { rs, _ ->
             ConditionGroup(
                 groupId = rs.getInt("groupId"),
-                bindId = rs.getDouble("bindId"),
+                bindId = rs.toDouble("bindId"),
                 weightConditionId = rs.getString("weightConditionId"),
                 depByWeightIds = rs.toDouble("depByWeightIds"),
                 priority = rs.getDoubleOrNull("basePriority")

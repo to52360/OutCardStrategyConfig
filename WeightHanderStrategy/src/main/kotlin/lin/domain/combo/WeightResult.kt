@@ -94,10 +94,17 @@ class EndWeightResult(
                 val newCard = comboCards[i]
                 if (newCard.cost() <= remainingCost) {
                     //同组加权
-                    var comboBonus = 0.0
-                    currentCombination.forEach { existingCard ->
-                        // combo加权
-                        comboBonus += existingCard.comboAddWeight(newCard)
+                    var comboBonus = NotWeight
+                    //todo-future  默认无环形结构,无法处理环形结构
+                    newCard.combo?.also {
+                        currentCombination.forEach {
+                            comboBonus += newCard.comboAddWeight(it)
+                        }
+                    } ?: run {
+                        currentCombination.forEach { existingCard ->
+                            // combo加权
+                            comboBonus += existingCard.comboAddWeight(newCard)
+                        }
                     }
 
                     findBestCombination(

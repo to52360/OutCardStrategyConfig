@@ -1,15 +1,13 @@
 package lin.domain
 
 
+import club.xiaojiawei.hsscriptbase.config.log
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.bean.War
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
 import lin.domain.combo.*
-import lin.domain.context.AwaitAnimationTime
-import lin.domain.context.CostWeight
-import lin.domain.context.NotWeight
-import lin.domain.context.UseSkillWeight
+import lin.domain.context.*
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
@@ -122,12 +120,13 @@ class ComboDomain(war: War) {
 
         return false
     }
-
+    private var stackNum = 0
     /**
      * 出牌策略
      */
     fun outCardStrategy() {
         myLog.info { "执行出牌策略" }
+        stackNum = 0
         executeEnvironment {
             findAndUse()
             processLessCost()
@@ -135,6 +134,11 @@ class ComboDomain(war: War) {
     }
 
     private fun findAndUse() {
+        if (stackNum == MaxStackNum) {
+            log.warn { "栈过深" }
+            return
+        } else
+            stackNum++
         val weightResult = weightHandlerDomain.findCombination()
         if (weightResult is EndWeightResult) {
             myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }

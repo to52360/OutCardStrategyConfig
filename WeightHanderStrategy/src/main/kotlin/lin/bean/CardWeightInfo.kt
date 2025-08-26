@@ -79,8 +79,8 @@ data class CardWeightInfo(
     var lastUse: LastUse? = null
     private var _combos: MutableList<Combo>? = null
 
-    val combos: List<Combo>
-        get() = _combos ?: emptyList()
+    val combos: List<Combo>?
+        get() = _combos
 
     fun addCombo(combo: Combo) {
         _combos = _combos.addSafe(combo)

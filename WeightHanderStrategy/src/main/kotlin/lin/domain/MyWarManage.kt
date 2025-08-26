@@ -265,6 +265,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 runnable()
                 //usePower()//使用技能
                 //activeLocation()
+                myLog.info { "完成所有操作清理战场" }
                 //清场
                 cleanPlay()
             } else {

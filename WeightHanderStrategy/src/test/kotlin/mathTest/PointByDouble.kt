@@ -20,4 +20,17 @@ class PointByDouble {
 
 
     }
+
+    @Test
+    fun test2() {
+        println(calProb(1, 2))
+    }
+
+    fun calProb(num: Int, size: Int): Double {
+        val groupWeight = 10.0
+        if (num == 0) return -groupWeight
+        val prob = num.toFloat() / size
+        if (prob < -0.5F) return -groupWeight * prob
+        return prob * groupWeight
+    }
 }

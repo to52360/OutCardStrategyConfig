@@ -5,9 +5,9 @@ import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicates
-import lin.serviceLoader.weightRule.utils.PredicateByGroupsId
+import lin.serviceLoader.weightRule.utils.PredicateByGroupIds
 
-class OnWarByGroupId : OnWarInfo, DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupsId() {
+class OnWarByGroupId : OnWarInfo, DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupIds() {
     override fun onPlayAreaCalcWeightByMe(playAreaCards: List<ComboCard>): Double {
         val weight = if (depToPredicate(playAreaCards)) groupWeight else NotWeight
         return weight

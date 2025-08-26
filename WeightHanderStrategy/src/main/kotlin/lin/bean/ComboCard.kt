@@ -17,7 +17,7 @@ typealias ComboRule = (ComboCard) -> Double
 class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     //com相关
     val weightRules = cardWeightInfo?.weightRules
-    val combo = cardWeightInfo?.combos ?: DefCombos
+    val combo = cardWeightInfo?.combos
     val changeWeight: Double
         get() = cardWeightInfo?.changeWeight ?: NotWeight
 
@@ -81,7 +81,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     //在同一组会增加权重
     fun comboAddWeight(comboCard: ComboCard): Double {
         var weight = NotWeight
-        combo.forEach {
+        combo?.forEach {
             weight = weight + it.comboProcess(this, comboCard)
         }
         return weight
@@ -95,6 +95,9 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     fun useAble(): Boolean = powerWeight >= NotWeight
     fun unUse() {
         extPowerWeight = UnUseWeight
+    }
+    fun getExpectWeight(expectWeight: Double): Double {
+        return powerWeight - expectWeight
     }
 
     /**

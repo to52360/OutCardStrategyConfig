@@ -7,7 +7,7 @@ import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.serviceLoader.weightRule.WeightCondition
-import lin.warExt.base.getPlayCards
+import lin.warExt.base.getHandCards
 
 /**
  * 更改手牌
@@ -20,7 +20,7 @@ class ChangeCardStrategy : WeightCondition {
         if (groupWeight != CostWeight) {//不是默认值,就增加查牌策略,,
             callCard.findStrategy = ChangeStrategy
         }
-        if (warInfo.getPlayCards().size > 7) {
+        if (warInfo.getHandCards().size > 8) {
             return UnUseWeight
         }
         return NotWeight

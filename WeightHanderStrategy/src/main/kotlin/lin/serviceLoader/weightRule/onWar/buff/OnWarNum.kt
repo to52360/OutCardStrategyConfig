@@ -1,13 +1,15 @@
 package lin.serviceLoader.weightRule.onWar.buff
 
-import lin.bean.ComboCard
-import lin.domain.context.CostWeight
-import lin.serviceLoader.weightRule.onWar.OnWarInfo
 
-class OnWarNum : OnWarInfo {
+import lin.domain.WarInfo
+import lin.domain.context.CostWeight
+import lin.serviceLoader.weightRule.AddWeightByWarInfo
+import lin.warExt.base.getPlayCards
+
+class OnWarNum : AddWeightByWarInfo {
     override var groupWeight: Double = CostWeight
-    override fun onPlayAreaCalcWeightByMe(playAreaCards: List<ComboCard>): Double {
-        return playAreaCards.size * CostWeight
+    override fun calculateWeight(warInfo: WarInfo): Double {
+        return warInfo.getPlayCards().size * groupWeight
     }
 
     override fun description(): String {

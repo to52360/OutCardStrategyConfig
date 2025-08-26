@@ -29,7 +29,7 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
             if (card.isTaunt) {
                 tauntCards.add(card)
                 iterator.remove()
-            } else if (card.isAura) {
+            } else if (card.isAura || card.isTriggerVisual) {
                 auraCards.add(card)
                 iterator.remove()
             } else if (card.cardType != CardTypeEnum.MINION) {
