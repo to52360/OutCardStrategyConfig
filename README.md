@@ -32,10 +32,11 @@
 2.由于一开始只想写个打出权重,由于不太理想,写了部分攻击/发现/换牌逻辑,为了快速实现
 耦合在打出逻辑的基础数据里(CardWeightInfo,ComboCard)  
 3.由于没UI,导致配置信息要使用编码或者数据库,无必要提醒和限制,导致容易配错  
-3.1 ComboCard一些配置使用ParseCardWeightInfo接口配置(弃牌术的DropParse,应该用UI)  
+3.1 ComboCard一些配置使用ParseCardWeightInfo接口配置(弃牌术的DropParse,应该用UI/配置文件)  
 4.共用ComboCard模型导致难于调试,额外的状态导致增加扩展和维护复杂性  
 5.存在combo,但是不够费用打出的处理策略没有
 6.程序主体没有扩展接口(没有想情况需要什么扩展接口)
+7.不支持热加载,改配置需要重启软件
 
 ### combo_info特别说明
 
