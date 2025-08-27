@@ -19,6 +19,7 @@
 
     <modules>
         <module>WeightHanderStrategy</module>
+        <module>dropStrategy</module>
     </modules>
 
     <repositories>

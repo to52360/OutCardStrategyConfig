@@ -7,6 +7,9 @@ import lin.weightHandler.condition.config.ComboInfoDao
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
+/**
+ * combo解析
+ */
 class ParseCombo : ParseCardWeightInfo, KoinComponent {
     override fun parse(infoMap: Map<String, CardWeightInfo>) {
         val cardGroupInfos = infoMap.values.groupBy { it.groupId }

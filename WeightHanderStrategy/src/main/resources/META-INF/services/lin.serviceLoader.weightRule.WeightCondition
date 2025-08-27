@@ -1,10 +1,6 @@
 lin.serviceLoader.weightRule.hand.HandAreaByRace
 lin.serviceLoader.weightRule.afterRule.HaloRule
 lin.serviceLoader.weightRule.hand.HandLeaveCostByGroupId
-lin.serviceLoader.weightRule.hand.HandNumWeightId
 lin.serviceLoader.weightRule.onWar.OnWarByGroupId
 lin.serviceLoader.weightRule.onWar.buff.OnWarNum
-lin.serviceLoader.weightRule.hand.drop.DropMax
-lin.serviceLoader.weightRule.hand.drop.DropMin
-lin.serviceLoader.weightRule.graveyard.GraveyardByMinion
 lin.serviceLoader.weightRule.hand.ChangeCardStrategy

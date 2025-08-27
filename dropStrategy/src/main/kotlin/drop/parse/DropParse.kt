@@ -1,8 +1,9 @@
-package lin.serviceLoader.parse
+package drop.parse
 
 import lin.bean.CardWeightInfo
 import lin.domain.combo.DiscoverUseStrategy
 import lin.domain.combo.UseAfterLClick
+import lin.serviceLoader.parse.ParseCardWeightInfo
 
 class DropParse : ParseCardWeightInfo {
     override fun parse(infoMap: Map<String, CardWeightInfo>) {

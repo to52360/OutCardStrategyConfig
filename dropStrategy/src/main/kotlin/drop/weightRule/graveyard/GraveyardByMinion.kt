@@ -1,4 +1,4 @@
-package lin.serviceLoader.weightRule.graveyard
+package drop.weightRule.graveyard
 
 
 import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum

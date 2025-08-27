@@ -1,4 +1,4 @@
-package lin.serviceLoader.weightRule.hand.drop
+package drop
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo

@@ -1,6 +1,5 @@
 package lin.domain
 
-import lin.serviceLoader.parse.DropParse
 import lin.serviceLoader.parse.ParseCardRule
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.parse.ParseCombo
@@ -20,5 +19,4 @@ val DBModules = module  {
 val ParseCardWeightInfoModule = module {
     singleOf(::ParseCardRule) bind ParseCardWeightInfo::class
     singleOf(::ParseCombo) bind ParseCardWeightInfo::class
-    singleOf(::DropParse) bind ParseCardWeightInfo::class
 }

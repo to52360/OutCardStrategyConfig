@@ -1,4 +1,4 @@
-package lin.serviceLoader.cardRule
+package drop.cardRule
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo

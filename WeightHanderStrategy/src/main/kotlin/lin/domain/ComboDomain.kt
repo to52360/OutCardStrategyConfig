@@ -11,7 +11,9 @@ import lin.domain.context.*
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
+import lin.serviceLoader.module.ModulesInfo
 import lin.utils.serviceLoader.JarClassLoader
+import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.base.getNowCost
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -55,6 +57,10 @@ class ComboDomain(war: War) {
             startKoin {
                 modules(DBModules, ParseCardWeightInfoModule)
                 modules(module { single { lifecycleRegisterImpl } bind LifecycleRegister::class })
+                val extraModule = ServiceLoaderUtils.loadServices(ModulesInfo::class.java)
+                extraModule.forEach {
+                    modules(it.getModules())
+                }
             }
             Thread.currentThread().contextClassLoader = classLoader
             warManage = MyWarManage(war)

@@ -1,6 +1,7 @@
-package lin.serviceLoader.weightRule.hand
+package drop.weightRule.hand
 
 import lin.bean.ComboCard
+import lin.serviceLoader.weightRule.hand.AbstractHandArea
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicate
 import lin.serviceLoader.weightRule.utils.PredicateByGroupId
