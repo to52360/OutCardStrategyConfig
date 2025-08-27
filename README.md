@@ -12,7 +12,7 @@
 
 ### 目的
 
-能够实现更为复杂和可扩展的权重规则
+实现更为复杂和可扩展的权重规则的框架
 
 ### 效果
 基于战场计算权重的策略,例如在手牌对应种族就加权重,通过配置绑定到组,然后通过组id关联到权重表(CardWeight)的weight,依赖数据也是
@@ -47,7 +47,7 @@ comboWeight多种语义(对扩展和维护有麻烦,暂时没空整理)
 ### 扩展(简单测试没问题)
 
 放在\plugin\WeightHandlerStrategy目录下
-服务发现使用java的SPI与Koin
+服务发现使用java的SPI与Koin(现在只有ParseCardWeightInfo接口)
 1.组权重规则扩展  
 lin.serviceLoader.weightRule.WeightCondition  
 2.自定义权重信息获取  
@@ -58,6 +58,8 @@ lin.serviceLoader.parse.ParseCardWeightInfo
 lin.serviceLoader.weightRule.CardRule  
 5.生命周期  
 lin.lifecycle
+6.模块(koin模块注册)
+lin.serviceLoader.module.ModulesInfo
 
 ### 项目结构说明
 
