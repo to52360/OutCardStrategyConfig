@@ -20,10 +20,22 @@
 ### 权重的组成
 
 1.主体思路  
-权重按照多个"权重规则"计算得出,按照没点费用为10点权重统一刻度,还有combo表微调特定组合打出顺序  
+权重按照多个"权重规则"计算得出,按照每点费用为10点权重统一刻度,还有combo表强制限制特定组合打出顺序  
+但是combo为了方便实现融入全局权重体系中,带来复杂的权重关系,现在想拆分工程量有点大  
 2.大概计算规则  
 组权重由weightHandlerStrategy.db配置  
 总权重由combo权重(表combo_info)+组权重(表weight_group+WeightCondition)+单卡权重决定
+
+### 问题
+
+1.发现卡牌还是有问题(地标不会触发发现事件,会触发发现,也不会正确抉择,底层问题)  
+2.由于一开始只想写个打出权重,由于不太理想,写了部分攻击/发现/换牌逻辑,为了快速实现
+耦合在打出逻辑的基础数据里(CardWeightInfo,ComboCard)  
+3.由于没UI,导致配置信息要使用编码或者数据库,无必要提醒和限制,导致容易配错  
+3.1 ComboCard一些配置使用ParseCardWeightInfo接口配置(弃牌术的DropParse,应该用配置类)  
+4.共用ComboCard模型导致难于调试,额外的状态导致增加扩展和维护复杂性  
+5.存在combo,但是不够费用打出的处理策略没有
+6.程序主体没有扩展接口(没有想情况需要什么扩展接口)
 
 ### combo_info特别说明
 
@@ -55,20 +67,14 @@ lin.domain.ComboDomain
 lin.domain.MyWarManage  
 3.模块信息(Koin)    
 lin.domain.ModulesSetting  
-4.配置类(没有UI,用常量作为)  
+4.配置类(没有UI) ,应该用UI,现在修改配置需要编译打包
 lin.domain.context.ComboDefValue  
 5.查找Combo策略,主要用于优化性能  
 lin.domain.combo.FindStrategy
 6.使用策略
 lin.domain.combo.UseStrategy
 
-### 问题
 
-1.发现卡牌还是有问题(地标不会触发发现事件,会触发发现,也不会正确抉择,底层问题)  
-2.由于一开始只想写个打出权重,由于不太理想,写了部分攻击/发现/换牌逻辑,为了快速实现
-耦合在打出逻辑的基础数据里(CardWeightInfo,ComboCard)  
-3.由于没UI,导致配置信息要使用编码或者数据库,无必要提醒和限制,导致容易配错  
-4.共用ComboCard模型导致难于调试,额外的状态导致增加扩展和维护复杂性
 
 ### 未来
 
