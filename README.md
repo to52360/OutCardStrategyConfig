@@ -57,7 +57,7 @@ lin.domain.MyWarManage
 lin.domain.ModulesSetting  
 4.配置类(没有UI,用常量作为)  
 lin.domain.context.ComboDefValue  
-5.查找Combo策略  
+5.查找Combo策略,主要用于优化性能  
 lin.domain.combo.FindStrategy
 6.使用策略
 lin.domain.combo.UseStrategy
