@@ -8,7 +8,7 @@ import lin.domain.combo.WeightResult
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.utils.serviceLoader.ServiceLoaderUtils
-import lin.warExt.base.getNowCost
+import lin.warExt.base.getCost
 import lin.weightHandler.DiscoverWeightHandler
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
@@ -51,17 +51,22 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
 
     }
 
-    fun processWeight(weightResult: EndWeightResult) {
+    /**
+     * 调用权重规则
+     */
+    private fun processWeight(weightResult: EndWeightResult) {
         weightResult.canUseCards.forEach { comboCard ->
             weightHandlers.forEach { it.cardWeightProcess(comboCard, warManage) }
-            weightResult.processWeightAfterAdd(comboCard)
+            weightResult.processWeightAfterOption(comboCard)
         }
 
     }
 
-
+    /**
+     * 查找组合
+     */
     fun findCombination(
-        cost: Int = warManage.getNowCost(),
+        cost: Int = warManage.getCost(),
         canUseCardsByCost: List<ComboCard> = warManage.canUseCards
     ): WeightResult {
         val weightResult = EndWeightResult(canUseCardsByCost, cost)
@@ -75,6 +80,9 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         return weightResult
     }
 
+    /**
+     * 查找最好的组合
+     */
     fun findBestCombination(weightResult: EndWeightResult): EndWeightResult {
         if (weightResult.isLessCost()) return weightResult
         weightResult.findBestCombination()

@@ -8,6 +8,9 @@ import lin.domain.WarInfo
 fun WarInfo.getPlayCards(): List<Card> {
     return war.me.playArea.cards
 }
+fun WarInfo.getPlayCardSize(): Int {
+    return getPlayCards().size
+}
 
 fun WarInfo.getHandCards(): List<Card> {
     return war.me.handArea.cards
@@ -16,6 +19,8 @@ fun WarInfo.playCardIsFull(): Boolean {
     return getPlayCards().size == 7
 }
 
+fun WarInfo.getCost() = getNowCost() + extCost
+
 fun WarInfo.getNowCost() = war.me.usableResource
 
-fun WarInfo.hasCost() = getNowCost() > 0
+fun WarInfo.hasCost() = getCost() > 0

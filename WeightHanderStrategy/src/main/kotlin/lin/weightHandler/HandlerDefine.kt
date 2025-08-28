@@ -16,12 +16,6 @@ interface WeightHandler{
      * 越大越后面执行
      */
     fun priority() = 100
-    fun gameStart(){
-
-    }
-    fun gameEnd(){
-
-    }
 }
 interface InitHandler{
     /**

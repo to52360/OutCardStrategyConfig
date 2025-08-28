@@ -7,7 +7,7 @@ import lin.serviceLoader.weightRule.WeightCondition
 import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicate
 import lin.serviceLoader.weightRule.utils.PredicateByGroupId
-import lin.warExt.base.getNowCost
+import lin.warExt.base.getCost
 
 class DropMin : WeightCondition, DepByWeightGroupIdDelegate<DepToPredicate> by PredicateByGroupId() {
     /**
@@ -15,7 +15,7 @@ class DropMin : WeightCondition, DepByWeightGroupIdDelegate<DepToPredicate> by P
      */
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val handCards = warInfo.handComboCards.sortedBy { it.cost() }
-        var cost = warInfo.getNowCost() - callCard.cost()
+        var cost = warInfo.getCost() - callCard.cost()
         for (card in handCards) {
             if (callCard == card) continue
             //最小值符合要求

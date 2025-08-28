@@ -15,8 +15,8 @@ import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
+import lin.warExt.base.getCost
 import lin.warExt.base.getHandCards
-import lin.warExt.base.getNowCost
 import lin.warExt.base.getPlayCards
 import org.koin.core.component.KoinComponent
 import java.util.*
@@ -36,6 +36,8 @@ interface WarInfo {
 
     //权重信息
     val infoMap: Map<String, CardWeightInfo>
+
+    val extCost: Int
 }
 
 /**
@@ -52,6 +54,17 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     override var canUseCards = emptyList<ComboCard>()
         private set
     override val infoMap: Map<String, CardWeightInfo>
+    override var extCost: Int = 0
+
+    inline fun consumeExtCost(extCost: Int, consumeCost: (Int) -> Unit) {
+        this.extCost = extCost
+        try {
+            consumeCost(getCost())
+        } finally {
+            this.extCost = 0
+        }
+    }
+
 
 
     init {
@@ -98,17 +111,18 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     inline fun isChange(useCard: () -> ComboCard?): Boolean {
         val beginCard = getHandCards().lastOrNull()
         val expNum = getHandCards().size
-        val useCard = useCard()
+        val useCard = useCard() //返回null表示打出失败
         val nowNum = getHandCards().size
-        if (nowNum >= expNum) {
-            return true
-        } else {//为弃牌写的
-            useCard?.let {
+        useCard?.let {
+            if (nowNum >= expNum) {
+                return true
+            } else {// 为弃牌写的
                 val endCard = getHandCards().lastOrNull()
                 if (beginCard != endCard && useCard != beginCard) //排除打出最后一张的情况
                     return true
             }
         }
+
         return false
     }
 
@@ -173,7 +187,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      * 过滤出指定费用的卡牌,默认过滤出当前费用
      * @param cost  费用
      */
-    fun canUseCardsByCost(cost: Int = getNowCost()) = handComboCards.filter { comBoCard ->
+    fun canUseCardsByCost(cost: Int = getCost()) = handComboCards.filter { comBoCard ->
         comBoCard.card.cost <= cost
     }
 

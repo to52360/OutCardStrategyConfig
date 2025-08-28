@@ -67,13 +67,7 @@ enum class ComboType {
 
 }
 
-object DefCombo : Combo(0, { _ -> NotWeight }, ComboType.DEF) {
-    override fun comboProcess(callComboCard: ComboCard, comboCard: ComboCard): Double {
-        return NotWeight
-    }
-}
 
-val DefCombos = listOf<Combo>(DefCombo)
 
 @JvmInline
 value class LastUse(val comboWeight: Double)

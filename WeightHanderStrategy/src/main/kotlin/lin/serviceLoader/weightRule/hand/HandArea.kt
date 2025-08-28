@@ -5,7 +5,7 @@ import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.AddWeightByWarInfo
 import lin.serviceLoader.weightRule.WeightCondition
-import lin.warExt.base.getNowCost
+import lin.warExt.base.getCost
 
 interface HandArea : AddWeightByWarInfo {
     override fun calculateWeight(warInfo: WarInfo): Double {
@@ -23,7 +23,7 @@ abstract class AbstractHandArea : HandArea{
  */
 interface CanUseHandByLeaveCost : WeightCondition {
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        val leaveCost = warInfo.getNowCost() - callCard.cost()
+        val leaveCost = warInfo.getCost() - callCard.cost()
         val cardByLeaveCost = warInfo.canUseCards.filter { it.cost() < leaveCost }
         return onLeaveCostProcessWeight(callCard, cardByLeaveCost)
     }

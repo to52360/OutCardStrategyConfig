@@ -14,7 +14,7 @@ import lin.myLog
 import lin.serviceLoader.module.ModulesInfo
 import lin.utils.serviceLoader.JarClassLoader
 import lin.utils.serviceLoader.ServiceLoaderUtils
-import lin.warExt.base.getNowCost
+import lin.warExt.base.getCost
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.bind
@@ -98,7 +98,7 @@ class ComboDomain(war: War) {
 
     private fun processLessCost(): Boolean {
         myLog.info { "处理剩余费用" }
-        val costWeight = CostWeight * warManage.getNowCost()
+        val costWeight = CostWeight * warManage.getCost()
 
         //todo-future 可能报纸不打零费牌
         if (costWeight == NotWeight) return false
@@ -114,7 +114,7 @@ class ComboDomain(war: War) {
             }
             for (unAbleUseCard in unAbleUseCards) {
                 if (costWeight + unAbleUseCard.powerWeight < NotWeight) return false
-                if (unAbleUseCard.cost() <= warManage.getNowCost()) {
+                if (unAbleUseCard.cost() <= warManage.getCost()) {
                     if (useCardAndIsReload(unAbleUseCard)) return true
                 }
             }
@@ -184,7 +184,7 @@ class ComboDomain(war: War) {
             }
 
 
-            val expectCost = warManage.getNowCost() - needCost
+            val expectCost = warManage.getCost() - needCost
 
             //todo-future 这里使用策略有问题,要扩展要改源码
             var lastUse: SortedSet<ComboCard>? = null
@@ -211,7 +211,7 @@ class ComboDomain(war: War) {
                 }
             }
 
-            if (warManage.getNowCost() > expectCost) {//说明有些牌没打出去,通过补偿
+            if (warManage.getCost() > expectCost) {//说明有些牌没打出去,通过补偿
                 val moreTryCard = weightResult.lessAbleUseCards()
                 if (moreTryCard.isNotEmpty()) {
                     for (moreCard in moreTryCard) {

@@ -3,7 +3,6 @@ package lin.domain.combo
 import lin.bean.ComboCard
 import lin.domain.WeightHandlerDomain
 import lin.domain.context.HalfCostWeight
-import lin.warExt.base.getNowCost
 
 /**
  * 查询组合策略
@@ -48,20 +47,20 @@ class ExtCostStrategy(val cost: Int) : FindStrategy {
             return comboCards
         }
 
-        val extCost = warManage.getNowCost() + cost
-        val comboCards = warManage.canUseCardsByCost(extCost).copy(extCostCard)
-        val extCostWeightResult = weightHandlerDomain.findCombination(extCost, comboCards)
-        val reduceWeight = cost * HalfCostWeight
-        val extCostWeight = extCostWeightResult.weightSum() - reduceWeight
-        extCostWeightResult.log()
-        if (nowWeight > extCostWeight) {
-            return nowWeightResult
-        } else {
-            warManage.useCardAndRemove(extCostCard)
-            return extCostWeightResult
+        warManage.consumeExtCost(cost) { extCost ->
+            val comboCards = warManage.canUseCardsByCost(extCost).copy(extCostCard)
+            val extCostWeightResult = weightHandlerDomain.findCombination(extCost, comboCards)
+            val reduceWeight = cost * HalfCostWeight
+            val extCostWeight = extCostWeightResult.weightSum() - reduceWeight
+            extCostWeightResult.log()
+            if (nowWeight > extCostWeight) {
+                return nowWeightResult
+            } else {
+                warManage.useCardAndRemove(extCostCard)
+                return extCostWeightResult
+            }
         }
-
-
+        return EmptyWeightResult
     }
 
 }

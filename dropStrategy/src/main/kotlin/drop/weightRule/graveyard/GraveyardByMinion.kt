@@ -12,8 +12,8 @@ import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicates
 import lin.serviceLoader.weightRule.utils.PredicateByGroupIds
 import lin.warExt.action.cleanPlay
+import lin.warExt.base.getCost
 import lin.warExt.base.getHandCards
-import lin.warExt.base.getNowCost
 import lin.warExt.common.getGraveyardCardsByType
 import lin.warExt.rival.rivalAllCardsByPlayArea
 
@@ -27,17 +27,17 @@ class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle,
             //处理没资源,不符合条件也要打
             if (minionNum > 2) {
                 if (warInfo.getHandCards().size < 4 || !depToPredicate(warInfo.handComboCards)) {
-                    clean(warInfo)
+                    //clean(warInfo)
                     return groupWeight
                 }
 
             }
             myLog.info { "墓场随从数量:$minionNum" }
             //todo-future 墓场的随从统计数据有问题,暂时这样写
-            if (warInfo.getNowCost() < 6) {
+            if (warInfo.getCost() < 6) {
                 minionNum = minionNum / 2
                 if (minionNum < 2) {
-                    clean(warInfo)
+                    // clean(warInfo) 丢弃也在亡语池
                     minionNum = warInfo.getGraveyardCardsByType(CardTypeEnum.MINION).size / 2
                 }
             }
@@ -53,8 +53,11 @@ class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle,
 
     }
 
+    /**
+     * 送掉之后
+     */
     fun clean(warInfo: WarInfo) {
-        if (warInfo.rivalAllCardsByPlayArea().isNotEmpty()) {
+        if (warInfo.rivalAllCardsByPlayArea().any { it.cardType == CardTypeEnum.MINION }) {
             myLog.info { "清理战场之后再使用" }
             warInfo.cleanPlay()
         }

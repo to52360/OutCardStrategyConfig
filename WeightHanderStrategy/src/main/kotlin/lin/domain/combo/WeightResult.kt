@@ -34,7 +34,7 @@ class EndWeightResult(
     var bestCombination: List<ComboCard> = emptyList()
         private set
 
-    fun processWeightAfterAdd(comboCard: ComboCard) {
+    fun processWeightAfterOption(comboCard: ComboCard) {
         if (comboCard.useAble()) _canUseCardsByHandler.add(comboCard)
         else _unUseCards.add(comboCard)
     }
