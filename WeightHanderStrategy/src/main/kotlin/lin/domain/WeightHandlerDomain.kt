@@ -17,17 +17,17 @@ import org.koin.core.component.get
 
 
 class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
-    private val weightHandlers: List<WeightHandler>
-    private val discoverWeightHandlers: List<DiscoverWeightHandler>
+    private val weightHandlers: MutableList<WeightHandler> = mutableListOf()
+    private val discoverWeightHandlers: MutableList<DiscoverWeightHandler> = mutableListOf()
 
     init {
         try {
             val infos = warManage.infoMap
             val cardWeightInfos =  infos.values.toList()
-            val services =ServiceLoaderUtils.loadServices(WeightHandler::class.java)
-            val discoverWeightHandler = mutableListOf<DiscoverWeightHandler>()
+            val services = ServiceLoaderUtils.loadServicesByMutable(WeightHandler::class.java, weightHandlers)
+
             val lifecycle = get<LifecycleRegister>()
-            val weightHandler = services.sortedBy {
+            services.sortBy {
                 //按ai的说法会语义多重,实践看看有什么后果
                 if(it is InitHandler) {
                     it.init(cardWeightInfos)
@@ -35,12 +35,11 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
                 lifecycle.register(it)
                 //todo 存在一个问题没法单独扩展发现策略
                 if (it is DiscoverWeightHandler) {
-                    discoverWeightHandler.add(it)
+                    discoverWeightHandlers.add(it)
                 }
                 it.priority()
             }
-            this.weightHandlers = weightHandler
-            this.discoverWeightHandlers = discoverWeightHandler.toList()
+
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -57,18 +56,20 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
     private fun processWeight(weightResult: EndWeightResult) {
         weightResult.canUseCards.forEach { comboCard ->
             weightHandlers.forEach { it.cardWeightProcess(comboCard, warManage) }
-            weightResult.processWeightAfterOption(comboCard)
+            weightResult.processWeightAfter(comboCard)
         }
 
     }
 
     /**
      * 查找组合
+     * 存在循环调用
      */
     fun findCombination(
         cost: Int = warManage.getCost(),
         canUseCardsByCost: List<ComboCard> = warManage.canUseCards
     ): WeightResult {
+        myLog.info { "执行查组组合" }
         val weightResult = EndWeightResult(canUseCardsByCost, cost)
         processWeight(weightResult)
         if (weightResult.notAbleUseCards()) return EmptyWeightResult
@@ -94,14 +95,6 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         val findStrategy = firstCard.findStrategy
         return findStrategy?.find(weightResult, this) ?: run { EmptyWeightResult }
     }
-
-
-
-
-
-
-
-
 
 
 

@@ -19,7 +19,7 @@ interface GraveyardArea : WeightCondition {
     fun onWarInfoProcessWeight(graveyardCards: List<Card>)
 }
 
-interface DefaultWeightCondition: WeightCondition, DepByWeightInfo
+interface DefaultWeightCondition : WeightCondition, DepWeightInfo
 
 
 

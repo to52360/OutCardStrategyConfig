@@ -3,11 +3,11 @@ package drop
 import lin.bean.ComboCard
 import lin.domain.context.UnUseWeight
 import lin.serviceLoader.weightRule.hand.AbstractHandArea
-import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
+import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicate
-import lin.serviceLoader.weightRule.utils.PredicateByGroupId
+import lin.serviceLoader.weightRule.utils.PredicateGroup
 
-class DropMax : AbstractHandArea(), DepByWeightGroupIdDelegate<DepToPredicate> by PredicateByGroupId() {
+class DropMax : AbstractHandArea(), DepWeightGroupDelegate<DepToPredicate> by PredicateGroup() {
     override fun onWarInfoProcessWeight(handCards: List<ComboCard>): Double {
         // ... existing code ...
         // 找出所有费用最高的牌

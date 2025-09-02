@@ -1,6 +1,6 @@
 package lin.domain.context
 
-//一费10点权重
+//超模一费10点权重
 const val CostWeight = 10.0
 const val HalfCostWeight = CostWeight / 2
 const val NotWeight = 0.0
@@ -19,5 +19,4 @@ const val FourAnimationTime: Long = AwaitAnimationTime * 4
 const val MaxStackNum: Int = 10
 
 
-const val BeginHandCardNum = 3
 

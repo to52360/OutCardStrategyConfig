@@ -34,11 +34,17 @@ class EndWeightResult(
     var bestCombination: List<ComboCard> = emptyList()
         private set
 
-    fun processWeightAfterOption(comboCard: ComboCard) {
+    /**
+     * 处理权重之后的挫折
+     */
+    fun processWeightAfter(comboCard: ComboCard) {
         if (comboCard.useAble()) _canUseCardsByHandler.add(comboCard)
         else _unUseCards.add(comboCard)
     }
 
+    /**
+     * 判断是否可以直接使用
+     */
     fun isLessCost(): Boolean {
         val result = _canUseCardsByHandler.size == 1 || _canUseCardsByHandler.sumOf { it.cost() } < cost
         if (result) bestCombination = _canUseCardsByHandler.toList()

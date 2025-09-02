@@ -2,34 +2,33 @@ package lin.serviceLoader.weightRule.utils
 
 import lin.bean.ComboCard
 import lin.serviceLoader.weightRule.DepByWeightGroupId
-import lin.serviceLoader.weightRule.DepByWeightInfo
-import lin.serviceLoader.weightRule.DepByWeightInfos
+import lin.serviceLoader.weightRule.DepWeightInfo
 
 /**
  * 委托实现的接口
  */
 //
-typealias DepToPredicates = (List<ComboCard>) -> Boolean
+typealias DepToPredicateList = (List<ComboCard>) -> Boolean
 
 typealias DepToPredicate = (ComboCard) -> Boolean
 
 /**
- * 依赖单个
+ * 依赖数据只有一个
  */
-interface DepByWeightInfoDelegate<T>: DepByWeightInfo{
-    var depToPredicate :T
+interface DepWeightInfoDelegate<T> : DepWeightInfo {
+    var depInfoToPredicate: T
 }
 
 /**
  * 依赖多个
  */
-interface DepByWeightInfoDelegates<T> : DepByWeightInfos {
-    var depToPredicate: T
+interface MoreDepByWeightInfoDelegates<T> : DepWeightInfo {
+    var moreDepToPredicate: T
 }
 
 /**
- * 依赖分组只
+ * 依赖分组
  */
-interface DepByWeightGroupIdDelegate<T> : DepByWeightGroupId {
+interface DepWeightGroupDelegate<T> : DepByWeightGroupId {
     var depToPredicate :T
 }

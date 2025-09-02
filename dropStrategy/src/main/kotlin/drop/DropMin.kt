@@ -4,12 +4,12 @@ import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.WeightCondition
-import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
+import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicate
-import lin.serviceLoader.weightRule.utils.PredicateByGroupId
+import lin.serviceLoader.weightRule.utils.PredicateGroup
 import lin.warExt.base.getCost
 
-class DropMin : WeightCondition, DepByWeightGroupIdDelegate<DepToPredicate> by PredicateByGroupId() {
+class DropMin : WeightCondition, DepWeightGroupDelegate<DepToPredicate> by PredicateGroup() {
     /**
      * 通常都适应
      */

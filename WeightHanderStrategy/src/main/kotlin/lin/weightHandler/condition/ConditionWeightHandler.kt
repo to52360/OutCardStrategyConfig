@@ -29,8 +29,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
     //todo-future 存在魔数
     override fun priority() = 5
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        val weightCalculate = callCard.weightRules
-        weightCalculate?.forEach {
+        callCard.weightRules?.forEach {
             it.calculateSetWeight(callCard, warManage)
         }
     }
@@ -51,11 +50,4 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
 
     }
 
-    //都是通过ServerLoader加载没有可能获取不到
-    private fun WeightCondition.copy(): WeightCondition {
-        val clazz = this::class.java
-        //都是通过ServerLoader加载没有可能获取不到
-        val primaryConstructor = clazz.getConstructor()
-        return primaryConstructor.newInstance()
-    }
 }

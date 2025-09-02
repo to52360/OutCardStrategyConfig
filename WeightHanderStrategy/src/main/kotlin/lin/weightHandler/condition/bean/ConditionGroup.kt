@@ -5,9 +5,9 @@ import lin.domain.context.CostWeight
 
 /**
  * [club.xiaojiawei.hsscriptcardsdk.bean.CardWeight.weight]整数部分条件组
- * 配置信息
- * [lin.weightHandler.condition.OutCardCondition]
- * todo-future 组优先级没写
+ * 配置组权重信息位置
+ * [lin.serviceLoader.weightRule.WeightCondition]
+ *
  */
 
  class ConditionGroup(
@@ -15,9 +15,11 @@ import lin.domain.context.CostWeight
     val bindId: Array<Double>,
     val weightConditionId: String, //打出策略,依赖关联组 ,辅助类:核心卡没上手,依赖项:在手牌
     val depByWeightIds : Array<Double>,  //依赖权重数据
-    priority: Double?, //基础优先度 ,不符合条件减优先级也就是减少权重
+    weight: Double?, //基础优先度 ,不符合条件减优先级也就是减少权重
+    unConditionWeight: Double?,
 ){
-    val basePriority = priority ?: CostWeight
+    val groupWeight = weight ?: CostWeight
+    val unConditionWeight = unConditionWeight ?: -groupWeight
  }
 
 
@@ -32,14 +34,14 @@ import lin.domain.context.CostWeight
     groupId: Int,
     bindId: Double,
     weightConditionId: Int,
-    basePriority: Double,
+    groupWeight: Double,
      depByWeightId: Double
 ) :
     ConditionGroup(
         groupId,
         bindId,
         weightConditionId,
-        basePriority,
+        groupWeight,
         depByWeightId
     )*/
 

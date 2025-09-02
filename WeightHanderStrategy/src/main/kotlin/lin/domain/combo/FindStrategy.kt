@@ -3,6 +3,7 @@ package lin.domain.combo
 import lin.bean.ComboCard
 import lin.domain.WeightHandlerDomain
 import lin.domain.context.HalfCostWeight
+import lin.domain.context.NotWeight
 
 /**
  * 查询组合策略
@@ -13,7 +14,7 @@ interface FindStrategy {
 
 
 /**
- * 额外费用策略
+ * 额外费用查找组合策略
  */
 class ExtCostStrategy(val cost: Int) : FindStrategy {
     override fun find(
@@ -50,7 +51,12 @@ class ExtCostStrategy(val cost: Int) : FindStrategy {
         warManage.consumeExtCost(cost) { extCost ->
             val comboCards = warManage.canUseCardsByCost(extCost).copy(extCostCard)
             val extCostWeightResult = weightHandlerDomain.findCombination(extCost, comboCards)
-            val reduceWeight = cost * HalfCostWeight
+
+            //处理没有配置权重,一直不使用硬币的情况
+            var reduceWeight = NotWeight
+            if (nowWeight > HalfCostWeight) reduceWeight = cost * HalfCostWeight
+
+
             val extCostWeight = extCostWeightResult.weightSum() - reduceWeight
             extCostWeightResult.log()
             if (nowWeight > extCostWeight) {

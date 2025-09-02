@@ -8,6 +8,8 @@ import club.xiaojiawei.hsscriptcardsdk.bean.isValid
 import club.xiaojiawei.hsscriptcardsdk.data.CARD_INFO_TRIE
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
+import lin.domain.context.NotWeight
+import lin.domain.context.UnUseWeight
 import lin.domain.war.SimpleCleanWar
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
@@ -18,6 +20,7 @@ import lin.warExt.action.cleanPlay
 import lin.warExt.base.getCost
 import lin.warExt.base.getHandCards
 import lin.warExt.base.getPlayCards
+import lin.warExt.base.playCardIsFull
 import org.koin.core.component.KoinComponent
 import java.util.*
 
@@ -129,7 +132,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
     /**
-     * select 暂时重新读取数据,性能太差或者有空 改成如果一直如不用更改
+     * todo-future 暂时重新读取数据,性能太差或者有空 改成复杂状态管理
      * 重新加载
      */
     fun reLoad() {
@@ -229,8 +232,12 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
         var useResult = useCard(comboCard)
         if (!useResult && card.area is HandArea) {//再次尝试
-            myLog.info { "再次尝试打出" }
-            useResult = useCard(comboCard)
+            //处理战场已满情况
+            if (NotWeight == processPlayCardIsFull()) {
+                myLog.info { "再次尝试打出" }
+                useResult = useCard(comboCard)
+            }
+
         }
         return useResult
     }
@@ -258,7 +265,37 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     }
 
-    //有费用
+
+    private var isCleanWar = false
+    private var isFull = false
+
+    /**
+     * 重新设置状态
+     */
+    fun reset() {
+        isCleanWar = false
+        isFull = false
+    }
+
+    fun processPlayCardIsFull(): Double {
+        if (!isFull) {
+            isFull = playCardIsFull()
+        }
+        // 如果战场已满
+        if (isFull) {
+            // 若已清理过战场则直接返回
+            if (isCleanWar) {
+                return UnUseWeight
+            }
+            myLog.info { "随从太多清理一下战场" }
+            // 清理战场并更新状态
+            cleanPlay()
+            isFull = playCardIsFull()
+            isCleanWar = true
+            if (isFull) return UnUseWeight
+        }
+        return NotWeight
+    }
 
 
     /**
@@ -269,6 +306,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             if (war.isValid()) {
                 //重新加载信息
                 reLoad()
+                reset()
                 val startNum = getHandCards().size
                 //送亡语,送墓场操作
                 processToDie()

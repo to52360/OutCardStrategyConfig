@@ -50,6 +50,8 @@ data class CardWeightInfo(
 
 
     private var _weightRules: MutableList<WeightRule>? = null
+
+    //todo-future 应该移到ConditionHandler,为了一点性能增加复杂性不可取
     val weightRules: List<WeightRule>
         get() = _weightRules ?: emptyList()
 

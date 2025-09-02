@@ -11,3 +11,4 @@ interface OnWarInfo : AddWeightByWarInfo {
 
     fun onPlayAreaCalcWeightByMe(playAreaCards: List<ComboCard>): Double
 }
+

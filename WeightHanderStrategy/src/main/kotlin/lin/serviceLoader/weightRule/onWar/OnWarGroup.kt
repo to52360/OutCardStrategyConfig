@@ -3,11 +3,11 @@ package lin.serviceLoader.weightRule.onWar
 import lin.bean.ComboCard
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
-import lin.serviceLoader.weightRule.utils.DepByWeightGroupIdDelegate
-import lin.serviceLoader.weightRule.utils.DepToPredicates
-import lin.serviceLoader.weightRule.utils.PredicateByGroupIds
+import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
+import lin.serviceLoader.weightRule.utils.DepToPredicateList
+import lin.serviceLoader.weightRule.utils.PredicateGroupIds
 
-class OnWarByGroupId : OnWarInfo, DepByWeightGroupIdDelegate<DepToPredicates> by PredicateByGroupIds() {
+class OnWarGroup : OnWarInfo, DepWeightGroupDelegate<DepToPredicateList> by PredicateGroupIds() {
     override fun onPlayAreaCalcWeightByMe(playAreaCards: List<ComboCard>): Double {
         val weight = if (depToPredicate(playAreaCards)) groupWeight else NotWeight
         return weight

@@ -4,7 +4,7 @@ import lin.bean.CardWeightInfo
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.serviceLoader.weightRule.DepByWeightGroupId
-import lin.serviceLoader.weightRule.DepByWeightInfos
+import lin.serviceLoader.weightRule.DepWeightInfo
 import lin.serviceLoader.weightRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.bean.ConditionGroup
@@ -53,7 +53,8 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
             //处理依赖
             processDep(copyCondition, conditionGroup)
             //完善条件信息
-            copyCondition.groupWeight = conditionGroup.basePriority
+            copyCondition.groupWeight = conditionGroup.groupWeight
+            copyCondition.setUnConditionWeight(conditionGroup.unConditionWeight)
             //冗余信息
             bind(copyCondition, bindWeightInfos)
 
@@ -77,13 +78,13 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
 
     private fun processDep(weightCondition: WeightCondition, conditionGroup: ConditionGroup) {
         //依赖数据处理
-        if (weightCondition is DepByWeightInfos) {
+        if (weightCondition is DepWeightInfo) {
             //todo-future 万一以类型绑定卡牌,那打出条件如何冗余在卡牌信息里
             //绑定对象,
-            val depWeightInfos = mutableListOf<List<CardWeightInfo>>()
+            val depWeightInfos = mutableListOf<CardWeightInfo>()
             conditionGroup.depByWeightIds.forEach { depId ->
                 weightGroupInfos[depId]?.run {
-                    depWeightInfos.add(this)
+                    depWeightInfos.addAll(this)
                 }
             }
 
@@ -94,7 +95,7 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
                 throw ConditionException(msg)
 
             }
-            weightCondition.initByWeightInfos(depWeightInfos)
+            weightCondition.initByWeightInfo(depWeightInfos)
         } else if (weightCondition is DepByWeightGroupId) {
             if (conditionGroup.depByWeightIds.isEmpty()) {
                 myLog.warn { "找不到对应分组信息${conditionGroup.depByWeightIds}" }

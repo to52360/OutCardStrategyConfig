@@ -1,6 +1,7 @@
 package lin.serviceLoader.parse
 
 import lin.bean.CardWeightInfo
+import lin.myLog
 import lin.serviceLoader.weightRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 
@@ -12,6 +13,7 @@ class ParseCardRule : ParseCardWeightInfo {
         ServiceLoaderUtils.loadServices(CardRule::class.java).forEach {
             val card = infoMap[it.cardId()]
             card?.run {
+                myLog.info { "单卡规则加载到:${it.cardId()}" }
                 addWeightRule(it)
             }
         }

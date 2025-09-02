@@ -18,15 +18,18 @@ fun List<CardWeightInfo>.toCardRaces(): List<CardRaceEnum> =
     mapNotNull { it.parseRace() }
 
 // 策略生成器
-fun List<CardRaceEnum>.createHandRacePredicate(): (List<ComboCard>) -> Boolean =
+fun List<CardRaceEnum>.createPredicateRaceByList(): (List<ComboCard>) -> Boolean =
     { hand -> hand.any { card -> this.contains(card.card.cardRace) } }
 
-fun List<CardRaceEnum>.createSingleRacePredicate(): (ComboCard) -> Boolean =
+fun List<CardRaceEnum>.createPredicateRace(): (ComboCard) -> Boolean =
     { card -> this.contains(card.card.cardRace) }
 
 //select 如果太多再拆分
 //组合
-fun List<CardWeightInfo>.infoToHandRacePredicate(): (List<ComboCard>) -> Boolean = this.toCardRaces().createHandRacePredicate()
+fun List<CardWeightInfo>.infoGetRaceToPredicates(): (List<ComboCard>) -> Boolean =
+    this.toCardRaces().createPredicateRaceByList()
 
+fun List<CardWeightInfo>.infoGetRaceToPredicateByOne(): (ComboCard) -> Boolean =
+    this.toCardRaces().createPredicateRace()
 
 

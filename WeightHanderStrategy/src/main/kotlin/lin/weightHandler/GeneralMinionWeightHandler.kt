@@ -16,7 +16,7 @@ import lin.warExt.base.playCardIsFull
 /**
  * 通用随从权重计算
  */
-class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler, RoundLifecycle {
+class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
@@ -56,34 +56,10 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler, RoundLi
     fun processPlayFull(callCard: ComboCard, warManage: MyWarManage): Double {
         if (CardTypeEnum.MINION == callCard.card.cardType) {
             if (CardTypeEnum.MINION == callCard.card.cardType) {
-                // 如果战场未满，先检查是否已满
-                if (!isFull) {
-                    isFull = warManage.playCardIsFull()
-                }
-
-                // 如果战场已满
-                if (isFull) {
-                    // 若已清理过战场则直接返回
-                    if (isCleanWar) {
-                        return UnUseWeight
-                    }
-                    myLog.info { "随从太多清理一下战场" }
-                    // 清理战场并更新状态
-                    warManage.cleanPlay()
-                    isFull = warManage.playCardIsFull()
-                    isCleanWar = true
-                    if (isFull) return UnUseWeight
-                }
+                return warManage.processPlayCardIsFull()
             }
         }
         return NotWeight
-    }
-
-    var isCleanWar = false
-    var isFull = false
-    override fun start() {
-        isCleanWar = false
-        isFull = false
     }
 
 
