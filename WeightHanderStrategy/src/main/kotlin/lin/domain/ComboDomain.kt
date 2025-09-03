@@ -6,8 +6,12 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.bean.War
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
-import lin.domain.combo.*
 import lin.domain.context.*
+import lin.domain.result.ChangeWeightResult
+import lin.domain.result.EndWeightResult
+import lin.domain.strategy.UseAfterStrategy
+import lin.domain.strategy.UseBeforeStrategy
+import lin.domain.strategy.UseStrategyUtils
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
@@ -55,7 +59,7 @@ class ComboDomain(war: War) {
         threadContext {
 
             startKoin {
-                modules(DBModules, ParseCardWeightInfoModule)
+                modules(DBModules, ParseCardWeightInfoModule, ComBoInfoModule)
                 modules(module { single { lifecycleRegisterImpl } bind LifecycleRegister::class })
                 val extraModule = ServiceLoaderUtils.loadServices(ModulesInfo::class.java)
                 extraModule.forEach {

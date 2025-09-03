@@ -1,4 +1,4 @@
-package lin.domain.combo
+package lin.domain.result
 
 import lin.bean.ComboCard
 import lin.domain.context.CostWeight

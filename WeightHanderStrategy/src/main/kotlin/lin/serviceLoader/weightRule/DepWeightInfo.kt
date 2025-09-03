@@ -66,11 +66,6 @@ interface DepProcessor {
             return false
         }
 
-        //组权重处理
-        if (this is GroupWeight) {
-            groupWeight = conditionGroup.groupWeight
-            setUnConditionWeight(conditionGroup.unConditionWeight)
-        }
 
         //处理
         process(conditionGroup, weightGroupInfos)

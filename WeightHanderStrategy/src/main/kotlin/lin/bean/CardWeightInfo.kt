@@ -1,11 +1,11 @@
 package lin.bean
 
 
-import lin.domain.combo.FindStrategy
-import lin.domain.combo.UseAfterStrategy
-import lin.domain.combo.UseBeforeStrategy
-import lin.domain.combo.UseStrategy
 import lin.domain.context.NotWeight
+import lin.domain.strategy.FindStrategy
+import lin.domain.strategy.UseAfterStrategy
+import lin.domain.strategy.UseBeforeStrategy
+import lin.domain.strategy.UseStrategy
 import lin.lifecycle.LifecycleRegister
 import lin.serviceLoader.weightRule.WeightRule
 import org.koin.core.component.KoinComponent

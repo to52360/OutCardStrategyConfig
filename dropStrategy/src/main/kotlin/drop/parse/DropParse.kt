@@ -1,8 +1,8 @@
 package drop.parse
 
 import lin.bean.CardWeightInfo
-import lin.domain.combo.DiscoverUseStrategy
-import lin.domain.combo.UseAfterLClick
+import lin.domain.strategy.DiscoverUseStrategy
+import lin.domain.strategy.UseAfterLClick
 import lin.serviceLoader.parse.ParseCardWeightInfo
 
 class DropParse : ParseCardWeightInfo {

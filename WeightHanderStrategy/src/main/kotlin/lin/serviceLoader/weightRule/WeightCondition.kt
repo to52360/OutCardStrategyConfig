@@ -47,7 +47,7 @@ interface AddWeightByWarInfo : WeightCondition {
  */
 interface GroupWeight {
     var groupWeight: Double
-    fun setUnConditionWeight(unConditionWeight: Double) {
+    fun setUnCondWeight(unConditionWeight: Double) {
 
     }
 

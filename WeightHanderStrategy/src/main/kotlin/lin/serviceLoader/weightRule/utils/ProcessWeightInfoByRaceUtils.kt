@@ -2,18 +2,27 @@ package lin.serviceLoader.weightRule.utils
 
 
 import club.xiaojiawei.hsscriptcardsdk.enums.CardRaceEnum
-import club.xiaojiawei.hsscriptcardsdk.util.CardDBUtil
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.myLog
+import lin.utils.database.dao.CardInfoDao
+import org.koin.mp.KoinPlatformTools
 
 //select 多种实现要转化为接口
-fun CardWeightInfo.parseRace(): CardRaceEnum =
-    CardDBUtil.queryCardById(cardId).firstOrNull()?.type?.let(CardRaceEnum::fromString)?:run{
+fun CardWeightInfo.parseRace(): CardRaceEnum {
+    val cardInfoDao = KoinPlatformTools.defaultContext().get().get<CardInfoDao>()
+    return cardInfoDao.queryCardRaceById(cardId)?.race?.let {
+        var change = it
+        if ("BEAST" == change) change = "PET"
+        CardRaceEnum.fromString(change)
+    }
+        ?: run {
         //select 实际运行后看一下null怎么处理
         myLog.warn { "卡牌:${cardId}没有种族信息" }
         CardRaceEnum.UNKNOWN
     }
+}
+
 fun List<CardWeightInfo>.toCardRaces(): List<CardRaceEnum> =
     mapNotNull { it.parseRace() }
 

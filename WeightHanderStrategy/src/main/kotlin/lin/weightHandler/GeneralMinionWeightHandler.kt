@@ -5,13 +5,10 @@ import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
 import lin.domain.context.BaseWeight
-import lin.domain.context.CostWeight
+import lin.domain.context.HalfCostWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.lifecycle.RoundLifecycle
 import lin.myLog
-import lin.warExt.action.cleanPlay
-import lin.warExt.base.playCardIsFull
 
 /**
  * 通用随从权重计算
@@ -42,7 +39,7 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
                     myLog.info {
                         "${card.entityName}的特征权重:${weigh}"
                     }
-                    var result = (baseWeight + weigh) * CostWeight
+                    var result = (baseWeight + weigh) * HalfCostWeight
                     if (result < 0) result = BaseWeight //费用增加的情况,严重亏模的情况 可能导致负数
                     cache[card.cardId + card.cost] = result
                     return result

@@ -1,4 +1,4 @@
-package lin.domain.combo
+package lin.domain.strategy
 
 import lin.domain.context.FourAnimationTime
 import lin.myLog

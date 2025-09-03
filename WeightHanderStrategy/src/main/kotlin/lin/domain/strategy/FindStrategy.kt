@@ -1,9 +1,12 @@
-package lin.domain.combo
+package lin.domain.strategy
 
 import lin.bean.ComboCard
 import lin.domain.WeightHandlerDomain
 import lin.domain.context.HalfCostWeight
 import lin.domain.context.NotWeight
+import lin.domain.result.EmptyWeightResult
+import lin.domain.result.EndWeightResult
+import lin.domain.result.WeightResult
 
 /**
  * 查询组合策略

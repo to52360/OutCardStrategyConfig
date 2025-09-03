@@ -22,6 +22,7 @@ object ServiceLoaderUtils {
     fun <T> loadServicesByMutable(serviceType: Class<T>, services: MutableList<T> = mutableListOf()): MutableList<T> {
         loadServicesForEach(serviceType) {
             services.add(it)
+            false
         }
         return services
     }

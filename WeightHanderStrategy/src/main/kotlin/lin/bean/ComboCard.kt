@@ -2,10 +2,10 @@ package lin.bean
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
-import lin.domain.combo.FindStrategy
 import lin.domain.context.BaseWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
+import lin.domain.strategy.FindStrategy
 
 
 typealias ComboRule = (ComboCard) -> Double

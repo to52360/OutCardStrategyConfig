@@ -2,10 +2,10 @@ package lin.serviceLoader.weightRule.hand
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
-import lin.domain.combo.ChangeStrategy
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
+import lin.domain.strategy.ChangeStrategy
 import lin.serviceLoader.weightRule.WeightCondition
 import lin.warExt.base.getHandCards
 

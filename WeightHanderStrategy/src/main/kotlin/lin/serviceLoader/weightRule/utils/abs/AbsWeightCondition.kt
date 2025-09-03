@@ -18,8 +18,8 @@ import lin.serviceLoader.weightRule.utils.infoGetRaceToPredicates
 abstract class AbsWeightConditionDepToPredicate<Predicate : Any>(override var groupWeight: Double = CostWeight) :
     WeightCondition {
     lateinit var predicateFromDep: Predicate
-    var unConditionWeight: Double = NotWeight
-    override fun setUnConditionWeight(unConditionWeight: Double) {
+    protected var unConditionWeight: Double = NotWeight
+    override fun setUnCondWeight(unConditionWeight: Double) {
         this.unConditionWeight = unConditionWeight
     }
 }

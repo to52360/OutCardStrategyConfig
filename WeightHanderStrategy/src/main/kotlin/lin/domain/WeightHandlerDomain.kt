@@ -2,9 +2,9 @@ package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
-import lin.domain.combo.EmptyWeightResult
-import lin.domain.combo.EndWeightResult
-import lin.domain.combo.WeightResult
+import lin.domain.result.EmptyWeightResult
+import lin.domain.result.EndWeightResult
+import lin.domain.result.WeightResult
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.utils.serviceLoader.ServiceLoaderUtils

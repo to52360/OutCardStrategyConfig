@@ -1,4 +1,4 @@
-package lin.domain.combo
+package lin.domain.result
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card

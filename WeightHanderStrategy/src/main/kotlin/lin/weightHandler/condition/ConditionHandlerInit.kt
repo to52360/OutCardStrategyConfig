@@ -3,12 +3,10 @@ package lin.weightHandler.condition
 import lin.bean.CardWeightInfo
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
-import lin.serviceLoader.weightRule.DepByWeightGroupId
-import lin.serviceLoader.weightRule.DepWeightInfo
+import lin.serviceLoader.weightRule.DepProcessor
 import lin.serviceLoader.weightRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.bean.ConditionGroup
-import lin.weightHandler.condition.context.ConditionException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -51,12 +49,10 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
             //这里采用反射复制,为了简洁和快速实现 没有采用工厂模式
             val copyCondition = it.copy()
             //处理依赖
-            processDep(copyCondition, conditionGroup)
-            //完善条件信息
-            copyCondition.groupWeight = conditionGroup.groupWeight
-            copyCondition.setUnConditionWeight(conditionGroup.unConditionWeight)
-            //冗余信息
-            bind(copyCondition, bindWeightInfos)
+            if (processDep(copyCondition, conditionGroup)) {
+                //冗余信息
+                bind(copyCondition, bindWeightInfos)
+            }
 
 
         } ?: run {//没有对应条件id实现
@@ -76,33 +72,15 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
         lifecycleRegister.register(weightCondition)
     }
 
-    private fun processDep(weightCondition: WeightCondition, conditionGroup: ConditionGroup) {
-        //依赖数据处理
-        if (weightCondition is DepWeightInfo) {
-            //todo-future 万一以类型绑定卡牌,那打出条件如何冗余在卡牌信息里
-            //绑定对象,
-            val depWeightInfos = mutableListOf<CardWeightInfo>()
-            conditionGroup.depByWeightIds.forEach { depId ->
-                weightGroupInfos[depId]?.run {
-                    depWeightInfos.addAll(this)
-                }
-            }
+    private fun processDep(weightCondition: WeightCondition, conditionGroup: ConditionGroup): Boolean {
+        //组权重处理
+        weightCondition.groupWeight = conditionGroup.groupWeight
+        weightCondition.setUnCondWeight(conditionGroup.unConditionWeight)
 
-
-            if (depWeightInfos.isEmpty()) {
-                val msg =
-                    "条件组需要绑定的数据没有在权重表找到,weight(depByWeightId)为${conditionGroup.depByWeightIds}"
-                throw ConditionException(msg)
-
-            }
-            weightCondition.initByWeightInfo(depWeightInfos)
-        } else if (weightCondition is DepByWeightGroupId) {
-            if (conditionGroup.depByWeightIds.isEmpty()) {
-                myLog.warn { "找不到对应分组信息${conditionGroup.depByWeightIds}" }
-            }
-            weightCondition.initByGroupIds(conditionGroup.depByWeightIds)
-
+        if (weightCondition is DepProcessor) {
+            return weightCondition.processAndVerify(conditionGroup, weightGroupInfos)
         }
+        return true
     }
 
     //都是通过ServerLoader加载没有可能获取不到
