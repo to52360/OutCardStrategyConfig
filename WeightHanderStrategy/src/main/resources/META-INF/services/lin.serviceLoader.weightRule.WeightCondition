@@ -1,7 +1,7 @@
 lin.serviceLoader.weightRule.hand.race.HandAreaRace
 lin.serviceLoader.weightRule.afterRule.HaloRule
-lin.serviceLoader.weightRule.hand.HandLeaveCostGroup
-lin.serviceLoader.weightRule.onWar.OnWarGroup
+lin.serviceLoader.weightRule.hand.HandLeaveCostByGroupId
+lin.serviceLoader.weightRule.onWar.OnWarByGroupId
 lin.serviceLoader.weightRule.onWar.buff.OnWarNum
 lin.serviceLoader.weightRule.hand.ChangeCardStrategy
 lin.serviceLoader.weightRule.hand.race.HandAreaRaceByAbleUse

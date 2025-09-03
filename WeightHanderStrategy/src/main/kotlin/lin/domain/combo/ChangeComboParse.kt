@@ -5,7 +5,6 @@ import lin.bean.ComboInfo
 import lin.bean.ComboRule
 
 class ChangeComboParse : ValidDepComboParse, ComboPredicateByGroup {
-    override fun id() = "change"
     override fun processBindCombo(
         cardWeightInfos: List<CardWeightInfo>,
         comboInfo: ComboInfo

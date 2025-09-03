@@ -1,4 +1,4 @@
 drop.DropMax
 drop.DropMin
-drop.weightRule.graveyard.GraveyardMinion
-drop.weightRule.hand.HandNumWeight
+drop.weightRule.graveyard.GraveyardByMinion
+drop.weightRule.hand.HandNumWeightId

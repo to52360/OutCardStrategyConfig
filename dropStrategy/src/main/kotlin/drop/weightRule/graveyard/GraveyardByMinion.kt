@@ -8,8 +8,8 @@ import lin.domain.context.UnUseWeight
 import lin.lifecycle.GameLifecycle
 import lin.myLog
 import lin.serviceLoader.weightRule.AddWeightByWarInfo
-import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicateList
+import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.PredicateGroupIds
 import lin.warExt.action.cleanPlay
 import lin.warExt.base.getCost
@@ -17,7 +17,7 @@ import lin.warExt.base.getHandCards
 import lin.warExt.common.getGraveyardCardsByType
 import lin.warExt.rival.rivalAllCardsByPlayArea
 
-class GraveyardMinion : AddWeightByWarInfo, GameLifecycle,
+class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle,
     DepWeightGroupDelegate<DepToPredicateList> by PredicateGroupIds() {
     private var minionNum = 0
     override fun calculateWeight(warInfo: WarInfo): Double {

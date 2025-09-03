@@ -1,5 +1,6 @@
 package lin.bean
 
+import lin.domain.combo.BEFORE
 import lin.domain.context.NotWeight
 import lin.domain.context.OrderWeight
 import lin.myLog
@@ -12,7 +13,7 @@ import lin.myLog
 class ComboInfo(
     val infoId: Int,
     val bindId: Double,
-    val comboType: ComboType,
+    val comboType: String,
     val depIds: Array<Double>,
     val comboWeight: Double
 )
@@ -21,14 +22,14 @@ class ComboInfo(
  *@param comboId todo-future  comboId 不知道有没有用了
  * @param comboType todo-future 感觉可以删除了
  */
-open class Combo(val comboId: Int, val comboRule: ComboRule, val comboType: ComboType) {
+open class Combo(val comboId: Int, val comboRule: ComboRule, val comboType: String) {
     open fun comboProcess(callComboCard: ComboCard, comboCard: ComboCard): Double {
         return comboRule.let {
             val weight = it(comboCard)
             //优先级处理
             if (weight != NotWeight) {//表示是同一组
                 val beforeWeight = callComboCard.powerWeight
-                if (ComboType.BEFORE == comboType) {//如果是before会增加排序权重
+                if (BEFORE == comboType) {//如果是before会增加排序权重
                     //之前策略
                     if (beforeWeight <= comboCard.powerWeight) {//增加权重
                         val addWeight = comboCard.powerWeight - beforeWeight + OrderWeight //保证同组优先级最高

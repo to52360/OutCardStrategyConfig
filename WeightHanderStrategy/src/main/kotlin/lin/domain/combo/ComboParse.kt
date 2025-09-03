@@ -2,16 +2,17 @@ package lin.domain.combo
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboInfo
+import lin.bean.ComboRule
+import lin.domain.context.NotWeight
 import lin.myLog
 
-const val LAST = "last"
+const val LAST = "after"
 const val BEFORE = "before"
 const val DEF = "def"
 const val CHANGE = "change"
 
 
 interface ComboParse {
-    fun id(): String = this::class.java.simpleName
     fun parse(cardGroupInfos: Map<Double, List<CardWeightInfo>>, comboInfo: ComboInfo)
 }
 
@@ -57,5 +58,19 @@ interface ValidDepComboParse : ValidBindComboParse {
             if (validResult.isEmpty()) return false
         }
         return true
+    }
+}
+
+interface ComboPredicateByGroup {
+    fun predicateByGroup(comboInfo: ComboInfo): ComboRule {
+        val comboRule: ComboRule = { comboCards ->
+            if (comboInfo.depIds.any {
+                    it == comboCards.groupId()
+                })
+                comboInfo.comboWeight
+            else
+                NotWeight
+        }
+        return comboRule
     }
 }
