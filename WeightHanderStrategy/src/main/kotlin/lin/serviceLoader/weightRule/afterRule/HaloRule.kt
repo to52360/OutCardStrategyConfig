@@ -4,7 +4,7 @@ import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.WeightCondition
-import lin.warExt.common.hasTaunt
+import lin.warExt.my.attack.hasTaunt
 import lin.warExt.rival.rivalIsNotCardByPlayArea
 
 /**

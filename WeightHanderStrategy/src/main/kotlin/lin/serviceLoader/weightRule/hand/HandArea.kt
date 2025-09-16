@@ -5,7 +5,7 @@ import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.AddWeightByWarInfo
 import lin.serviceLoader.weightRule.WeightCondition
-import lin.warExt.base.getCost
+import lin.warExt.my.base.getCost
 
 interface HandArea : AddWeightByWarInfo {
     override fun calculateWeight(warInfo: WarInfo): Double {

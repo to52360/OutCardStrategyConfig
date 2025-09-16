@@ -6,7 +6,7 @@ import lin.bean.ComboRule
 import lin.domain.context.NotWeight
 import lin.myLog
 
-const val LAST = "after"
+const val LAST = "last"
 const val BEFORE = "before"
 const val DEF = "def"
 const val CHANGE = "change"

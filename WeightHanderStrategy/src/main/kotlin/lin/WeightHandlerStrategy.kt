@@ -7,6 +7,10 @@ import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import club.xiaojiawei.hsscriptcardsdk.status.WAR
 import club.xiaojiawei.hsscriptstrategysdk.DeckStrategy
 import lin.domain.ComboDomain
+import lin.domain.ModulesLoad
+import org.koin.core.component.KoinComponent
+import org.koin.core.context.stopKoin
+import kotlin.coroutines.EmptyCoroutineContext.get
 
 
 /**
@@ -17,7 +21,7 @@ import lin.domain.ComboDomain
  * 权重表[CARD_WEIGHT_TRIE]
  * WeightHandlerPlugin
  */
-class WeightHandlerStrategy : DeckStrategy() {
+class WeightHandlerStrategy : DeckStrategy(), KoinComponent {
     private val comboDomain: ComboDomain
 
 
@@ -25,7 +29,9 @@ class WeightHandlerStrategy : DeckStrategy() {
         myLog.info{
             "执行策略初始化"
         }
-        comboDomain = ComboDomain(WAR)
+        ModulesLoad().loadModules()
+        comboDomain = ComboDomain()
+        stopKoin()
 
 
     }

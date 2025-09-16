@@ -1,5 +1,7 @@
 package lin.lifecycle
 
+import lin.domain.WarInfo
+
 /**
  * 适应用于
  * [lin.serviceLoader.weightRule.WeightRule]
@@ -7,7 +9,7 @@ package lin.lifecycle
  * 回合开始
  */
 interface RoundLifecycle {
-    fun start()
+    fun start(warInfo: WarInfo)
 }
 
 /**

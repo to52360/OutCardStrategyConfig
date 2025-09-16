@@ -1,5 +1,7 @@
 package lin.lifecycle
 
+import lin.domain.WarInfo
+
 class LifecycleRegisterImpl : LifecycleRegister {
     // 存储 RoundLifecycle 类型的生命周期对象
     private val roundLifecycles = mutableListOf<RoundLifecycle>();
@@ -40,8 +42,8 @@ class LifecycleRegisterImpl : LifecycleRegister {
     }
 
     // 触发所有 RoundLifecycle 的 start 方法
-    fun startAllRuleLifecycles() {
-        roundLifecycles.forEach { it.start() }
+    fun startAllRuleLifecycles(warInfo: WarInfo) {
+        roundLifecycles.forEach { it.start(warInfo) }
     }
 
 

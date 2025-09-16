@@ -10,7 +10,7 @@ import org.koin.core.error.NoDefinitionFoundException
 import org.koin.core.qualifier.named
 
 /**
- * combo解析
+ * 解析combo
  */
 class ParseCombo : ParseCardWeightInfo, KoinComponent {
     override fun parse(infoMap: Map<String, CardWeightInfo>) {
@@ -23,7 +23,7 @@ class ParseCombo : ParseCardWeightInfo, KoinComponent {
                 comboParse.parse(cardGroupInfos, comboInfo)
             } catch (e: NoDefinitionFoundException) {
                 myLog.error(e) {
-                    "对应的类型不支持${comboInfo.comboType}"
+                    "id${comboInfo.infoId}:对应的类型不支持${comboInfo.comboType}"
                 }
             }
 

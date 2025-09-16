@@ -17,12 +17,15 @@ import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
-import lin.warExt.base.getCost
-import lin.warExt.base.getHandCards
-import lin.warExt.base.getPlayCards
-import lin.warExt.base.playCardIsFull
+import lin.warExt.my.attack.attackAfterLessBlood
+import lin.warExt.my.attack.findMeAtc
+import lin.warExt.my.base.getCost
+import lin.warExt.my.base.getHandCards
+import lin.warExt.my.base.getPlayCards
+import lin.warExt.my.base.playCardIsFull
+import lin.warExt.rival.rivalBlood
+import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
-import java.util.*
 
 
 interface WarInfo {
@@ -67,6 +70,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             this.extCost = 0
         }
     }
+    val toDieHandler = ToDieHandler(this)
 
 
 
@@ -109,7 +113,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     }
 
     /**
-     * todo-future 使用最后一张的情况处理不了,会有问题
+     * todo-future 使用最后一张的情况处理不了(无法判断是否有变更),会有问题
      */
     inline fun isChange(useCard: () -> ComboCard?): Boolean {
         val beginCard = getHandCards().lastOrNull()
@@ -143,7 +147,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     }
 
 
-    private fun reloadPlayComboCards() {
+    fun reloadPlayComboCards() {
         playComboCards = parseComboCards(getPlayCards())
     }
 
@@ -155,15 +159,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
 
-    fun processToDie() {
-        val canAttacks = playComboCards.filterTo(LinkedList()) { it.toDie && it.card.canAttack() }
-        if (canAttacks.isNotEmpty()) {
-            val simpleCleanWar = SimpleCleanWar(canAttacks, war.rival)
-            simpleCleanWar.executeAttack()
-            reloadPlayComboCards()
-        }
-
-    }
     /**
      *
      * 节省性能方式,但是对于不是新增在右边会有问题,复杂策略往往来更多bug
@@ -196,12 +191,14 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
     /**
+     * 产生复杂的状态,未经测试
      * 操作并改变ComBoCard状态
-     *
+     *未更新
      */
     fun useCardAndRemove(comBoCard: ComboCard) {
         if (tryUseCard(comBoCard)) {
             handComboCards -= comBoCard
+            playComboCards += comBoCard
         }
     }
 
@@ -288,6 +285,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 return UnUseWeight
             }
             myLog.info { "随从太多清理一下战场" }
+
             // 清理战场并更新状态
             cleanPlay()
             isFull = playCardIsFull()
@@ -300,7 +298,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     /**
      * 策略执行环境
-     * todo-future 可见性原因,不支持内联
      */
     inline fun executeEnvironment(runnable: () -> Unit) {
             if (war.isValid()) {
@@ -309,7 +306,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 reset()
                 val startNum = getHandCards().size
                 //送亡语,送墓场操作
-                processToDie()
+                toDieHandler.processToDie()
                 //使用地标
                 activeLocation()
                 if (startNum > getHandCards().size) reLoad() //重新加载
@@ -325,3 +322,11 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             }
     }
 }
+
+private fun List<ComboCard>.isNotExecuteToDie(war: WarInfo): Boolean {
+    val sumAtc = sumOf { comboCard -> comboCard.card.atc }
+
+    return war.rivalBlood() - sumAtc < 10
+}
+
+

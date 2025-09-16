@@ -16,7 +16,9 @@ object ServiceLoaderUtils {
     private val serviceCache: MutableMap<Class<*>, Any> by lazy { mutableMapOf() }
 
      fun <T> loadServices(serviceType: Class<T>): List<T> {
-         return loadServicesByMutable(serviceType)
+         var services: List<T> = loadServicesByMutable(serviceType)
+         if (services.isEmpty()) services = emptyList()
+         return services
      }
 
     fun <T> loadServicesByMutable(serviceType: Class<T>, services: MutableList<T> = mutableListOf()): MutableList<T> {

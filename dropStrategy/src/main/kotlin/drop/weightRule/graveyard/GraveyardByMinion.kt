@@ -12,9 +12,9 @@ import lin.serviceLoader.weightRule.utils.DepToPredicateList
 import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.PredicateGroupIds
 import lin.warExt.action.cleanPlay
-import lin.warExt.base.getCost
-import lin.warExt.base.getHandCards
-import lin.warExt.common.getGraveyardCardsByType
+import lin.warExt.my.base.getCost
+import lin.warExt.my.base.getHandCards
+import lin.warExt.my.attack.getGraveyardCardsByType
 import lin.warExt.rival.rivalAllCardsByPlayArea
 
 class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle,

@@ -7,7 +7,7 @@ import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.domain.strategy.ChangeStrategy
 import lin.serviceLoader.weightRule.WeightCondition
-import lin.warExt.base.getHandCards
+import lin.warExt.my.base.getHandCards
 
 /**
  * 更改手牌

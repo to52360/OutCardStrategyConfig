@@ -13,6 +13,7 @@ fun CardWeightInfo.parseRace(): CardRaceEnum {
     val cardInfoDao = KoinPlatformTools.defaultContext().get().get<CardInfoDao>()
     return cardInfoDao.queryCardRaceById(cardId)?.race?.let {
         var change = it
+        //todo-future 数据库和枚举类型冲突(野兽类型)
         if ("BEAST" == change) change = "PET"
         CardRaceEnum.fromString(change)
     }

@@ -4,7 +4,9 @@ package lin.weightHandler.condition
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
-import lin.serviceLoader.weightRule.WeightCondition
+import lin.domain.context.NotWeight
+import lin.domain.context.UnUseWeight
+import lin.myLog
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ConditionGroup
@@ -28,10 +30,23 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
 
     //todo-future 存在魔数
     override fun priority() = 5
-    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        callCard.weightRules?.forEach {
-            it.calculateSetWeight(callCard, warManage)
+    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
+        var calWeight = NotWeight
+        callCard.weightRules?.run {
+            for (weightRule in this) {
+                val weight = weightRule.calculateWeight(callCard, warManage)
+                if (weight != NotWeight) {
+                    myLog.info { "处理id:${weightRule.id()},计算的权重权重:${weight},id:${callCard.cardId()},总权重:${callCard.powerWeight}" }
+                    if (weight == UnUseWeight) {
+                        return weight
+                    }
+                    calWeight += weight
+                }
+
+            }
+
         }
+        return calWeight
     }
 
     /**

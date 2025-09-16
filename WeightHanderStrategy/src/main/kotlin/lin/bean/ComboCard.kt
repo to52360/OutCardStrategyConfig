@@ -96,6 +96,10 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     fun unUse() {
         extPowerWeight = UnUseWeight
     }
+
+    /**
+     * 获取指定权重
+     */
     fun getExpectWeight(expectWeight: Double): Double {
         return powerWeight - expectWeight
     }

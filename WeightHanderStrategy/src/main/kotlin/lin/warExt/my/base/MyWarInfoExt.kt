@@ -1,4 +1,4 @@
-package lin.warExt.base
+package lin.warExt.my.base
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
@@ -11,6 +11,7 @@ fun WarInfo.getPlayCards(): List<Card> {
 fun WarInfo.getPlayCardSize(): Int {
     return getPlayCards().size
 }
+fun WarInfo.hasWeapon() = war.me.playArea.weapon != null
 
 fun WarInfo.getHandCards(): List<Card> {
     return war.me.handArea.cards

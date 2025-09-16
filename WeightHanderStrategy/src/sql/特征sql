@@ -1,0 +1,19 @@
+begin ;
+CREATE TABLE new_cards AS
+SELECT
+    cardId,
+    CASE
+        WHEN text LIKE '%<b>%</b>%' THEN
+            TRIM(SUBSTR(
+                    text,
+                    INSTR(text, '<b>') + 3,
+                    INSTR(SUBSTR(text, INSTR(text, '<b>') + 3), '</b>') - 1
+                 ))
+        ELSE
+            NULL
+        END as text_content
+FROM cards;
+SELECT
+    cardId,
+    text_content from new_cards limit 100;
+commit ;

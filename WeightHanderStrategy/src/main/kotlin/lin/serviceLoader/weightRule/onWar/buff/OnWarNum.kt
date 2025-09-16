@@ -4,7 +4,7 @@ package lin.serviceLoader.weightRule.onWar.buff
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.AddWeightByWarInfo
-import lin.warExt.base.getPlayCards
+import lin.warExt.my.base.getPlayCards
 
 class OnWarNum : AddWeightByWarInfo {
     override var groupWeight: Double = CostWeight

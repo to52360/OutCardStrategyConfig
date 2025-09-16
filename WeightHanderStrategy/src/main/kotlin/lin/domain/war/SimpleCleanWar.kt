@@ -7,13 +7,14 @@ import lin.bean.ComboCard
 import lin.myLog
 import java.util.*
 
-class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) {
+class SimpleCleanWar(canAttacks: MutableList<ComboCard>, val rival: Player) {
     val rivalPlayArea = rival.playArea
 
 
     lateinit var auraCards: MutableList<Card>
     lateinit var tauntCards: MutableList<Card>
     lateinit var rivalCards: MutableList<Card>
+    val canAttacks: MutableList<ComboCard> = LinkedList(canAttacks)
 
     /**
      * 判断有没有攻击目标,有进行初始化
@@ -48,6 +49,9 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
 
     }
 
+    /**
+     * 这里可以改成权重体系,不然每个特征需求都要加一次
+     */
     private fun attack() {
         if (processAttack(tauntCards)) return
         if (processHero()) return
@@ -92,8 +96,9 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
     private fun buildAttackOrder(targetCards: MutableList<Card>): List<Card> {
         val atcSum = canAttacks.sumOf { it.card.atc }
 
-        // 1) 全局按血量降序，再按id升序
-        targetCards.sortWith(compareByDescending<Card> { it.blood() }.thenBy { it.entityId })
+        // 1) 全局按血量降序，再按攻击力降序
+        targetCards.sortWith(compareByDescending<Card> { it.blood() }.thenByDescending { it.atc }
+            .thenBy { it.entityId })
 
         val n = targetCards.size
         // 2) 找到第一张可击杀卡的位置（即“尾段”的起点）
@@ -112,7 +117,7 @@ class SimpleCleanWar(val canAttacks: MutableList<ComboCard>, val rival: Player) 
 
             else -> {
                 // 3) 旋转：把尾段(可击杀)前移
-                java.util.Collections.rotate(targetCards, tailLen)
+                Collections.rotate(targetCards, tailLen)
                 // 4) 把现在尾部的“不可击杀段”反转为升序
                 targetCards.subList(tailLen, n).reverse()
             }

@@ -11,18 +11,14 @@ import lin.domain.context.UnUseWeight
 import lin.myLog
 
 /**
- * 通用随从权重计算
+ * 通用随从权重计算,怎么分开还没有考虑好
  */
 class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
-    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage) {
-        val result = processPlayFull(callCard, warManage)
-        if (result == UnUseWeight) {
-            callCard.unUse()
-        } else {
-            callCard.addWeight(cardWeight(callCard))
-        }
+    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
+        return processPlayFull(callCard, warManage)
+
     }
     override fun cardWeight(comboCard: ComboCard):Double{
         val card = comboCard.card
@@ -44,17 +40,19 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
                     cache[card.cardId + card.cost] = result
                     return result
                 }
+                return c
 
             }
         }
         return NotWeight
     }
 
+    /**
+     * 处理战场已满
+     */
     fun processPlayFull(callCard: ComboCard, warManage: MyWarManage): Double {
         if (CardTypeEnum.MINION == callCard.card.cardType) {
-            if (CardTypeEnum.MINION == callCard.card.cardType) {
-                return warManage.processPlayCardIsFull()
-            }
+            return warManage.processPlayCardIsFull()
         }
         return NotWeight
     }

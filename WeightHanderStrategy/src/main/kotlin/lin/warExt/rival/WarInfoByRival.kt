@@ -9,13 +9,13 @@ import lin.domain.WarInfo
  * 敌方场上随从攻击力总和
  */
 fun WarInfo.rivalFindAtcSum(): Int {
-    return war.rival.playArea.cards.sumOf { it.atc }
+    return rivalAllCardsByPlayArea().sumOf { it.atc }
 }
 /**
  * 敌方攻击最高的随从
  */
-fun WarInfo.rivalFindMaxAttackMinion(): Card? {
-    return war.rival.playArea.cards
+fun WarInfo.rivalFindMaxAtcMinion(): Card? {
+    return rivalAllCardsByPlayArea()
         .filter { it.cardType == CardTypeEnum.MINION }
         .maxByOrNull { it.atc }
 }
@@ -38,3 +38,5 @@ fun WarInfo.rivalPlayAreaSize(): Int{
 fun WarInfo.rivalIsNotCardByPlayArea():Boolean{
     return rivalAllCardsByPlayArea().isEmpty()
 }
+
+fun WarInfo.rivalBlood() = war.rival.playArea.hero!!.blood()

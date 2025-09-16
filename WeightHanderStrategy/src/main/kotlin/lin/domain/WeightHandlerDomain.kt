@@ -2,13 +2,15 @@ package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
+import lin.domain.context.NotWeight
+import lin.domain.context.UnUseWeight
 import lin.domain.result.EmptyWeightResult
 import lin.domain.result.EndWeightResult
 import lin.domain.result.WeightResult
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.utils.serviceLoader.ServiceLoaderUtils
-import lin.warExt.base.getCost
+import lin.warExt.my.base.getCost
 import lin.weightHandler.DiscoverWeightHandler
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
@@ -55,11 +57,22 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
      */
     private fun processWeight(weightResult: EndWeightResult) {
         weightResult.canUseCards.forEach { comboCard ->
-            weightHandlers.forEach { it.cardWeightProcess(comboCard, warManage) }
-            weightResult.processWeightAfter(comboCard)
+            for (weightHandler in weightHandlers) {
+                val calWeight = weightHandler.cardWeightProcess(comboCard, warManage)
+                if (calWeight != NotWeight) {
+                    //不使用结束循环
+                    if (calWeight == UnUseWeight) {
+                        comboCard.unUse()
+                        weightResult.processWeightAfter(comboCard)
+                        break
+                    }
+                    comboCard.addWeight(calWeight)
+                }
+                weightResult.processWeightAfter(comboCard)
+            }
         }
-
     }
+
 
     /**
      * 查找组合
@@ -72,7 +85,7 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         myLog.info { "执行查组组合" }
         val weightResult = EndWeightResult(canUseCardsByCost, cost)
         processWeight(weightResult)
-        if (weightResult.notAbleUseCards()) return EmptyWeightResult
+        if (weightResult.notAbleUseCards()) return weightResult
 
         val weightResultByFindStrategy = processFindStrategy(weightResult)
         if (weightResultByFindStrategy != EmptyWeightResult) return weightResultByFindStrategy
@@ -126,7 +139,7 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
 
     }
 
-    fun pointToDouble(number: Double): Int {
+    private fun pointToDouble(number: Double): Int {
         val decimalStr = "%.3f".format(number)  // 使用足够精度格式化
         val decimalIndex = decimalStr.indexOf('.')
 

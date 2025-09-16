@@ -12,7 +12,8 @@ class DropParse : ParseCardWeightInfo {
         //发现地标
         infoMap["WON_103"]?.run {
             addUseStrategy(UseAfterLClick)
-            addUseStrategy(DiscoverUseStrategy)
+            //地标不触发发现,取消该逻辑
+            //addUseStrategy(DiscoverUseStrategy)
         }
         //过期期货
         infoMap["ULD_163"]?.toDie = true

@@ -7,7 +7,7 @@ import lin.serviceLoader.weightRule.WeightCondition
 import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.DepToPredicate
 import lin.serviceLoader.weightRule.utils.PredicateGroup
-import lin.warExt.base.getCost
+import lin.warExt.my.base.getCost
 
 class DropMin : WeightCondition, DepWeightGroupDelegate<DepToPredicate> by PredicateGroup() {
     /**

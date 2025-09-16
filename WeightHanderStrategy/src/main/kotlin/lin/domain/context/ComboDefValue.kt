@@ -16,7 +16,7 @@ const val TwoAnimationTime: Long = 1000 * 2
 const val FourAnimationTime: Long = AwaitAnimationTime * 4
 
 
-const val MaxStackNum: Int = 10
+
 
 
 

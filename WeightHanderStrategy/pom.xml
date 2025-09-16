@@ -86,6 +86,12 @@
             <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.xjw580</groupId>
+            <artifactId>hs-script-app</artifactId>
+            <version>v4.9.0-GA</version>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 
