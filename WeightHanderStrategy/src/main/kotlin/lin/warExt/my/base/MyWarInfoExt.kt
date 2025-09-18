@@ -13,6 +13,8 @@ fun WarInfo.getPlayCardSize(): Int {
 }
 fun WarInfo.hasWeapon() = war.me.playArea.weapon != null
 
+
+fun WarInfo.meBlood() = war.me.playArea.hero!!.blood()
 fun WarInfo.getHandCards(): List<Card> {
     return war.me.handArea.cards
 }

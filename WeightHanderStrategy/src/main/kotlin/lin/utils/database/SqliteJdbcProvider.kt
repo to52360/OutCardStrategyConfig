@@ -52,4 +52,4 @@ class SqliteJdbcProvider(private val dbPath: Path) {
     }
 }
 private val rootPath = System.getProperty("user.dir")
-val DefDBUrl: Path = Path.of(rootPath, "weightHandlerStrategy.db")
+val DefDBUrl: Path = Path.of(rootPath, "/plugin/WeightHandlerStrategy/weightHandlerStrategy.db")

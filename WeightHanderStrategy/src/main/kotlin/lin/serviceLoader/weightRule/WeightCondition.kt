@@ -12,7 +12,7 @@ import lin.domain.context.CostWeight
 interface WeightCondition : WeightRule, GroupWeight {
     //唯一
     override fun id(): String {
-        return name()
+        return this.javaClass.simpleName
     }
     fun name(): String {
         return this.javaClass.simpleName

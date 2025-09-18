@@ -7,6 +7,7 @@ import lin.serviceLoader.weightRule.DepProcessor
 import lin.serviceLoader.weightRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.bean.ConditionGroup
+import lin.weightHandler.condition.config.WeightConditionDao
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -25,8 +26,24 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
         myLog.info {
             "加载到的条件组id:${groupCondition.keys}"
         }
+        /**
+         * ui相关信息
+         */
+        run {
+            val weightConditionDao = get<WeightConditionDao>()
+            if (weightGroupInfos.isNotEmpty()) {
+                weightConditionDao.saveIds(weightGroupInfos.keys)
+            }
+            if (groupCondition.isNotEmpty()) {
+                weightConditionDao.saveAll(groupCondition.values)
+            }
+
+
+        }
+
 
     }
+
 
     fun parseConditionGroup(conditionGroup: ConditionGroup) {
         val weightConditionId = conditionGroup.weightConditionId

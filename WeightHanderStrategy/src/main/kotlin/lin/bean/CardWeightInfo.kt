@@ -23,7 +23,7 @@ import org.koin.core.component.get
 data class CardWeightInfo(
     val cardId: String,
     val powerWeight: Double,
-    val groupId: Double = 0.0,
+    val groupId: Double = 1.0,
     val changeWeight: Double = NotWeight
 ) : KoinComponent {
 

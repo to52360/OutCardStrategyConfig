@@ -111,22 +111,6 @@
     </build>
 
     <dependencies>
-        <!--套牌插件SDK-->
-        <dependency>
-            <groupId>com.github.xjw580.Hearthstone-Script</groupId>
-            <artifactId>hs-script-strategy-sdk</artifactId>
-            <version>${sdk-version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-        <!--插件SDK-->
-        <dependency>
-            <groupId>com.github.xjw580.Hearthstone-Script</groupId>
-            <artifactId>hs-script-plugin-sdk</artifactId>
-            <version>${sdk-version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>

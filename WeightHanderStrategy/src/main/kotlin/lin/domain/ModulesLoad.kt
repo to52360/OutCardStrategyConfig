@@ -1,15 +1,7 @@
 package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.status.WAR
-import lin.WeightHandlerStrategy
-import lin.domain.combo.BEFORE
-import lin.domain.combo.CHANGE
-import lin.domain.combo.ChangeComboParse
-import lin.domain.combo.ComboImpl
-import lin.domain.combo.ComboParse
-import lin.domain.combo.DEF
-import lin.domain.combo.LAST
-import lin.domain.combo.LastUseCombo
+import lin.domain.combo.*
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.serviceLoader.module.ModulesInfo
@@ -23,6 +15,7 @@ import lin.utils.database.dao.CardInfoDao
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.config.ComboInfoDao
 import lin.weightHandler.condition.config.GroupStrategyDao
+import lin.weightHandler.condition.config.WeightConditionDao
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.named
 import org.koin.core.module.dsl.singleOf
@@ -35,6 +28,9 @@ class ModulesLoad {
         singleOf(::GroupStrategyDao)
         singleOf(::ComboInfoDao)
         singleOf(::CardInfoDao)
+
+        //ui广告
+        singleOf(::WeightConditionDao)
     }
     val parseCardWeightInfoModule = module {
         singleOf(::ParseCardRule) bind ParseCardWeightInfo::class

@@ -23,7 +23,12 @@ abstract class AbsWeightConditionDepToPredicate<Predicate : Any>(override var gr
         this.unConditionWeight = unConditionWeight
     }
 }
-
+abstract class AbsWeightCondition(override var groupWeight: Double = CostWeight) : WeightCondition {
+    protected var unConditionWeight: Double = NotWeight
+    override fun setUnCondWeight(unConditionWeight: Double) {
+        this.unConditionWeight = unConditionWeight
+    }
+}
 
 abstract class PredicateListByGroup : AbsWeightConditionDepToPredicate<DepToPredicateList>(), DepByWeightGroupId {
     override fun initByGroupIds(groupIds: Array<Double>) {
