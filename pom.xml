@@ -112,6 +112,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.github.xjw580</groupId>
+            <artifactId>hs-script-base-strategy-plugin</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kt-version}</version>
