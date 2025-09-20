@@ -10,6 +10,7 @@ import lin.domain.strategy.FindStrategy
 
 typealias ComboRule = (ComboCard) -> Double
 
+
 /**
  * @param card select 状态逃逸,增加复杂性和不太安全可能会改变,优点灵活
  * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
@@ -27,6 +28,8 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     //指定目标
     var pointCard: Card? = null
 
+    var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
+    var useGroupOrder: Double = cardWeightInfo?.useGroupOrder ?: DefUseGroupOrder
     //使用策略
     val lastUse: LastUse?
         get() = cardWeightInfo?.lastUse

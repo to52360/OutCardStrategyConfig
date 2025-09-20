@@ -10,15 +10,13 @@ import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.domain.war.SimpleCleanWar
+import lin.domain.strategy.UseStrategyUtils
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
-import lin.warExt.my.attack.attackAfterLessBlood
-import lin.warExt.my.attack.findMeAtc
 import lin.warExt.my.base.getCost
 import lin.warExt.my.base.getHandCards
 import lin.warExt.my.base.getPlayCards
@@ -26,6 +24,7 @@ import lin.warExt.my.base.playCardIsFull
 import lin.warExt.rival.rivalBlood
 import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 
 interface WarInfo {
@@ -61,6 +60,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         private set
     override val infoMap: Map<String, CardWeightInfo>
     override var extCost: Int = 0
+    private val useStrategyUtils = get<UseStrategyUtils>()
 
     inline fun consumeExtCost(extCost: Int, consumeCost: (Int) -> Unit) {
         this.extCost = extCost
@@ -94,6 +94,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      */
     private fun parseCombo(infoMap: Map<String, CardWeightInfo>) {
         val parseCardWeightInfo = getKoin().getAll<ParseCardWeightInfo>()
+        //todo-future 插入combo策略,应用不同的排序策略
         parseCardWeightInfo.forEach { it.parse(infoMap) }
     }
 
@@ -116,11 +117,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      * todo-future 使用最后一张的情况处理不了(无法判断是否有变更),会有问题
      */
     inline fun isChange(useCard: () -> ComboCard?): Boolean {
-        val beginCard = getHandCards().lastOrNull()
-        val expNum = getHandCards().size
         val useCard = useCard() //返回null表示打出失败
-        val nowNum = getHandCards().size
         useCard?.let {
+            val beginCard = getHandCards().lastOrNull()
+            val expNum = getHandCards().size
+            val nowNum = getHandCards().size
+
+
             if (nowNum >= expNum) {
                 return true
             } else {// 为弃牌写的
@@ -223,12 +226,25 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     fun tryUseCard(comboCard: ComboCard): Boolean {
         val card = comboCard.card
+        //费用不够
+        if (card.cost > getCost()) {
+            return false
+        }
+
         if (card.area !is HandArea) {//区域判断
             if (war.me.playArea.power != comboCard.card) //技能的处理
                 return false
         }
         var useResult = useCard(comboCard)
         if (!useResult && card.area is HandArea) {//再次尝试
+
+            //处理发现
+            if (useStrategyUtils.tryAwait()) {
+                //补偿发现动画
+                useResult = useCard(comboCard)
+            }
+
+
             //处理战场已满情况
             if (NotWeight == processPlayCardIsFull()) {
                 myLog.info { "再次尝试打出" }

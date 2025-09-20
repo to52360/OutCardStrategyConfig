@@ -11,6 +11,8 @@ import lin.serviceLoader.weightRule.WeightRule
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
+const val DefUseGroupId = 10
+const val DefUseGroupOrder = 10.0
 
 /**
  * 转化位置
@@ -79,6 +81,8 @@ data class CardWeightInfo(
     //combo相关
     //最后使用暂时这样,没想到其他方案
     var lastUse: LastUse? = null
+    var useGroupId = DefUseGroupId
+    var useGroupOrder = DefUseGroupOrder
     private var _combos: MutableList<Combo>? = null
 
     val combos: List<Combo>?

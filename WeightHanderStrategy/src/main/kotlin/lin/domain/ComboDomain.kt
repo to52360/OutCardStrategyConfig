@@ -5,7 +5,10 @@ import club.xiaojiawei.hsscriptbase.config.log
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
-import lin.domain.context.*
+import lin.domain.context.AwaitAnimationTime
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
+import lin.domain.context.UseSkillWeight
 import lin.domain.result.ChangeWeightResult
 import lin.domain.result.EndWeightResult
 import lin.domain.strategy.UseAfterStrategy
@@ -45,7 +48,7 @@ class ComboDomain : KoinComponent {
         javaClass.classLoader
     }
     private var unAbleUseCards: TreeSet<ComboCard>? = null
-    private val useStrategyUtils = UseStrategyUtils()
+    private val useStrategyUtils = get<UseStrategyUtils>()
 
     //存储策略分组
     init {
@@ -185,68 +188,49 @@ class ComboDomain : KoinComponent {
      */
     private fun executeUseCard(weightResult: EndWeightResult) {
         val bestCombination = weightResult.bestCombination
+        if (bestCombination.isEmpty()) return
         // 5. 执行找到的最佳出牌组合
-        if (bestCombination.isNotEmpty()) {
-
-            //只有一个处理
-            if (bestCombination.size == 1) {
-                useCardAndIsReload(bestCombination.first())
-                return
-            }
-
-
-            val needCost = bestCombination.sumOf { it.cost() }
-
-            //todo-future  打出优先级处理 combo情况处理
-            val bestCombinationCombo = bestCombination.sortedByDescending {
-                it.powerWeight
-            }
-            myLog.info {
-                val finalWeight = bestCombinationCombo.sumOf { it.powerWeight }
-                val msg =
-                    "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): $bestCombinationCombo"
-                msg
-            }
-
-
-            val expectCost = warManage.getCost() - needCost
-
-            //todo-future 这里使用策略有问题,要扩展要改源码
-            var lastUse: SortedSet<ComboCard>? = null
-            for (card in bestCombinationCombo) {
-                card.lastUse?.let {
-                    lastUse?.run {
-                        add(card)
-                    } ?: run {
-                        lastUse = sortedSetOf(
-                            compareByDescending<ComboCard> { it.lastUse!!.comboWeight }.thenBy {
-                                it.card.entityId
-                            }
-                        )
-                        lastUse.add(card)
-                    }
-                    myLog.info { "id:${card.cardId()},name:${card.card.entityName}添加到最后打出" }
-                } ?: run {
-                    if (useCardAndIsReload(card)) return
-                }
-            }
-            if (lastUse != null) {
-                for (lastUseCard in lastUse) {
-                    if (useCardAndIsReload(lastUseCard)) return
-                }
-            }
-
-            if (warManage.getCost() > expectCost) {//说明有些牌没打出去,通过补偿
-                val moreTryCard = weightResult.lessAbleUseCards()
-                if (moreTryCard.isNotEmpty()) {
-                    for (moreCard in moreTryCard) {
-                        if (useCardAndIsReload(moreCard)) return
-                    }
-                }
-            }
-
-
+        //只有一个处理
+        if (bestCombination.size == 1) {
+            useCardAndIsReload(bestCombination.first())
+            return
         }
+
+
+        val needCost = bestCombination.sumOf { it.cost() }
+        val expectCost = warManage.getCost() - needCost
+
+        /**
+         * todo-future 这个排序有重,可以根据不同上下切换
+         * 上下文判断入口
+         * [MyWarManage.parseCombo]
+         */
+        val bestCombinationCombo =
+            bestCombination.sortedWith(compareBy<ComboCard> { it.useGroupId }.thenBy { it.useGroupOrder }
+                .thenComparing { it.powerWeight })
+
+        myLog.info {
+            val finalWeight = bestCombinationCombo.sumOf { it.powerWeight }
+            val msg =
+                "找到最优出牌组合 (总费用: $needCost, 总权重: $finalWeight): $bestCombinationCombo"
+            msg
+        }
+
+        for (card in bestCombinationCombo) {
+            if (useCardAndIsReload(card)) return
+        }
+
+        if (warManage.getCost() > expectCost) {//说明有些牌没打出去,通过补偿
+            val moreTryCard = weightResult.lessAbleUseCards()
+            if (moreTryCard.isNotEmpty()) {
+                for (moreCard in moreTryCard) {
+                    if (useCardAndIsReload(moreCard)) return
+                }
+            }
+        }
+
+
+
     }
 
     fun List<UseBeforeStrategy>.executeAction(card: ComboCard, useStrategyUtils: UseStrategyUtils) {
@@ -297,6 +281,7 @@ class ComboDomain : KoinComponent {
 
     fun executeDiscoverChooseCard(vararg cards: Card): Int {
         try {
+            useStrategyUtils.tryRegister()
             var index = 0
             threadContext {
                 index = weightHandlerDomain.executeDiscoverChooseCard(*cards)

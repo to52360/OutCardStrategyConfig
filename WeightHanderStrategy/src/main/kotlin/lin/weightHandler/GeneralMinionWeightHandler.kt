@@ -5,7 +5,7 @@ import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
 import lin.domain.context.BaseWeight
-import lin.domain.context.HalfCostWeight
+import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.myLog
@@ -17,8 +17,12 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
-        return processPlayFull(callCard, warManage)
-
+        val result = processPlayFull(callCard, warManage)
+        if (result == UnUseWeight) {
+            return result
+        } else {
+            return cardWeight(callCard)
+        }
     }
     override fun cardWeight(comboCard: ComboCard):Double{
         val card = comboCard.card
@@ -35,8 +39,13 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
                     myLog.info {
                         "${card.entityName}的特征权重:${weigh}"
                     }
-                    var result = (baseWeight + weigh) * HalfCostWeight
-                    if (result < 0) result = BaseWeight //费用增加的情况,严重亏模的情况 可能导致负数
+                    var result = (baseWeight + weigh) * CostWeight
+
+                    //费用增加的情况,严重亏模的情况 避免导致负数
+                    if (result < 0) result = BaseWeight
+
+                    //避免权重太夸张
+                    if (result > CostWeight) result = CostWeight
                     cache[card.cardId + card.cost] = result
                     return result
                 }

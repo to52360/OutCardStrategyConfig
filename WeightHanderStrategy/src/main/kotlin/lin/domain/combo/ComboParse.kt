@@ -6,13 +6,15 @@ import lin.bean.ComboRule
 import lin.domain.context.NotWeight
 import lin.myLog
 
-const val LAST = "last"
-const val BEFORE = "before"
-const val DEF = "def"
-const val CHANGE = "change"
-
 
 interface ComboParse {
+    companion object {
+        const val LAST = "last"
+        const val BEFORE = "before"
+        const val DEF = "def"
+        const val CHANGE = "change"
+        const val FIRST = "first"
+    }
     fun parse(cardGroupInfos: Map<Double, List<CardWeightInfo>>, comboInfo: ComboInfo)
 }
 

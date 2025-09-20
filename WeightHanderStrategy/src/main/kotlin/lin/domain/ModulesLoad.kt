@@ -2,6 +2,12 @@ package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.status.WAR
 import lin.domain.combo.*
+import lin.domain.combo.ComboParse.Companion.BEFORE
+import lin.domain.combo.ComboParse.Companion.CHANGE
+import lin.domain.combo.ComboParse.Companion.DEF
+import lin.domain.combo.ComboParse.Companion.FIRST
+import lin.domain.combo.ComboParse.Companion.LAST
+import lin.domain.strategy.UseStrategyUtils
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.serviceLoader.module.ModulesInfo
@@ -43,6 +49,7 @@ class ModulesLoad {
         singleOf(::ComboImpl) { named(DEF) } bind ComboParse::class
         singleOf(::ComboImpl) { named(BEFORE) } bind ComboParse::class
         singleOf(::ChangeComboParse) { named(CHANGE) } bind ComboParse::class
+        singleOf(::FirstUseCombo) { named(FIRST) } bind ComboParse::class
     }
 
     val mainModule = module {
@@ -51,9 +58,13 @@ class ModulesLoad {
         singleOf(::WeightHandlerDomain)
     }
 
+    val utilsModule = module {
+        singleOf(::UseStrategyUtils)
+    }
+
     fun loadModules() {
         startKoin {
-            modules(mainModule, dbModules, parseCardWeightInfoModule, comBoInfoModule)
+            modules(mainModule, dbModules, parseCardWeightInfoModule, comBoInfoModule, utilsModule)
             modules(module { singleOf(::LifecycleRegisterImpl) bind LifecycleRegister::class })
             val extraModule = ServiceLoaderUtils.loadServices(ModulesInfo::class.java)
             extraModule.forEach {
@@ -62,4 +73,6 @@ class ModulesLoad {
         }
 
     }
+
+
 }

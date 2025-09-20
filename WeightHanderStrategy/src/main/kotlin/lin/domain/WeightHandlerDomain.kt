@@ -116,17 +116,18 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
      */
     fun executeDiscoverChooseCard(vararg cards: Card): Int{
         var maxIndex = 0
-        var maxWeight = 0.0
+        var maxWeight = NotWeight
         for(i in cards.indices){
             val comboCard = warManage.parseComboCard(cards[i])
+            var baseWeight = NotWeight
             discoverWeightHandlers.forEach {
-                it.cardWeight(comboCard)
+                baseWeight += it.cardWeight(comboCard)
             }
             val extWeight = pointToDouble(comboCard.basePowerWeight)
             if (extWeight != 0) {
                 myLog.info { "id:${comboCard.cardId()},额外权重:$extWeight,也就是weight小数部分" }
             }
-            val finalWeight = comboCard.powerWeight + extWeight
+            val finalWeight = baseWeight + extWeight
             if (finalWeight > maxWeight) {
                 maxWeight = finalWeight
                 maxIndex = i

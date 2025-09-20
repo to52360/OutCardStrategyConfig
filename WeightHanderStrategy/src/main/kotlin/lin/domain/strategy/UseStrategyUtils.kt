@@ -18,17 +18,33 @@ class UseStrategyUtils {
 
     fun await() {
         if (useResult) {
-            countDownLatch?.run {
-                if (count != 0L) {
-                    myLog.info { "进入同步,等待发现" }
-                    await(FourAnimationTime, TimeUnit.MILLISECONDS)
-                }
-                myLog.info { "阻塞等待发现操作" }
-                //等待发现动画
-                Thread.sleep(FourAnimationTime)
-            }
+            tryAwait()
         }
-        clean()
+
+    }
+
+    fun tryAwait(): Boolean {
+        countDownLatch?.run {
+            if (count != 0L) {
+                myLog.info { "进入同步,等待发现" }
+                await(FourAnimationTime, TimeUnit.MILLISECONDS)
+            }
+            myLog.info { "阻塞等待发现操作" }
+            //等待发现动画
+            Thread.sleep(FourAnimationTime)
+            clean()
+            return true
+        }
+        return false
+    }
+
+    /**
+     * 没有定义的时候处理
+     */
+    fun tryRegister() {
+        countDownLatch ?: run {
+            countDownLatch = CountDownLatch(1)
+        }
     }
 
     fun down() {

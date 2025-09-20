@@ -1,14 +1,38 @@
 package lin.domain.combo
 
-import lin.bean.*
+import lin.bean.CardWeightInfo
+import lin.bean.Combo
+import lin.bean.ComboInfo
+import lin.bean.ComboRule
+
 
 class LastUseCombo : ValidBindComboParse {
+    companion object {
+        const val LastUseGroupId = 20
+    }
 
     override fun processBindCombo(
         cardWeightInfos: List<CardWeightInfo>, comboInfo: ComboInfo
     ) {
         cardWeightInfos.forEach {
-            it.lastUse = LastUse(comboInfo.comboWeight)
+            it.useGroupId = LastUseGroupId
+            it.useGroupOrder = comboInfo.comboWeight
+        }
+    }
+
+}
+
+class FirstUseCombo : ValidBindComboParse {
+    companion object {
+        const val FirstUseGroupId = 0
+    }
+
+    override fun processBindCombo(
+        cardWeightInfos: List<CardWeightInfo>, comboInfo: ComboInfo
+    ) {
+        cardWeightInfos.forEach {
+            it.useGroupId = FirstUseGroupId
+            it.useGroupOrder = comboInfo.comboWeight
         }
     }
 

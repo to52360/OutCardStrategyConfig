@@ -1,6 +1,7 @@
 package lin.bean
 
-import lin.domain.combo.BEFORE
+
+import lin.domain.combo.ComboParse.Companion.BEFORE
 import lin.domain.context.NotWeight
 import lin.domain.context.OrderWeight
 import lin.myLog
