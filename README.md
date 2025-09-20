@@ -52,7 +52,7 @@ comboWeight多种语义(对扩展和维护有麻烦,暂时没空整理)
 ### 扩展(简单测试没问题)
 
 放在\plugin\WeightHandlerStrategy目录下
-服务发现使用java的SPI与Koin(现在只有ParseCardWeightInfo接口)
+服务发现使用java的SPI与Koin(koin只有ParseCardWeightInfo接口支持)
 1.组权重规则扩展  
 lin.serviceLoader.weightRule.WeightCondition  
 2.自定义权重信息获取  
