@@ -67,13 +67,25 @@
     <dependency>
       <groupId>com.github.xjw580</groupId>
       <artifactId>hs-script-base-strategy-plugin</artifactId>
-      <version>1.0.1</version>
+        <version>1.0.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
+        <groupId>com.github.xjw580</groupId>
+        <artifactId>hs-script-plugin-sdk</artifactId>
+        <version>1.0.2</version>
+        <scope>provided</scope>
+    </dependency>
+      <dependency>
+          <groupId>com.github.xjw580</groupId>
+          <artifactId>hs-script-card-sdk</artifactId>
+          <version>1.1.1</version>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
-      <version>2.0.20</version>
+          <version>2.2.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

@@ -117,13 +117,11 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      * todo-future 使用最后一张的情况处理不了(无法判断是否有变更),会有问题
      */
     inline fun isChange(useCard: () -> ComboCard?): Boolean {
+        val beginCard = getHandCards().lastOrNull()
+        val expNum = getHandCards().size
         val useCard = useCard() //返回null表示打出失败
         useCard?.let {
-            val beginCard = getHandCards().lastOrNull()
-            val expNum = getHandCards().size
             val nowNum = getHandCards().size
-
-
             if (nowNum >= expNum) {
                 return true
             } else {// 为弃牌写的
@@ -240,13 +238,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
             //处理发现
             if (useStrategyUtils.tryAwait()) {
-                //补偿发现动画
+                //补偿发现动画,导致无法打出
                 useResult = useCard(comboCard)
             }
 
 
             //处理战场已满情况
-            if (NotWeight == processPlayCardIsFull()) {
+            if (!useResult && NotWeight == processPlayCardIsFull()) {
                 myLog.info { "再次尝试打出" }
                 useResult = useCard(comboCard)
             }
@@ -330,7 +328,9 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 runnable()
                 //usePower()//使用技能
                 //activeLocation()
-                myLog.info { "完成所有操作清理战场" }
+                myLog.info { "完成所有操作,执行清理战场" }
+                //使用地标
+                activeLocation()
                 //清场
                 cleanPlay()
             } else {
