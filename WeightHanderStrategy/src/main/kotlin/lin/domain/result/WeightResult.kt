@@ -1,10 +1,8 @@
 package lin.domain.result
 
 import lin.bean.ComboCard
-import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.myLog
-import java.util.*
 
 sealed class WeightResult {
     open fun weightSum(): Double {
@@ -22,16 +20,16 @@ class EndWeightResult(
     val cost: Int,
     val bestCombo: BestCombination = DefaultBestCombination
 ) : WeightResult() {
-    //todo-future 存在直接操作权重,导致查找不到元素
+    //todo-future 存在直接操作权重,导致查找不到元素 想改成ArrayList,太复杂了,后面再说
     private val _canUseCardsByHandler =
         sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
     val canUseCardsByHandler: Set<ComboCard>
         get() = _canUseCardsByHandler
-    val unUseCards: TreeSet<ComboCard>
+    val unUseCards: MutableList<ComboCard>
         get() = _unUseCards
 
     //todo-future 存在直接操作权重,导致查找不到元素
-    private val _unUseCards = sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
+    private val _unUseCards = mutableListOf<ComboCard>()
     var bestCombination: List<ComboCard> = emptyList()
         private set
 

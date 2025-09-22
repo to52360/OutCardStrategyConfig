@@ -2,7 +2,7 @@ package lin.serviceLoader.weightRule.onWar
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo
-import lin.domain.combo.FirstUseCombo.Companion.FirstUseGroupId
+import lin.domain.combo.CleanWarId
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.lifecycle.RoundLifecycle
@@ -31,7 +31,7 @@ abstract class ReleaseWar(val warCardGap: Int, val rivalAtc: Int, val lessBlood:
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val weight = calWeight(warInfo)
         if (weight > NotWeight) {
-            callCard.useGroupId = FirstUseGroupId
+            callCard.useGroupId = CleanWarId
             return weight
         }
         //todo 存在会打出情况

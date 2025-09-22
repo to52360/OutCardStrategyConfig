@@ -21,6 +21,9 @@ fun WarInfo.getHandCards(): List<Card> {
 fun WarInfo.playCardIsFull(): Boolean {
     return getPlayCards().size == 7
 }
+fun WarInfo.getPower() = war.me.playArea.power
+
+fun WarInfo.isPower(card: Card): Boolean = getPower() == card
 
 fun WarInfo.getCost() = getNowCost() + extCost
 

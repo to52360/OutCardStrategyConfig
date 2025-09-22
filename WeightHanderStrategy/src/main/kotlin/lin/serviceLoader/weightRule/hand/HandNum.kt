@@ -8,27 +8,21 @@ import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 /**
  * 手牌数量决定权重
  */
-abstract class HandNum(val handSize: Int) : AbstractHandArea() {
-    var unConditionWeight = NotWeight
-    override fun setUnCondWeight(unConditionWeight: Double) {
-        this.unConditionWeight = unConditionWeight
-    }
-
+class HandNumWeight() : AbstractHandArea() {
     override fun onWarInfoProcessWeight(handCards: List<ComboCard>): Double {
-        return if (handCards.size < handSize) {
-            groupWeight
-        } else {
-            unConditionWeight
-        }
+        return handCards.size * groupWeight
     }
 }
 
 abstract class AbsHandNum(val filterList: (List<ComboCard>) -> List<ComboCard> = { it }) : AbsWeightCondition() {
+    override fun description(): String {
+        return "groupWeight作为真正的权重,unConditionWeight和powerWeight用来判断数量"
+    }
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        val weight = filterList(warInfo.handComboCards).size * groupWeight
+        val weight = filterList(warInfo.handComboCards).size * unConditionWeight
         if (callCard.powerWeight < NotWeight) {
             val useWeight = callCard.powerWeight + weight
-            if (useWeight > NotWeight) return callCard.getExpectWeight(weight)
+            if (useWeight > NotWeight) return callCard.getExpectWeight(groupWeight)
         }
         return weight
     }

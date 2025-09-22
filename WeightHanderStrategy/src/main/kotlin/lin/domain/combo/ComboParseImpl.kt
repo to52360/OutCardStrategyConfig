@@ -4,11 +4,15 @@ import lin.bean.CardWeightInfo
 import lin.bean.Combo
 import lin.bean.ComboInfo
 import lin.bean.ComboRule
+import lin.domain.combo.ComboParse.Companion.FirstUseGroupId
+import lin.domain.combo.ComboParse.Companion.LastUseGroupId
 
+const val ChangeGroupId = 0
+const val CleanWarId = 1
 
 class LastUseCombo : ValidBindComboParse {
     companion object {
-        const val LastUseGroupId = 20
+
     }
 
     override fun processBindCombo(
@@ -23,9 +27,6 @@ class LastUseCombo : ValidBindComboParse {
 }
 
 class FirstUseCombo : ValidBindComboParse {
-    companion object {
-        const val FirstUseGroupId = 0
-    }
 
     override fun processBindCombo(
         cardWeightInfos: List<CardWeightInfo>, comboInfo: ComboInfo

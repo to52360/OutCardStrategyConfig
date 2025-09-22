@@ -31,7 +31,7 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
             if (CardTypeEnum.MINION == card.cardType) {
                 val c = cache[card.cardId + card.cost]
                 if (c == null) {
-                    val baseWeight = (card.atc + card.health) - card.cost * 2
+                    val baseWeight = (card.atc + card.health) - (card.cost * 2)
                     myLog.info {
                         "${card.entityName}的基础权重:${baseWeight}"
                     }
@@ -39,7 +39,7 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
                     myLog.info {
                         "${card.entityName}的特征权重:${weigh}"
                     }
-                    var result = (baseWeight + weigh) * CostWeight
+                    var result = baseWeight + weigh * CostWeight
 
                     //费用增加的情况,严重亏模的情况 避免导致负数
                     if (result < 0) result = BaseWeight

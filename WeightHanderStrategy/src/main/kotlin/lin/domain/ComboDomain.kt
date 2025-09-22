@@ -5,11 +5,9 @@ import club.xiaojiawei.hsscriptbase.config.log
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
-import lin.domain.context.AwaitAnimationTime
-import lin.domain.context.CostWeight
-import lin.domain.context.NotWeight
-import lin.domain.context.UseSkillWeight
+import lin.domain.context.*
 import lin.domain.result.ChangeWeightResult
+import lin.domain.result.DefaultBestCombination
 import lin.domain.result.EndWeightResult
 import lin.domain.strategy.UseAfterStrategy
 import lin.domain.strategy.UseBeforeStrategy
@@ -18,9 +16,9 @@ import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.my.base.getCost
+import lin.warExt.my.base.getPower
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.util.*
 
 
 /**
@@ -36,7 +34,10 @@ import java.util.*
 const val MaxStackNum: Int = 10
 
 class ComboDomain : KoinComponent {
-
+    companion object {
+        val USE_ORDER = compareBy<ComboCard> { it.useGroupId }.thenBy { it.useGroupOrder }
+            .thenByDescending { it.powerWeight }
+    }
 
     //SPI没法抛异常把把val 改为 lateinit var
     //存储转化权重信息
@@ -47,7 +48,7 @@ class ComboDomain : KoinComponent {
         myLog.warn { "没有获取到类加载器" }
         javaClass.classLoader
     }
-    private var unAbleUseCards: TreeSet<ComboCard>? = null
+    private var unAbleUseCards: MutableList<ComboCard>? = null
     private val useStrategyUtils = get<UseStrategyUtils>()
 
     //存储策略分组
@@ -99,7 +100,7 @@ class ComboDomain : KoinComponent {
     private var skillComboCard: ComboCard? = null
     fun processSkill() {
         fun createSkill() {
-            skillComboCard = warManage.war.me.playArea.power?.let {
+            skillComboCard = warManage.getPower()?.let {
                 val skill = ComboCard(null, it)
                 skill.addWeight(UseSkillWeight)
                 skill
@@ -123,19 +124,22 @@ class ComboDomain : KoinComponent {
         myLog.info { "处理剩余费用,处理列表:${unAbleUseCards}" }
         val costWeight = CostWeight * warManage.getCost()
 
-        //todo-future 可能报纸不打零费牌
+        //todo-future 可能导致不打零费牌
         if (costWeight == NotWeight) return false
 
         unAbleUseCards?.let { unAbleUseCards ->
             skillComboCard?.also {
                 unAbleUseCards.add(it)
             }
-            for (unAbleUseCard in unAbleUseCards) {
-                if (costWeight + unAbleUseCard.powerWeight < NotWeight) return false
-                if (unAbleUseCard.cost() <= warManage.getCost()) {
-                    if (useCardAndIsReload(unAbleUseCard)) return true
+            unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.powerWeight < NotWeight }
+            if (unAbleUseCards.isNotEmpty()) {
+                val bestCombos = DefaultBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
+                    .sortedWith(USE_ORDER)
+                for (bestCombo in bestCombos) {
+                    if (useCardAndIsReload(bestCombo)) return true
                 }
             }
+
         } ?: run {
             skillComboCard?.also {
                 return useCardAndIsReload(it)
@@ -152,7 +156,7 @@ class ComboDomain : KoinComponent {
         myLog.info { "执行出牌策略" }
         executeEnvironment {
             findAndUse()
-            processLessCost()
+            //processLessCost()
         }
     }
 
@@ -160,18 +164,23 @@ class ComboDomain : KoinComponent {
      * 该方法会循环调用
      */
     private fun findAndUse() {
-        findAndUseStatusProcess {
+        findAndUseTransaction {
             val weightResult = weightHandlerDomain.findCombination()
 
             if (weightResult is EndWeightResult) {
                 myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
                 unAbleUseCards = weightResult.unUseCards
+                myLog.info { "不能使用的牌:${unAbleUseCards}" }
                 executeUseCard(weightResult)
+
             }
         }
     }
 
-    private inline fun findAndUseStatusProcess(runnable: () -> Unit) {
+    /**
+     * 查询和使用的事务
+     */
+    private inline fun findAndUseTransaction(runnable: () -> Unit) {
         if (stackNum == MaxStackNum) {
             log.warn { "栈过深" }
             return
@@ -188,17 +197,34 @@ class ComboDomain : KoinComponent {
      */
     private fun executeUseCard(weightResult: EndWeightResult) {
         val bestCombination = weightResult.bestCombination
-        if (bestCombination.isEmpty()) return
+        val result = useCombo(bestCombination)
+        //重新执行
+        if (result) return
+        val moreTryCard = weightResult.lessAbleUseCards()
+        if (moreTryCard.isNotEmpty()) {
+            unAbleUseCards?.addAll(moreTryCard)
+        }
+        processLessCost()
+        unAbleUseCards = null
+
+
+    }
+
+    /**
+     * @return false 为执行完毕,true为重新调用
+     */
+    fun useCombo(bestCombination: List<ComboCard>): Boolean {
+
+        if (bestCombination.isEmpty()) return false
         // 5. 执行找到的最佳出牌组合
         //只有一个处理
         if (bestCombination.size == 1) {
             useCardAndIsReload(bestCombination.first())
-            return
+            return false
         }
 
 
         val needCost = bestCombination.sumOf { it.cost() }
-        val expectCost = warManage.getCost() - needCost
 
         /**
          * todo-future 这个排序有重,可以根据不同上下切换
@@ -206,8 +232,7 @@ class ComboDomain : KoinComponent {
          * [MyWarManage.parseCombo]
          */
         val bestCombinationCombo =
-            bestCombination.sortedWith(compareBy<ComboCard> { it.useGroupId }.thenBy { it.useGroupOrder }
-                .thenComparing { it.powerWeight })
+            bestCombination.sortedWith(USE_ORDER)
 
         myLog.info {
             val finalWeight = bestCombinationCombo.sumOf { it.powerWeight }
@@ -217,21 +242,11 @@ class ComboDomain : KoinComponent {
         }
 
         for (card in bestCombinationCombo) {
-            if (useCardAndIsReload(card)) return
+            if (useCardAndIsReload(card)) return true
         }
-
-        if (warManage.getCost() > expectCost) {//说明有些牌没打出去,通过补偿
-            val moreTryCard = weightResult.lessAbleUseCards()
-            if (moreTryCard.isNotEmpty()) {
-                for (moreCard in moreTryCard) {
-                    if (useCardAndIsReload(moreCard)) return
-                }
-            }
-        }
-
-
-
+        return false
     }
+
 
     fun List<UseBeforeStrategy>.executeAction(card: ComboCard, useStrategyUtils: UseStrategyUtils) {
         this.forEach {
@@ -253,13 +268,13 @@ class ComboDomain : KoinComponent {
             card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
             if (useResult) {
                 myLog.info { "打出等待动画" }
-                Thread.sleep(AwaitAnimationTime)
+                Thread.sleep(UseAnimationTime)
                 card
             } else null
         }
         if (changeResult) {
             myLog.info { "有变化,重新查询combo,等待变化动画" }
-            Thread.sleep(AwaitAnimationTime)
+            Thread.sleep(ChangeAnimationTime)
             warManage.reLoad()
             findAndUse()
         }

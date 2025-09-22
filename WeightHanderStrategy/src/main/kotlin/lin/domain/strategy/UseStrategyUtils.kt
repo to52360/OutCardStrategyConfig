@@ -31,7 +31,7 @@ class UseStrategyUtils {
             }
             myLog.info { "阻塞等待发现操作" }
             //等待发现动画
-            Thread.sleep(FourAnimationTime)
+            //Thread.sleep(ChangeAnimationTime)
             clean()
             return true
         }

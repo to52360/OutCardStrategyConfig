@@ -14,6 +14,8 @@ interface ComboParse {
         const val DEF = "def"
         const val CHANGE = "change"
         const val FIRST = "first"
+        const val LastUseGroupId = 20
+        const val FirstUseGroupId = 5
     }
     fun parse(cardGroupInfos: Map<Double, List<CardWeightInfo>>, comboInfo: ComboInfo)
 }

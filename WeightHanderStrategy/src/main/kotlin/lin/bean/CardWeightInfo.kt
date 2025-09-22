@@ -80,7 +80,6 @@ data class CardWeightInfo(
 
     //combo相关
     //最后使用暂时这样,没想到其他方案
-    var lastUse: LastUse? = null
     var useGroupId = DefUseGroupId
     var useGroupOrder = DefUseGroupOrder
     private var _combos: MutableList<Combo>? = null

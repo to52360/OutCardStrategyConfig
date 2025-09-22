@@ -28,11 +28,14 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     //指定目标
     var pointCard: Card? = null
 
+    //使用卡牌分组和排序
     var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
+        set(value) { //目前没有处理与基础信息冲突策略,先不允许改
+            if (field != DefUseGroupId)
+                field = value
+        }
     var useGroupOrder: Double = cardWeightInfo?.useGroupOrder ?: DefUseGroupOrder
-    //使用策略
-    val lastUse: LastUse?
-        get() = cardWeightInfo?.lastUse
+
     val useAfterStrategy
         get() = cardWeightInfo?.useAfterStrategy
     val useBeforeStrategy
@@ -104,7 +107,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
      * 获取指定权重
      */
     fun getExpectWeight(expectWeight: Double): Double {
-        return powerWeight - expectWeight
+        return expectWeight - powerWeight
     }
 
     /**

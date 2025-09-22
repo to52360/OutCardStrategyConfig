@@ -62,7 +62,7 @@ class ExtCostStrategy(val cost: Int) : FindStrategy {
 
             val extCostWeight = extCostWeightResult.weightSum() - reduceWeight
             extCostWeightResult.log()
-            if (nowWeight > extCostWeight) {
+            if (nowWeight >= extCostWeight) {
                 return nowWeightResult
             } else {
                 warManage.useCardAndRemove(extCostCard)
@@ -77,8 +77,9 @@ class ExtCostStrategy(val cost: Int) : FindStrategy {
 /**
  * 变更手牌策略
  * 主要是优化性能,加不加都没区别
+ * 会导致栈溢出,用不上
  */
-object ChangeStrategy : FindStrategy {
+/*object ChangeStrategy : FindStrategy {
     override fun find(
         weightResult: EndWeightResult,
         weightHandlerDomain: WeightHandlerDomain
@@ -89,7 +90,7 @@ object ChangeStrategy : FindStrategy {
         return weightHandlerDomain.findCombination(canUseCardsByCost = warManage.canUseCards)
     }
 
-}
+}*/
 
 
 

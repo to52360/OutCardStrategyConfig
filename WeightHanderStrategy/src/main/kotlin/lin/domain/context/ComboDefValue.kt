@@ -12,7 +12,8 @@ const val UseSkillWeight = -11.0
 
 //每个人都不同 等待动作的操作 例如等待发现的动作
 const val AwaitAnimationTime: Long = 1000
-const val TwoAnimationTime: Long = 1000 * 2
+const val UseAnimationTime: Long = 500
+const val ChangeAnimationTime: Long = 1500
 const val FourAnimationTime: Long = AwaitAnimationTime * 4
 
 
