@@ -15,6 +15,7 @@ class GroupStrategyDao(private val jdbcTemplate: JdbcTemplate) {
                 depByWeightIds = rs.toDouble("depByWeightIds"),
                 weight = rs.getDoubleOrNull("weight"),
                 unConditionWeight = rs.getDoubleOrNull("unConditionWeight"),
+                num = rs.getInt("num"),
             )
         }
     }

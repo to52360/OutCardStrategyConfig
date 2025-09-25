@@ -9,7 +9,12 @@ lin.serviceLoader.weightRule.onWar.OnWarByGroupId
 lin.serviceLoader.weightRule.onWar.buff.OnWarNum
 lin.serviceLoader.weightRule.onWar.buff.OnWarRaceNum
 lin.serviceLoader.weightRule.onWar.buff.PointDeathRattleCard
-lin.serviceLoader.weightRule.onWar.MaxReleaseWar
-lin.serviceLoader.weightRule.onWar.MinReleaseWar
+lin.serviceLoader.weightRule.onWar.DepNumRelWar
+lin.serviceLoader.weightRule.onWar.RivalNun
 
 lin.serviceLoader.weightRule.afterRule.HaloRule
+
+
+lin.serviceLoader.weightRule.status.HeroHasArmor
+lin.serviceLoader.weightRule.status.HeroWeightArmor
+

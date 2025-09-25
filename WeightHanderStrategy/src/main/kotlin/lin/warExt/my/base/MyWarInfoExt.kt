@@ -13,8 +13,19 @@ fun WarInfo.getPlayCardSize(): Int {
 }
 fun WarInfo.hasWeapon() = war.me.playArea.weapon != null
 
+fun WarInfo.hasArmor(): Boolean {
+    hero()?.let {
+        return getArmor(it) > 0
+    }
+    return false
+}
 
-fun WarInfo.meBlood() = war.me.playArea.hero!!.blood()
+fun getArmor(card: Card?) = card?.armor ?: 0
+
+
+fun WarInfo.hero() = war.me.playArea.hero
+
+fun WarInfo.meBlood() = hero()!!.blood()
 fun WarInfo.getHandCards(): List<Card> {
     return war.me.handArea.cards
 }

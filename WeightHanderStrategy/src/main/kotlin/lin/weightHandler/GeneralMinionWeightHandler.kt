@@ -18,40 +18,37 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
     private val cache  = hashMapOf<String,Double>()
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
         val result = processPlayFull(callCard, warManage)
-        if (result == UnUseWeight) {
-            return result
+        return if (result == UnUseWeight) {
+            result
         } else {
-            return cardWeight(callCard)
+            cardWeight(callCard)
         }
     }
     override fun cardWeight(comboCard: ComboCard):Double{
         val card = comboCard.card
 
-        if(comboCard.powerWeight == BaseWeight ) {
-            if (CardTypeEnum.MINION == card.cardType) {
-                val c = cache[card.cardId + card.cost]
-                if (c == null) {
-                    val baseWeight = (card.atc + card.health) - (card.cost * 2)
-                    myLog.info {
-                        "${card.entityName}的基础权重:${baseWeight}"
-                    }
-                    val weigh = getWeigh(card)
-                    myLog.info {
-                        "${card.entityName}的特征权重:${weigh}"
-                    }
-                    var result = baseWeight + weigh * CostWeight
-
-                    //费用增加的情况,严重亏模的情况 避免导致负数
-                    if (result < 0) result = BaseWeight
-
-                    //避免权重太夸张
-                    if (result > CostWeight) result = CostWeight
-                    cache[card.cardId + card.cost] = result
-                    return result
+        if (comboCard.basePowerWeight == BaseWeight && CardTypeEnum.MINION == card.cardType) {
+            val c = cache[card.cardId + card.cost]
+            if (c == null) {
+                val baseWeight = (card.atc + card.health) - (card.cost * 2)
+                myLog.info {
+                    "${card.entityName}的基础权重:${baseWeight}"
                 }
-                return c
+                val weigh = getWeigh(card)
+                myLog.info {
+                    "${card.entityName}的特征权重:${weigh}"
+                }
+                var result = baseWeight + weigh * CostWeight
 
+
+                //避免权重太夸张
+                if (result > CostWeight) result = CostWeight
+                cache[card.cardId + card.cost] = result
+                return result
             }
+            return c
+
+
         }
         return NotWeight
     }

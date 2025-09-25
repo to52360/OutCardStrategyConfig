@@ -25,7 +25,7 @@ class DropMin : WeightCondition, DepWeightGroupDelegate<DepToPredicate> by Predi
             if (cost <= 0) return -groupWeight
 
             //能够使用则减费用,不能使用就是最小值
-            if (card.useAble())
+            if (card.canUse())
                 cost -= card.cost()
             else
                 return -groupWeight

@@ -7,6 +7,9 @@ import lin.domain.combo.ComboParse.Companion.CHANGE
 import lin.domain.combo.ComboParse.Companion.DEF
 import lin.domain.combo.ComboParse.Companion.FIRST
 import lin.domain.combo.ComboParse.Companion.LAST
+import lin.domain.strategy.DefFindStrategy
+import lin.domain.strategy.ExtCostFindStrategy
+import lin.domain.strategy.FindComboStrategy
 import lin.domain.strategy.UseStrategyUtils
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
@@ -61,10 +64,14 @@ class ModulesLoad {
     val utilsModule = module {
         singleOf(::UseStrategyUtils)
     }
+    val findStrategy = module {
+        singleOf(::ExtCostFindStrategy) bind FindComboStrategy::class
+        singleOf(::DefFindStrategy) bind FindComboStrategy::class
+    }
 
     fun loadModules() {
         startKoin {
-            modules(mainModule, dbModules, parseCardWeightInfoModule, comBoInfoModule, utilsModule)
+            modules(mainModule, dbModules, parseCardWeightInfoModule, comBoInfoModule, utilsModule, findStrategy)
             modules(module { singleOf(::LifecycleRegisterImpl) bind LifecycleRegister::class })
             val extraModule = ServiceLoaderUtils.loadServices(ModulesInfo::class.java)
             extraModule.forEach {

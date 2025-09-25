@@ -1,6 +1,7 @@
 package lin.domain
 
 
+import club.xiaojiawei.hsscriptbasestrategy.util.DeckStrategyUtil
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.bean.War
 import club.xiaojiawei.hsscriptcardsdk.bean.area.HandArea
@@ -12,17 +13,21 @@ import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.domain.strategy.UseStrategyUtils
+import lin.lifecycle.StatusReset
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
+import lin.warExt.action.cleanPlayAll
 import lin.warExt.my.base.*
 import lin.warExt.rival.rivalBlood
 import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 
 
 interface WarInfo {
@@ -41,6 +46,12 @@ interface WarInfo {
     val infoMap: Map<String, CardWeightInfo>
 
     val extCost: Int
+
+    /**
+     * 用于重复调用,但是每回合只能调用一次
+     * @return 为true就执行过了
+     */
+    fun cleanPlayByRoundOnce(): Boolean
 }
 
 /**
@@ -71,9 +82,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     val toDieHandler = ToDieHandler(this)
 
 
-
+    //private val statusReset: StatusReset
     init {
         infoMap = getCardInfos()
+        /*      todo-future 有空在看一下,全局只执行一次
+                statusReset = StatusReset()
+
+                loadKoinModules(module{single{statusReset}})*/
         parseCombo(infoMap)
     }
 
@@ -197,6 +212,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      *未更新
      */
     fun useCardAndRemove(comBoCard: ComboCard) {
+
         if (tryUseCard(comBoCard)) {
             handComboCards -= comBoCard
             canUseCards -= comBoCard
@@ -228,11 +244,11 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     fun tryUseCard(comboCard: ComboCard): Boolean {
         val card = comboCard.card
-        //费用不够或者随从已满
-        if (card.cost > getCost()) {
+        //费用不够,动态变更为不能使用
+        if (card.cost > getCost() || comboCard.isUnUse()) {
             return false
         }
-
+        //随从已满
         if ((isFull && card.cardType == CardTypeEnum.MINION)) {
             comboCard.unUse()
             return false
@@ -252,7 +268,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 useResult = useCard(comboCard)
                 //执行清理战场,来清理发现动作
                 if (!useResult)
-                    cleanPlay()
+                    DeckStrategyUtil.cleanPlay()
             }
 
 
@@ -301,8 +317,20 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     fun reset() {
         isCleanWar = false
         isFull = false
+        //statusReset.reset()
     }
 
+    /**
+     * 没考虑并发
+     */
+    override fun cleanPlayByRoundOnce(): Boolean {
+        if (!isCleanWar) {
+            DeckStrategyUtil.cleanPlay()
+            isCleanWar = false
+            return true
+        }
+        return false
+    }
 
     fun processPlayCardIsFull(): Double {
         if (!isFull) {
@@ -343,25 +371,16 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
                 runnable()
                 //usePower()//使用技能
-                //activeLocation()
                 myLog.info { "完成所有操作,执行清理战场" }
                 //使用地标
                 activeLocation()
                 //清场
-                cleanPlay()
-                if (getPlayCards().any { it.canAttack() }) {//存在能攻击,再次调用
-                    cleanPlay()
-                }
+                cleanPlayAll()
             } else {
                 myLog.warn { "战场无效,不知道为啥会这样" }
             }
     }
 }
 
-private fun List<ComboCard>.isNotExecuteToDie(war: WarInfo): Boolean {
-    val sumAtc = sumOf { comboCard -> comboCard.card.atc }
-
-    return war.rivalBlood() - sumAtc < 10
-}
 
 

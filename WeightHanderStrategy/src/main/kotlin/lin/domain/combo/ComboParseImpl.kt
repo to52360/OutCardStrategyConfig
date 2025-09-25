@@ -7,8 +7,6 @@ import lin.bean.ComboRule
 import lin.domain.combo.ComboParse.Companion.FirstUseGroupId
 import lin.domain.combo.ComboParse.Companion.LastUseGroupId
 
-const val ChangeGroupId = 0
-const val CleanWarId = 1
 
 class LastUseCombo : ValidBindComboParse {
     companion object {

@@ -8,7 +8,7 @@ import lin.domain.WarInfo
 /**
  * 敌方场上随从攻击力总和
  */
-fun WarInfo.rivalFindAtcSum(): Int {
+fun WarInfo.findRivalAtcSum(): Int {
     return rivalAllCardsByPlayArea().sumOf { it.atc }
 }
 /**

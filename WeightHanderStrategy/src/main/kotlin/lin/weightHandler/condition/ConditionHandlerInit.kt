@@ -41,8 +41,7 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
             for (bindId in conditionGroup.bindId) {
                 val weightGroupInfo = weightGroupInfos[bindId]
                 if (weightGroupInfo == null) {
-                    val msg = "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId}"
-                    myLog.warn { msg }
+                    myLog.warn { "条件组需要绑定的数据没有在权重表找到,weight(bindId)为${conditionGroup.bindId[0]}" }
                     return
                 }
                 bindWeightInfos.addAll(weightGroupInfo)
@@ -78,6 +77,7 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
         //组权重处理
         weightCondition.groupWeight = conditionGroup.groupWeight
         weightCondition.setUnCondWeight(conditionGroup.unConditionWeight)
+        weightCondition.setNum(conditionGroup.num ?: 0)
 
         if (weightCondition is DepProcessor) {
             return weightCondition.processAndVerify(conditionGroup, weightGroupInfos)

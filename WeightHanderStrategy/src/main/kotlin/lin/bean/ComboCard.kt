@@ -5,25 +5,25 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.context.BaseWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.domain.strategy.FindStrategy
+import lin.domain.strategy.UseAfterStrategy
+import lin.domain.strategy.UseBeforeStrategy
 
 
 typealias ComboRule = (ComboCard) -> Double
 
 
 /**
- * @param card select 状态逃逸,增加复杂性和不太安全可能会改变,优点灵活
- * select 先进行可行性,再分析权责,重新设计ComboCard,例如combo组和condition是不是具有普适
+ *
+ * todo-future 1.为了快速实现,弄了个上帝类出来,有空再重构 2.为了方面使用弄了很多方法(应该用扩展方法去扩展)
+ *
  */
-class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
+class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     //com相关
     val weightRules = cardWeightInfo?.weightRules
     val combo = cardWeightInfo?.combos
     val changeWeight: Double
         get() = cardWeightInfo?.changeWeight ?: NotWeight
 
-    //查询组合策略
-    var findStrategy: FindStrategy? = cardWeightInfo?.findStrategy
 
     //指定目标
     var pointCard: Card? = null
@@ -36,10 +36,10 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
         }
     var useGroupOrder: Double = cardWeightInfo?.useGroupOrder ?: DefUseGroupOrder
 
-    val useAfterStrategy
-        get() = cardWeightInfo?.useAfterStrategy
-    val useBeforeStrategy
-        get() = cardWeightInfo?.useBeforeStrategy
+    var useAfterStrategy: MutableList<UseAfterStrategy>? = cardWeightInfo?.useAfterStrategy
+
+    var useBeforeStrategy: MutableList<UseBeforeStrategy>? = cardWeightInfo?.useBeforeStrategy
+
 
     //换牌策略
     val changeComboRule
@@ -56,7 +56,7 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
     // 出牌权重 可能作为权重优先级
     val powerWeight: Double
         get() = basePowerWeight + extPowerWeight
-    var extPowerWeight = NotWeight
+    var extPowerWeight: Double = card.cost.toDouble()
 
     /**
      * 权重累加方法
@@ -98,10 +98,13 @@ class ComboCard(private val cardWeightInfo: CardWeightInfo? = null, val card: Ca
      * todo-future 还需引入策略(全局策略,组策略,卡策略,来解决能不能使用),什么情况卖,什么情况不卖
      * 暂时 小于0为不可使用
      */
-    fun useAble(): Boolean = powerWeight >= NotWeight
+    fun canUse(): Boolean = powerWeight >= NotWeight
     fun unUse() {
         extPowerWeight = UnUseWeight
     }
+    fun isUnUse() = extPowerWeight == UnUseWeight
+
+
 
     /**
      * 获取指定权重

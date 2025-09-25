@@ -7,7 +7,13 @@ import lin.domain.context.CostWeight
  * [club.xiaojiawei.hsscriptcardsdk.bean.CardWeight.weight]整数部分条件组
  * 配置组权重信息位置
  * [lin.serviceLoader.weightRule.WeightCondition]
+ * 生成位置
+ * [lin.weightHandler.condition.config.GroupStrategyDao.getAll]
+ * 设置位置
+ * [lin.weightHandler.condition.ConditionHandlerInit.processDep]
  *
+ * 存储位置
+ * [lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition]
  */
 
  class ConditionGroup(
@@ -17,6 +23,7 @@ import lin.domain.context.CostWeight
     val depByWeightIds : Array<Double>,  //依赖权重数据
     weight: Double?, //基础优先度 ,不符合条件减优先级也就是减少权重
     unConditionWeight: Double?,
+    val num: Int?
 ){
     val groupWeight = weight ?: CostWeight
     val unConditionWeight = unConditionWeight ?: -groupWeight

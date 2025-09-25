@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * 直接阻塞实现就好了
+ * 直接阻塞实现就好了,用来控制并发
  */
 class UseStrategyUtils {
     var countDownLatch: CountDownLatch? = null

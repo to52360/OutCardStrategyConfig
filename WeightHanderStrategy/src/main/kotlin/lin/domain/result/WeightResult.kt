@@ -15,16 +15,15 @@ sealed class WeightResult {
 }
 
 object EmptyWeightResult : WeightResult()
+object ContinueWeight : WeightResult()
 class EndWeightResult(
     val canUseCards: List<ComboCard>,
     val cost: Int,
     val bestCombo: BestCombination = DefaultBestCombination
 ) : WeightResult() {
     //todo-future 存在直接操作权重,导致查找不到元素 想改成ArrayList,太复杂了,后面再说
-    private val _canUseCardsByHandler =
-        sortedSetOf(compareByDescending<ComboCard> { it.powerWeight }.thenBy { it.card.entityId })
-    val canUseCardsByHandler: Set<ComboCard>
-        get() = _canUseCardsByHandler
+    private val _canUseCardsByHandler = mutableListOf<ComboCard>()
+
     val unUseCards: MutableList<ComboCard>
         get() = _unUseCards
 
@@ -37,7 +36,7 @@ class EndWeightResult(
      * 处理权重之后的挫折
      */
     fun processWeightAfter(comboCard: ComboCard) {
-        if (comboCard.useAble()) _canUseCardsByHandler.add(comboCard)
+        if (comboCard.canUse()) _canUseCardsByHandler.add(comboCard)
         else _unUseCards.add(comboCard)
     }
 
@@ -53,14 +52,12 @@ class EndWeightResult(
     override fun weightSum() = bestCombination.sumOf { it.powerWeight }
     fun costSum() = bestCombination.sumOf { it.cost() }
     fun notAbleUseCards(): Boolean = _canUseCardsByHandler.isEmpty()
-    fun pollFirstByHandler(): ComboCard =
-        _canUseCardsByHandler.pollFirst() ?: run { throw NoSuchElementException("不应该为null") }
 
     override fun log() {
         myLog.info { "costSum: ${costSum()},weightSum: ${weightSum()},成员:${bestCombination}" }
     }
 
-    fun lessAbleUseCards(): Set<ComboCard> {
+    fun lessAbleUseCards(): List<ComboCard> {
         val lessAbleUseCards = _canUseCardsByHandler - bestCombination
         return lessAbleUseCards
     }

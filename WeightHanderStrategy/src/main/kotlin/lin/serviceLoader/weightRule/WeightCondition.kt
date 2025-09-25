@@ -35,6 +35,7 @@ abstract class AbstractWeightRule : WeightCondition {
 /**
  * todo-future 收起权重操作还在思考中
  */
+@Suppress("ConstantConditionIf")
 interface AddWeightByWarInfo : WeightCondition {
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         return calculateWeight(warInfo)
@@ -43,11 +44,18 @@ interface AddWeightByWarInfo : WeightCondition {
 }
 
 /**
- * todo-future 加个不符合要求权重值
+ * 依赖数据
  */
 interface GroupWeight {
     var groupWeight: Double
+
+    /**
+     * 兼容写法
+     */
     fun setUnCondWeight(unConditionWeight: Double) {
+
+    }
+    fun setNum(num: Int) {
 
     }
 

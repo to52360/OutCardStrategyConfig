@@ -2,7 +2,6 @@ package lin.bean
 
 
 import lin.domain.context.NotWeight
-import lin.domain.strategy.FindStrategy
 import lin.domain.strategy.UseAfterStrategy
 import lin.domain.strategy.UseBeforeStrategy
 import lin.domain.strategy.UseStrategy
@@ -13,6 +12,9 @@ import org.koin.core.component.get
 
 const val DefUseGroupId = 10
 const val DefUseGroupOrder = 10.0
+const val ChangeGroupId = 2
+const val CleanWarId = 3
+const val COINGroupId = 1
 
 /**
  * 转化位置
@@ -31,11 +33,11 @@ data class CardWeightInfo(
 
     //使用相关
     private var _useAfterStrategy: MutableList<UseAfterStrategy>? = null
-    val useAfterStrategy: List<UseAfterStrategy>
-        get() = _useAfterStrategy ?: emptyList()
+    val useAfterStrategy: MutableList<UseAfterStrategy>?
+        get() = _useAfterStrategy
     private var _useBeforeStrategy: MutableList<UseBeforeStrategy>? = null
-    val useBeforeStrategy: List<UseBeforeStrategy>
-        get() = _useBeforeStrategy ?: emptyList()
+    val useBeforeStrategy: MutableList<UseBeforeStrategy>?
+        get() = _useBeforeStrategy
 
     fun addUseStrategy(useStrategy: UseStrategy) {
         if (useStrategy is UseBeforeStrategy) {
@@ -45,9 +47,6 @@ data class CardWeightInfo(
             _useAfterStrategy = _useAfterStrategy.addSafe(useStrategy)
         }
     }
-
-    //查找策略
-    var findStrategy: FindStrategy? = null
 
 
 
@@ -78,8 +77,11 @@ data class CardWeightInfo(
     }
 
 
-    //combo相关
-    //最后使用暂时这样,没想到其他方案
+    /**
+     *  combo相关
+     *  最后使用暂时这样,没想到其他方案
+     *  升序
+     */
     var useGroupId = DefUseGroupId
     var useGroupOrder = DefUseGroupOrder
     private var _combos: MutableList<Combo>? = null
@@ -91,10 +93,8 @@ data class CardWeightInfo(
         _combos = _combos.addSafe(combo)
     }
 
-    // 扩展函数：安全添加元素到可空列表
-    fun <T> MutableList<T>?.addSafe(item: T): MutableList<T> {
-        return this?.apply { add(item) } ?: mutableListOf(item)
-    }
+    var cardContext: CardContext? = null
+
 
     //换牌相关
 
@@ -111,10 +111,18 @@ data class CardWeightInfo(
 
 }
 
+// 扩展函数：安全添加元素到可空列表
+fun <T> MutableList<T>?.addSafe(item: T): MutableList<T> {
+    return this?.apply { add(item) } ?: mutableListOf(item)
+}
 
-sealed class CardContext
-data object DefCardContext : CardContext()
-class AnyContext : CardContext() {
+fun <T> CardContext?.addSafe(key: MetadataKey<T>, item: T): CardContext {
+    val cardContext = this ?: CardContext()
+    cardContext.putMetadata(key, item)
+    return cardContext
+}
+
+class CardContext {
     //元数据 用来存储
     private val metadata: MutableMap<MetadataKey<*>, Any> = mutableMapOf()
     fun <T> putMetadata(key: MetadataKey<T>, value: T) {

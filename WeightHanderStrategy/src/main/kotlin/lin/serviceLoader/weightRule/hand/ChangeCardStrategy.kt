@@ -1,8 +1,8 @@
 package lin.serviceLoader.weightRule.hand
 
+import lin.bean.ChangeGroupId
 import lin.bean.ComboCard
 import lin.domain.WarInfo
-import lin.domain.combo.ChangeGroupId
 import lin.domain.combo.ComboParse.Companion.LastUseGroupId
 
 import lin.domain.context.NotWeight

@@ -7,6 +7,8 @@ import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.domain.MyWarManage
 import lin.domain.WarInfo
 import lin.myLog
+import lin.warExt.my.base.getPlayCards
+import lin.warExt.my.twoLambda.hasCanAttack
 
 /**
  * 怕战场管理太多代码,功能性代码移到这里
@@ -35,7 +37,20 @@ fun MyWarManage.activeLocation(){
  * 清场
  */
 fun WarInfo.cleanPlay() {
-    DeckStrategyUtil.cleanPlay()
+    if (hasCanAttack()) {
+        DeckStrategyUtil.cleanPlay()
+    }
+}
+
+/**
+ * 清场
+ */
+fun WarInfo.cleanPlayAll() {
+    var num = 0
+    while (hasCanAttack() && num < 2) {
+        DeckStrategyUtil.cleanPlay()
+        num++
+    }
 }
 
 /**

@@ -63,16 +63,15 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
                     //不使用结束循环
                     if (calWeight == UnUseWeight) {
                         comboCard.unUse()
-                        weightResult.processWeightAfter(comboCard)
                         break
                     }
                     comboCard.addWeight(calWeight)
                 }
-                weightResult.processWeightAfter(comboCard)
+
             }
+            weightResult.processWeightAfter(comboCard)
         }
     }
-
 
     /**
      * 查找组合
@@ -87,9 +86,6 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         processWeight(weightResult)
         if (weightResult.notAbleUseCards()) return weightResult
 
-        val weightResultByFindStrategy = processFindStrategy(weightResult)
-        if (weightResultByFindStrategy != EmptyWeightResult) return weightResultByFindStrategy
-
         findBestCombination(weightResult)
         return weightResult
     }
@@ -103,11 +99,6 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         return weightResult
     }
 
-    private fun processFindStrategy(weightResult: EndWeightResult): WeightResult {
-        val firstCard = weightResult.canUseCardsByHandler.first()
-        val findStrategy = firstCard.findStrategy
-        return findStrategy?.find(weightResult, this) ?: run { EmptyWeightResult }
-    }
 
 
 

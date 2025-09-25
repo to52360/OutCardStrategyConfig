@@ -49,27 +49,5 @@ open class Combo(val comboId: Int, val comboRule: ComboRule, val comboType: Stri
     }
 }
 
-enum class ComboType {
-    BEFORE,
-    DEF,
-    AFTER,  //最后打出
-    CHANGE //变更手牌
-    ;
-
-    companion object {
-        fun fromString(str: String?): ComboType {
-            if (str.isNullOrBlank()) return DEF
-            return try {
-                ComboType.valueOf(str.uppercase())
-            } catch (_: Exception) {
-                DEF
-            }
-        }
-    }
-
-}
 
 
-
-@JvmInline
-value class LastUse(val comboWeight: Double)
