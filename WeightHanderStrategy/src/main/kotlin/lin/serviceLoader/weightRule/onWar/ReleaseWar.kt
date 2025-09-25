@@ -2,7 +2,6 @@ package lin.serviceLoader.weightRule.onWar
 
 import lin.bean.CleanWarId
 import lin.bean.ComboCard
-import lin.bean.addSafe
 import lin.domain.WarInfo
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
@@ -15,8 +14,8 @@ import lin.warExt.my.base.getPlayCards
 import lin.warExt.my.base.meBlood
 import lin.warExt.my.twoLambda.findAtcSum
 import lin.warExt.my.twoLambda.findMeTauntSumBlood
-import lin.warExt.rival.rivalAllCardsByPlayArea
 import lin.warExt.rival.findRivalAtcSum
+import lin.warExt.rival.rivalAllCardsByPlayArea
 
 /**
  * todo 数量可以用权重解决

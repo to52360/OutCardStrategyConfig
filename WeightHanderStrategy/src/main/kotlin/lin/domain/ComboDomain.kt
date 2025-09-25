@@ -6,11 +6,7 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
 import lin.domain.context.*
-import lin.domain.result.ChangeWeightResult
-import lin.domain.result.ContinueWeight
-import lin.domain.result.DefaultBestCombination
-import lin.domain.result.EmptyWeightResult
-import lin.domain.result.EndWeightResult
+import lin.domain.result.*
 import lin.domain.strategy.FindComboStrategy
 import lin.domain.strategy.UseAfterStrategy
 import lin.domain.strategy.UseBeforeStrategy
@@ -25,14 +21,7 @@ import org.koin.core.component.get
 
 
 /**
- * todo-future 名字还没有想好
- * 参考数据
- * 执行攻击动作
- * club.xiaojiawei.util.DeckStrategyUtil.Result.execAction
- * mapstruct DaoDao复制 Mapper
- *
- * [club.xiaojiawei.hsscript.utils.GameUtil]
- * 出牌条件 先打出组里 16.1   .1策略先打出条件为16.0卡
+ * 职责查找combo,使用combo
  */
 const val MaxStackNum: Int = 10
 

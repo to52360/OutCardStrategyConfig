@@ -13,7 +13,6 @@ import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.domain.strategy.UseStrategyUtils
-import lin.lifecycle.StatusReset
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
@@ -22,12 +21,9 @@ import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
 import lin.warExt.action.cleanPlayAll
 import lin.warExt.my.base.*
-import lin.warExt.rival.rivalBlood
 import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import org.koin.core.context.loadKoinModules
-import org.koin.dsl.module
 
 
 interface WarInfo {
@@ -265,10 +261,12 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             if (useStrategyUtils.tryAwait()) {
                 //补偿发现动画,导致无法打出
                 myLog.info { "发现补偿打出" }
-                useResult = useCard(comboCard)
-                //执行清理战场,来清理发现动作
-                if (!useResult)
-                    DeckStrategyUtil.cleanPlay()
+                var num = 5
+                while (!useResult && num > 0) {
+                    useResult = useCard(comboCard)
+                    comboCard.card.action.chooseOne(0)
+                    num--
+                }
             }
 
 
