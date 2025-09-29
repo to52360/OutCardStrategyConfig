@@ -31,6 +31,7 @@ class EndWeightResult(
     private val _unUseCards = mutableListOf<ComboCard>()
     var bestCombination: List<ComboCard> = emptyList()
         private set
+    var extWeight = 0.0
 
     /**
      * 处理权重之后的挫折
@@ -50,7 +51,7 @@ class EndWeightResult(
     }
 
     override fun weightSum() = bestCombination.sumOf { it.powerWeight }
-    fun costSum() = bestCombination.sumOf { it.cost() }
+    fun costSum() = bestCombination.sumOf { it.cost() } - extWeight
     fun notAbleUseCards(): Boolean = _canUseCardsByHandler.isEmpty()
 
     override fun log() {

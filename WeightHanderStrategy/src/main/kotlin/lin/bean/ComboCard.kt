@@ -28,13 +28,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     //指定目标
     var pointCard: Card? = null
 
-    //使用卡牌分组和排序
-    var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
-        set(value) { //目前没有处理与基础信息冲突策略,先不允许改
-            if (field != DefUseGroupId)
-                field = value
-        }
-    var useGroupOrder: Double = cardWeightInfo?.useGroupOrder ?: DefUseGroupOrder
+
 
     var useAfterStrategy: MutableList<UseAfterStrategy>? = cardWeightInfo?.useAfterStrategy
 
@@ -53,6 +47,14 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
 
     val basePowerWeight = cardWeightInfo?.powerWeight ?: BaseWeight
 
+    //使用卡牌分组和排序
+    var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
+        set(value) { //目前没有处理与基础信息冲突策略,先不允许改
+            if (field != DefUseGroupId)
+                field = value
+        }
+    var useGroupOrder: Double = basePowerWeight
+
     // 出牌权重 可能作为权重优先级
     val powerWeight: Double
         get() = basePowerWeight + extPowerWeight
@@ -63,6 +65,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
      */
     fun addWeight(weight: Double) {
         extPowerWeight += weight
+        useGroupOrder += weight
     }
 
     fun cleanWeight() {

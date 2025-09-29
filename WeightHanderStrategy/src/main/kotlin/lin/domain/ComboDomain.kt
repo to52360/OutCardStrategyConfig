@@ -7,10 +7,7 @@ import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
 import lin.domain.context.*
 import lin.domain.result.*
-import lin.domain.strategy.FindComboStrategy
-import lin.domain.strategy.UseAfterStrategy
-import lin.domain.strategy.UseBeforeStrategy
-import lin.domain.strategy.UseStrategyUtils
+import lin.domain.strategy.*
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
@@ -27,8 +24,7 @@ const val MaxStackNum: Int = 10
 
 class ComboDomain : KoinComponent {
     companion object {
-        val USE_ORDER = compareBy<ComboCard> { it.useGroupId }.thenBy { it.useGroupOrder }
-            .thenByDescending { it.powerWeight }
+        val USE_ORDER = compareBy<ComboCard> { it.useGroupId }.thenByDescending { it.useGroupOrder }
     }
 
     //SPI没法抛异常把把val 改为 lateinit var
@@ -42,6 +38,7 @@ class ComboDomain : KoinComponent {
     }
     private val useStrategyUtils = get<UseStrategyUtils>()
     private val findComboStrategyList = getKoin().getAll<FindComboStrategy>()
+    private val findPlanner = get<FindPlanner>()
 
     //存储策略分组
     init {
@@ -159,7 +156,7 @@ class ComboDomain : KoinComponent {
         findAndUseTransaction {
             var weightResult: EndWeightResult? = null
             for (findComboStrategy in findComboStrategyList) {
-                val result = findComboStrategy.find(warManage, weightHandlerDomain)
+                val result = findComboStrategy.find(findComboUti)
                 when (result) {
                     is ContinueWeight -> continue
                     is EmptyWeightResult -> break

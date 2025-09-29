@@ -1,7 +1,7 @@
 package lin.domain.result
 
 import lin.bean.ComboCard
-import lin.domain.context.CostWeight
+import lin.domain.context.HalfCostWeight
 import lin.domain.context.NotWeight
 
 interface BestCombination {
@@ -29,7 +29,7 @@ object DefaultBestCombination : BestCombination {
             // 在每次形成一个有效组合时（包括空组合），都计算其“有效分”
             val remainingCost = ableCost - currentCost
 
-            val penalty = remainingCost * CostWeight
+            val penalty = remainingCost * HalfCostWeight
             val effectiveScore = currentWeight - penalty
 
             // 如果当前组合的有效分超过了已知的最高分，则更新最佳组合

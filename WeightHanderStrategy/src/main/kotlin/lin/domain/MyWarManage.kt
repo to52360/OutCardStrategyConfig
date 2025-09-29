@@ -152,9 +152,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      */
     fun reLoad() {
         //select 先转换后再过滤考虑存在费用变更情况
-        handComboCards = parseComboCards()
+        reLoadHandCards()
         canUseCards = canUseCardsByCost()
         reloadPlayComboCards()
+    }
+
+    fun reLoadHandCards() {
+        handComboCards = parseComboCards()
     }
 
 
@@ -229,7 +233,13 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             result = comboCard.pointCard?.let {
                 card.action.power(comboCard.pointCard)?.let { true } ?: false
             } ?: run {
-                card.action.power()?.let { true } ?: false
+                card.action.power()?.let {
+                    if (card.isChooseOne) {
+                        card.action.chooseOne(0)
+                    }
+                    true
+                } ?: false
+
             }
         }
         result = result && card.area !is HandArea
@@ -259,7 +269,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
             //处理发现
             if (useStrategyUtils.tryAwait()) {
-                //补偿发现动画,导致无法打出
+                //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
                 myLog.info { "发现补偿打出" }
                 var num = 5
                 while (!useResult && num > 0) {
@@ -267,15 +277,18 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                     comboCard.card.action.chooseOne(0)
                     num--
                 }
+            } else {
+                //处理战场已满情况
+                if (NotWeight == processPlayCardIsFull()) {
+                    myLog.info { "再次尝试打出" }
+                    useResult = useCard(comboCard)
+                }
+                //todo 未完善
+                if (!useResult && (card.cardType == CardTypeEnum.MINION && !isFull)) {
+                    myLog.info { "随机指向打出" }
+                    useResult = autoPower(card)
+                }
             }
-
-
-            //处理战场已满情况
-            if (!useResult && NotWeight == processPlayCardIsFull()) {
-                myLog.info { "再次尝试打出" }
-                useResult = useCard(comboCard)
-            }
-
         }
         //标记不能打出避免重复尝试
         if (!useResult) comboCard.unUse()
@@ -316,6 +329,10 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         isCleanWar = false
         isFull = false
         //statusReset.reset()
+    }
+    fun clean() {
+        handComboCards = emptyList()
+        playComboCards = emptyList()
     }
 
     /**
@@ -374,6 +391,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                 activeLocation()
                 //清场
                 cleanPlayAll()
+                clean()
             } else {
                 myLog.warn { "战场无效,不知道为啥会这样" }
             }

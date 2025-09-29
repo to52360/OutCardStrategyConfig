@@ -3,7 +3,7 @@ package lin.warExt.my.twoLambda
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.WarInfo
 import lin.warExt.my.base.getPlayCards
-
+import lin.warExt.my.base.hero
 
 
 //两/三层函数嵌套
@@ -24,4 +24,4 @@ fun WarInfo.findAtcSum(): Int {
     return getPlayCards().sumOf { it.atc }
 }
 
-fun WarInfo.hasCanAttack() = getPlayCards().any { it.canAttack() }
+fun WarInfo.hasCanAttack() = getPlayCards().any { it.canAttack() } || hero()?.canAttack() ?: false
