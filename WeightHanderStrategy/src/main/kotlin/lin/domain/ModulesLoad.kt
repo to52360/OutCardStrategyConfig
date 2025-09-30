@@ -10,6 +10,7 @@ import lin.domain.combo.ComboParse.Companion.LAST
 import lin.domain.strategy.*
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
+import lin.serviceLoader.findCombo.ForgeFindStrategy
 import lin.serviceLoader.module.ModulesInfo
 import lin.serviceLoader.parse.LieRenParse
 import lin.serviceLoader.parse.ParseCardRule
@@ -65,6 +66,7 @@ class ModulesLoad {
     val findStrategy = module {
         singleOf(::ExtCostStrategy) bind FindComboStrategy::class
         singleOf(::DefFindStrategy) bind FindComboStrategy::class
+        singleOf(::ForgeFindStrategy) bind FindComboStrategy::class
     }
 
     fun loadModules() {

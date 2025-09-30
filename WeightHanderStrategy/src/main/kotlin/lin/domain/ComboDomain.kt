@@ -127,7 +127,7 @@ class ComboDomain : KoinComponent {
         }
         unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.powerWeight < NotWeight }
         if (unAbleUseCards.isNotEmpty()) {
-            val bestCombos = DefaultBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
+            val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
                 .sortedWith(USE_ORDER)
             for (bestCombo in bestCombos) {
                 if (useCardAndIsReload(bestCombo)) return true
@@ -154,23 +154,20 @@ class ComboDomain : KoinComponent {
      */
     private fun findAndUse() {
         findAndUseTransaction {
-            var weightResult: EndWeightResult? = null
+            var weightPlanner: CmdPlanner = ContinueWeight
             for (findComboStrategy in findComboStrategyList) {
-                val result = findComboStrategy.find(findComboUti)
-                when (result) {
-                    is ContinueWeight -> continue
-                    is EmptyWeightResult -> break
-                    is EndWeightResult -> { //
-                        weightResult = result
-                        break
-                    }
-
+                weightPlanner = when (weightPlanner) {
+                    is ContinueWeight -> findComboStrategy.find(findPlanner)
+                    is ResultPlanner -> findComboStrategy.find(findPlanner, weightPlanner.weightResult)
+                        .toPlanner()
                 }
-
             }
-            if (weightResult is EndWeightResult) {
-                myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
-                executeUseCard(weightResult)
+            if (weightPlanner is ResultPlanner) {
+                val weightResult = weightPlanner.weightResult
+                if (weightResult is EndWeightResult) {
+                    myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
+                    executeUseCard(weightResult)
+                }
 
             }
         }

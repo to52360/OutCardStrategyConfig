@@ -6,12 +6,7 @@ import lin.domain.MyWarManage
 import lin.domain.WeightHandlerDomain
 import lin.domain.context.HalfCostWeight
 import lin.domain.context.NotWeight
-import lin.domain.result.ContinueWeight
-import lin.domain.result.EmptyWeightResult
-import lin.domain.result.EndWeightResult
-import lin.domain.result.WeightResult
-import lin.domain.strategy.ExtCostStrategy.Companion.extCostConfig
-import lin.domain.strategy.ExtCostStrategy.Companion.extCostPredicate
+import lin.domain.result.*
 import lin.domain.strategy.FindComboStrategy.Companion.DEF_PRIORITY
 import lin.domain.strategy.FindComboStrategy.Companion.EXT_COST_PRIORITY
 import lin.myLog
@@ -19,7 +14,7 @@ import lin.serviceLoader.cardInfoProvide.COINProvide
 import lin.warExt.my.base.getCost
 
 
-typealias FindCondition = (ComboCard) -> Boolean
+typealias FindRule = (ComboCard) -> Boolean
 typealias ExtCostConfig = (Int, List<ComboCard>) -> Pair<Int, Double>
 typealias FindNowResult = Pair<Map<Boolean, List<ComboCard>>, WeightResult>
 /**
@@ -32,19 +27,23 @@ interface FindComboStrategy {
     }
 
     fun priority(): Int
-    fun find(findPlanner: FindPlanner): WeightResult
+    fun find(findPlanner: FindPlanner): CmdPlanner
+    fun find(findPlanner: FindPlanner, weightResult: WeightResult): WeightResult {
+        return weightResult
+    }
+
 }
 
 // 扩展函数：只有当存在满足 predicate 的卡时，才执行 block
 inline fun FindPlanner.findIfAny(
     predicate: (ComboCard) -> Boolean,
     block: FindPlanner.() -> WeightResult
-): WeightResult {
+): CmdPlanner {
     val canUseCards = warManage.canUseCards
     if (!canUseCards.any(predicate)) {
         return ContinueWeight
     }
-    return block() // 在 this = FindPlanner 上下文中执行
+    return block().toPlanner() // 在 this = FindPlanner 上下文中执行
 }
 
 
@@ -55,9 +54,9 @@ class DefFindStrategy : FindComboStrategy {
 
     override fun find(
         findPlanner: FindPlanner
-    ): WeightResult {
+    ): CmdPlanner {
         val weightHandlerDomain = findPlanner.weightHandlerDomain
-        return weightHandlerDomain.findCombination()
+        return ResultPlanner(weightHandlerDomain.findCombination())
     }
 
 }
@@ -69,11 +68,11 @@ fun ComboCard.extCost(): Int {
 class ExtCostStrategy : FindComboStrategy {
 
     companion object {
-        val extCostPredicate: FindCondition = { it.useGroupId == COINGroupId }
+        val extCostPredicate: FindRule = { it.useGroupId == COINGroupId }
         val extCostConfig: ExtCostConfig = { cost, extCostCards ->
             var reduceWeight = NotWeight
             val extCost = extCostCards.sumOf { it.extCost() }
-            if (cost < 5) reduceWeight = extCost * HalfCostWeight
+            if (cost < 5) reduceWeight = -extCost * HalfCostWeight
             Pair(extCost, reduceWeight)
         }
     }
@@ -83,24 +82,29 @@ class ExtCostStrategy : FindComboStrategy {
     }
 
 
-    override fun find(findPlanner: FindPlanner): WeightResult {
+    override fun find(findPlanner: FindPlanner): CmdPlanner {
         return findPlanner.findIfAny(extCostPredicate) {
-            evaluateCurrentCombos(extCostPredicate).evaluateWithSkippedCards({ skipCard ->
+            val result = evaluateCurrentCombos(extCostPredicate).evaluateWithSkippedCards({ skipCard ->
                 extCostConfig(warManage.getCost(), skipCard)
             }) { skip ->
                 skip.forEach {
                     warManage.tryUseCard(it)
                 }
             }
+            result
         }
 
     }
 }
 
 class FindPlanner(val warManage: MyWarManage, val weightHandlerDomain: WeightHandlerDomain) {
-    fun evaluateCurrentCombos(extCostPredicate: FindCondition): FindNowResult {
+    fun evaluateCurrentCombos(extCostPredicate: FindRule): FindNowResult {
         val canUseCardsByCost = warManage.canUseCards
         val canUseCardsByGroup = canUseCardsByCost.groupBy { extCostPredicate(it) }
+        return evaluateCurrentCombos(canUseCardsByGroup)
+    }
+
+    fun evaluateCurrentCombos(canUseCardsByGroup: Map<Boolean, List<ComboCard>>): FindNowResult {
         val canUseCard = canUseCardsByGroup.get(false)
         var nowWeightResult: WeightResult = EmptyWeightResult
         canUseCard?.let {
@@ -141,28 +145,16 @@ class FindPlanner(val warManage: MyWarManage, val weightHandlerDomain: WeightHan
         throw IllegalStateException("Unreachable code")
     }
 
-    fun evaluateExtCost(
-        compareResult: WeightResult,
-        findCondition: FindCondition = extCostPredicate,
-        config: ExtCostConfig = extCostConfig
-    ): WeightResult {
-        return findIfAny(findCondition) {
-            val warManage = warManage
-            warManage.reLoad()
-            val extCostCard = warManage.canUseCards.filter(findCondition)
-            val (extCost, reduceWeight) = config(warManage.getCost(), extCostCard)
-            val extWeightResult = evaluateWithExtra(extCost, extCostCard)
-            if (extWeightResult is EndWeightResult) {
-                extWeightResult.extWeight = reduceWeight
-            }
-            compareSumWeight(compareResult, extWeightResult) {
-                extCostCard.forEach {
-                    warManage.tryUseCard(it)
-                }
 
-            }
-        }
-
+    fun copyResult(endWeightResult: EndWeightResult, extCost: Int, findRule: FindRule): WeightResult {
+        val cost = warManage.getCost() + extCost
+        val noHasForge = endWeightResult.canUseCards.filter { it.cost() <= cost && !findRule(it) }
+        if (noHasForge.isEmpty()) return EmptyWeightResult
+        val forgeWeight = EndWeightResult(noHasForge, cost)
+        forgeWeight.unUseCards.addAll(forgeWeight.unUseCards)
+        forgeWeight.addAll(noHasForge)
+        forgeWeight.findBestCombination()
+        return forgeWeight
     }
 
     fun List<ComboCard>.copy(skipComboCards: List<ComboCard>): List<ComboCard> {

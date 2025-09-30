@@ -19,7 +19,7 @@ class COINProvide : CardWeightInfoProvide {
      * todo 存在魔数
      */
     override fun getInfos(): Map<String, CardWeightInfo> {
-        val coin = CardWeightInfo(COIN_CARD_ID, 100.0)
+        val coin = CardWeightInfo(COIN_CARD_ID, -20.0)
         //标记快速查询
         coin.useGroupId = COINGroupId
         coin.cardContext = coin.cardContext.addSafe(coinKey, 1)

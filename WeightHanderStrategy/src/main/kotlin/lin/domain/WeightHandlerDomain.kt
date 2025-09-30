@@ -82,6 +82,7 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
         canUseCardsByCost: List<ComboCard> = warManage.canUseCards
     ): WeightResult {
         myLog.info { "执行查组组合" }
+        if (canUseCardsByCost.isEmpty()) return EmptyWeightResult
         val weightResult = EndWeightResult(canUseCardsByCost, cost)
         processWeight(weightResult)
         if (weightResult.notAbleUseCards()) return weightResult
@@ -94,7 +95,6 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
      * 查找最好的组合
      */
     fun findBestCombination(weightResult: EndWeightResult): EndWeightResult {
-        if (weightResult.isLessCost()) return weightResult
         weightResult.findBestCombination()
         return weightResult
     }

@@ -4,6 +4,10 @@ import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.myLog
 
+sealed class CmdPlanner
+object ContinueWeight : CmdPlanner()
+class ResultPlanner(val weightResult: WeightResult) : CmdPlanner()
+
 sealed class WeightResult {
     open fun weightSum(): Double {
         return NotWeight
@@ -12,14 +16,23 @@ sealed class WeightResult {
     open fun log() {
         myLog.info { "Empty" }
     }
+    open fun toPlanner(): ResultPlanner {
+        return ResultPlanner(this)
+    }
 }
 
-object EmptyWeightResult : WeightResult()
-object ContinueWeight : WeightResult()
+object EmptyWeightResult : WeightResult() {
+    val emptyWeightResult = ResultPlanner(this)
+    override fun toPlanner(): ResultPlanner {
+        return emptyWeightResult
+    }
+
+}
+
 class EndWeightResult(
     val canUseCards: List<ComboCard>,
     val cost: Int,
-    val bestCombo: BestCombination = DefaultBestCombination
+    val findStrategy: FindBestCombination = DefaultFindBestCombination
 ) : WeightResult() {
     //todo-future 存在直接操作权重,导致查找不到元素 想改成ArrayList,太复杂了,后面再说
     private val _canUseCardsByHandler = mutableListOf<ComboCard>()
@@ -40,18 +53,20 @@ class EndWeightResult(
         if (comboCard.canUse()) _canUseCardsByHandler.add(comboCard)
         else _unUseCards.add(comboCard)
     }
+    fun addAll(comboCards: List<ComboCard>) {
+        _canUseCardsByHandler.addAll(comboCards)
+    }
 
     /**
      * 判断是否可以直接使用
      */
     fun isLessCost(): Boolean {
         val result = _canUseCardsByHandler.size == 1 || _canUseCardsByHandler.sumOf { it.cost() } < cost
-        if (result) bestCombination = _canUseCardsByHandler.toList()
         return result
     }
 
     override fun weightSum() = bestCombination.sumOf { it.powerWeight }
-    fun costSum() = bestCombination.sumOf { it.cost() } - extWeight
+    fun costSum() = bestCombination.sumOf { it.cost() } + extWeight
     fun notAbleUseCards(): Boolean = _canUseCardsByHandler.isEmpty()
 
     override fun log() {
@@ -64,6 +79,25 @@ class EndWeightResult(
     }
 
     fun findBestCombination() {
-        this.bestCombination = bestCombo.findBestCombination(_canUseCardsByHandler.toList(), cost)
+        if (isLessCost()) this.bestCombination = _canUseCardsByHandler
+        else {
+            this.bestCombination = findStrategy.findBestCombination(_canUseCardsByHandler, cost)
+        }
+
     }
+
+}
+
+inline fun WeightResult.compareSumWeight(
+    compareWeight: WeightResult,
+    extWeight: Double,
+    action: () -> Unit
+): WeightResult {
+    if (this.weightSum() >= compareWeight.weightSum() + extWeight) {
+        action()
+        return this
+    } else {
+        return compareWeight
+    }
+
 }

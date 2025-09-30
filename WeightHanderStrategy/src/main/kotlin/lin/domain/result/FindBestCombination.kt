@@ -4,11 +4,11 @@ import lin.bean.ComboCard
 import lin.domain.context.HalfCostWeight
 import lin.domain.context.NotWeight
 
-interface BestCombination {
+interface FindBestCombination {
     fun findBestCombination(targetList: List<ComboCard>, ableCost: Int): List<ComboCard>
 }
 
-object DefaultBestCombination : BestCombination {
+object DefaultFindBestCombination : FindBestCombination {
     override fun findBestCombination(targetList: List<ComboCard>, ableCost: Int): List<ComboCard> {
         // 2. 初始化用于寻找最佳组合的变量
         var bestCombination: List<ComboCard> = emptyList()
