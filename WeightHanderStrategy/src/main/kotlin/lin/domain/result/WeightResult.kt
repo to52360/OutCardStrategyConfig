@@ -5,7 +5,7 @@ import lin.domain.context.NotWeight
 import lin.myLog
 
 sealed class CmdPlanner
-object ContinueWeight : CmdPlanner()
+object ContinuePlanner : CmdPlanner()
 class ResultPlanner(val weightResult: WeightResult) : CmdPlanner()
 
 sealed class WeightResult {
@@ -74,6 +74,7 @@ class EndWeightResult(
     }
 
     fun lessAbleUseCards(): List<ComboCard> {
+        if (isLessCost()) return emptyList()
         val lessAbleUseCards = _canUseCardsByHandler - bestCombination
         return lessAbleUseCards
     }
@@ -85,6 +86,10 @@ class EndWeightResult(
         }
 
     }
+    fun addUseCard(comboCard: ComboCard) {
+        if (comboCard.canUse()) this.bestCombination = this.bestCombination + comboCard
+        else _unUseCards.add(comboCard)
+    }
 
 }
 
@@ -93,7 +98,7 @@ inline fun WeightResult.compareSumWeight(
     extWeight: Double,
     action: () -> Unit
 ): WeightResult {
-    if (this.weightSum() >= compareWeight.weightSum() + extWeight) {
+    if (this.weightSum() + extWeight >= compareWeight.weightSum()) {
         action()
         return this
     } else {

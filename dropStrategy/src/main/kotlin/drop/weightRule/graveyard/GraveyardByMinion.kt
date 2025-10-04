@@ -12,10 +12,10 @@ import lin.serviceLoader.weightRule.utils.DepToPredicateList
 import lin.serviceLoader.weightRule.utils.DepWeightGroupDelegate
 import lin.serviceLoader.weightRule.utils.PredicateGroupIds
 import lin.warExt.action.cleanPlay
+import lin.warExt.my.attack.getGraveyardCardsByType
 import lin.warExt.my.base.getCost
 import lin.warExt.my.base.getHandCards
-import lin.warExt.my.attack.getGraveyardCardsByType
-import lin.warExt.rival.rivalAllCardsByPlayArea
+import lin.warExt.rival.rivalCardsByPlayArea
 
 class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle,
     DepWeightGroupDelegate<DepToPredicateList> by PredicateGroupIds() {
@@ -57,7 +57,7 @@ class GraveyardByMinion : AddWeightByWarInfo, GameLifecycle,
      * 送掉之后
      */
     fun clean(warInfo: WarInfo) {
-        if (warInfo.rivalAllCardsByPlayArea().any { it.cardType == CardTypeEnum.MINION }) {
+        if (warInfo.rivalCardsByPlayArea().any { it.cardType == CardTypeEnum.MINION }) {
             myLog.info { "清理战场之后再使用" }
             warInfo.cleanPlay()
         }

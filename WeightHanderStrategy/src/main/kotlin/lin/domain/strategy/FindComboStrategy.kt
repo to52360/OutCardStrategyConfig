@@ -24,6 +24,7 @@ interface FindComboStrategy {
     companion object {
         const val EXT_COST_PRIORITY = 5
         const val DEF_PRIORITY = 10
+        const val SKILL_PRIORITY = 15
     }
 
     fun priority(): Int
@@ -41,7 +42,7 @@ inline fun FindPlanner.findIfAny(
 ): CmdPlanner {
     val canUseCards = warManage.canUseCards
     if (!canUseCards.any(predicate)) {
-        return ContinueWeight
+        return ContinuePlanner
     }
     return block().toPlanner() // 在 this = FindPlanner 上下文中执行
 }
@@ -147,14 +148,17 @@ class FindPlanner(val warManage: MyWarManage, val weightHandlerDomain: WeightHan
 
 
     fun copyResult(endWeightResult: EndWeightResult, extCost: Int, findRule: FindRule): WeightResult {
-        val cost = warManage.getCost() + extCost
-        val noHasForge = endWeightResult.canUseCards.filter { it.cost() <= cost && !findRule(it) }
-        if (noHasForge.isEmpty()) return EmptyWeightResult
-        val forgeWeight = EndWeightResult(noHasForge, cost)
-        forgeWeight.unUseCards.addAll(forgeWeight.unUseCards)
-        forgeWeight.addAll(noHasForge)
-        forgeWeight.findBestCombination()
-        return forgeWeight
+        warManage.consumeExtCost(extCost) { sumExtCost ->
+            val noHasFindRule = endWeightResult.canUseCards.filter { it.cost() <= sumExtCost && !findRule(it) }
+            if (noHasFindRule.isEmpty()) return EmptyWeightResult
+            val newWeight = EndWeightResult(noHasFindRule, sumExtCost)
+            newWeight.unUseCards.addAll(newWeight.unUseCards)
+            newWeight.addAll(noHasFindRule)
+            newWeight.findBestCombination()
+            return newWeight
+        }
+        throw RuntimeException("额外费用事务失败")
+
     }
 
     fun List<ComboCard>.copy(skipComboCards: List<ComboCard>): List<ComboCard> {

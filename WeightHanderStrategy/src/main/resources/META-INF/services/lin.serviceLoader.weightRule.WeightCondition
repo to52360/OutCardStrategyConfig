@@ -4,6 +4,7 @@ lin.serviceLoader.weightRule.hand.ChangeCardStrategy
 lin.serviceLoader.weightRule.hand.race.HandAreaRaceByAbleUse
 lin.serviceLoader.weightRule.hand.HandNumWeight
 lin.serviceLoader.weightRule.hand.DefHandNum
+lin.serviceLoader.weightRule.hand.HandNumMinion
 
 lin.serviceLoader.weightRule.onWar.OnWarByGroupId
 lin.serviceLoader.weightRule.onWar.buff.OnWarNum
@@ -11,6 +12,9 @@ lin.serviceLoader.weightRule.onWar.buff.OnWarRaceNum
 lin.serviceLoader.weightRule.onWar.buff.PointDeathRattleCard
 lin.serviceLoader.weightRule.onWar.DepNumRelWar
 lin.serviceLoader.weightRule.onWar.RivalNun
+lin.serviceLoader.weightRule.onWar.RivalHasActByNum
+lin.serviceLoader.weightRule.onWar.RivalHasBloodByNum
+lin.serviceLoader.weightRule.onWar.RivalHasBloodOrActByNum
 
 lin.serviceLoader.weightRule.afterRule.HaloRule
 

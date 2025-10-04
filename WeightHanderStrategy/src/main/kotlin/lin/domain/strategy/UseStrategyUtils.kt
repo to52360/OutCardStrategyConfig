@@ -1,6 +1,7 @@
 package lin.domain.strategy
 
 import lin.domain.context.FourAnimationTime
+import lin.domain.context.UseAnimationTime
 import lin.myLog
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -31,7 +32,7 @@ class UseStrategyUtils {
             }
             myLog.info { "阻塞等待发现操作" }
             //等待发现动画
-            //Thread.sleep(ChangeAnimationTime)
+            Thread.sleep(UseAnimationTime)
             clean()
             return true
         }

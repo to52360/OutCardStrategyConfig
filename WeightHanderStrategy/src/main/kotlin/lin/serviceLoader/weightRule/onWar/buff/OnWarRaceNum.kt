@@ -5,7 +5,7 @@ import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.PredicateByRace
 
 /**
- * 战场产生收集
+ * 依赖种族统计
  */
 class OnWarRaceNum : PredicateByRace() {
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {

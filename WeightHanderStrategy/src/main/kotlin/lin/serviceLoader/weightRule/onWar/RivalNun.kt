@@ -3,7 +3,8 @@ package lin.serviceLoader.weightRule.onWar
 import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.warExt.rival.rivalAllCardsByPlayArea
+import lin.serviceLoader.weightRule.utils.cardUtils.isExtWeight
+import lin.warExt.rival.rivalCanHurt
 
 class RivalNun : AbsWeightCondition() {
     override fun description(): String {
@@ -11,7 +12,12 @@ class RivalNun : AbsWeightCondition() {
     }
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        return warInfo.rivalAllCardsByPlayArea().size * groupWeight
+        val rivalCards = warInfo.rivalCanHurt()
+        var extRivalNum = rivalCards.size
+        if (extRivalNum != 0 && rivalCards.isExtWeight()) extRivalNum++
+        return if (extRivalNum > number) groupWeight
+        else unConditionWeight
     }
+
 
 }

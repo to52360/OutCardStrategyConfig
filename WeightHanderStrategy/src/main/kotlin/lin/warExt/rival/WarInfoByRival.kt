@@ -4,23 +4,26 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 
 import lin.domain.WarInfo
+import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
 
 /**
  * 敌方场上随从攻击力总和
  */
 fun WarInfo.findRivalAtcSum(): Int {
-    return rivalAllCardsByPlayArea().sumOf { it.atc }
+    return rivalCardsByPlayArea().sumOf { it.atc }
 }
 /**
  * 敌方攻击最高的随从
  */
 fun WarInfo.rivalFindMaxAtcMinion(): Card? {
-    return rivalAllCardsByPlayArea()
+    return rivalCardsByPlayArea()
         .filter { it.cardType == CardTypeEnum.MINION }
         .maxByOrNull { it.atc }
 }
 
-fun WarInfo.rivalAllCardsByPlayArea() = war.rival.playArea.cards
+fun WarInfo.rivalCardsByPlayArea() = war.rival.playArea.cards
+
+fun WarInfo.rivalCanHurt() = rivalCardsByPlayArea().canHurt()
 
 fun WarInfo.rivalSecretSize() = war.rival.secretArea.cards.size
 
@@ -36,7 +39,7 @@ fun WarInfo.rivalPlayAreaSize(): Int{
     return war.rival.playArea.cards.size
 }
 fun WarInfo.rivalIsNotCardByPlayArea():Boolean{
-    return rivalAllCardsByPlayArea().isEmpty()
+    return rivalCardsByPlayArea().isEmpty()
 }
 
 fun WarInfo.rivalBlood() = war.rival.playArea.hero!!.blood()

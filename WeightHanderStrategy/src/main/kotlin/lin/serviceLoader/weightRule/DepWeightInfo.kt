@@ -75,3 +75,4 @@ interface DepProcessor {
 
     fun process(conditionGroup: ConditionGroup, weightGroupInfos: Map<Double, List<CardWeightInfo>>)
 }
+

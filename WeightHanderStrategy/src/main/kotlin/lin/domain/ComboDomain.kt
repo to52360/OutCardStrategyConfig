@@ -5,14 +5,16 @@ import club.xiaojiawei.hsscriptbase.config.log
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
-import lin.domain.context.*
+import lin.domain.context.ChangeAnimationTime
+import lin.domain.context.CostWeight
+import lin.domain.context.NotWeight
+import lin.domain.context.UseAnimationTime
 import lin.domain.result.*
 import lin.domain.strategy.*
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.my.base.getCost
-import lin.warExt.my.base.getPower
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
@@ -37,7 +39,7 @@ class ComboDomain : KoinComponent {
         javaClass.classLoader
     }
     private val useStrategyUtils = get<UseStrategyUtils>()
-    private val findComboStrategyList = getKoin().getAll<FindComboStrategy>()
+    private val findComboStrategyList = getKoin().getAll<FindComboStrategy>().sortedBy { it.priority() }
     private val findPlanner = get<FindPlanner>()
 
     //存储策略分组
@@ -63,12 +65,13 @@ class ComboDomain : KoinComponent {
             Thread.currentThread().contextClassLoader = threadClassLoader
         }
     }
+    private var stackNum = 0
 
     private inline fun executeEnvironment(runnable: () -> Unit) {
         //重置状态
         stackNum = 0
 
-        processSkill()
+
 
 
         //生命周期
@@ -85,26 +88,7 @@ class ComboDomain : KoinComponent {
 
     }
 
-    //todo-future 有空封装起来
-    private var skillComboCard: ComboCard? = null
-    fun processSkill() {
-        fun createSkill() {
-            skillComboCard = warManage.getPower()?.let {
-                val skill = ComboCard(null, it)
-                skill.addWeight(UseSkillWeight)
-                skill
-            }
-        }
-        skillComboCard?.let {
-            val skill = warManage.war.me.playArea.power
-            if (it.card != skill) { //技能变更,重新缓存
-                createSkill()
-            }
-        } ?: run {//没有缓存就进行缓存
-            createSkill()
-        }
 
-    }
 
     /**
      * 处理剩余费用
@@ -113,6 +97,7 @@ class ComboDomain : KoinComponent {
         //记录剩余的卡
         val unAbleUseCards = weightResult.unUseCards
         myLog.info { "权重为负的卡:${unAbleUseCards}" }
+        //todo 这里存在问题
         val moreTryCard = weightResult.lessAbleUseCards()
         if (moreTryCard.isNotEmpty()) {
             log.info { "剩余的卡:${moreTryCard}" }
@@ -122,9 +107,6 @@ class ComboDomain : KoinComponent {
 
 
         if (costWeight == NotWeight && !unAbleUseCards.any { it.cost() == 0 }) return false
-        skillComboCard?.also {
-            unAbleUseCards.add(it)
-        }
         unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.powerWeight < NotWeight }
         if (unAbleUseCards.isNotEmpty()) {
             val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
@@ -137,7 +119,7 @@ class ComboDomain : KoinComponent {
 
         return false
     }
-    private var stackNum = 0
+
     /**
      * 出牌策略
      */
@@ -154,23 +136,30 @@ class ComboDomain : KoinComponent {
      */
     private fun findAndUse() {
         findAndUseTransaction {
-            var weightPlanner: CmdPlanner = ContinueWeight
+            var weightPlanner: CmdPlanner = ContinuePlanner
             for (findComboStrategy in findComboStrategyList) {
                 weightPlanner = when (weightPlanner) {
-                    is ContinueWeight -> findComboStrategy.find(findPlanner)
+                    is ContinuePlanner -> findComboStrategy.find(findPlanner)
                     is ResultPlanner -> findComboStrategy.find(findPlanner, weightPlanner.weightResult)
                         .toPlanner()
                 }
             }
             if (weightPlanner is ResultPlanner) {
                 val weightResult = weightPlanner.weightResult
-                if (weightResult is EndWeightResult) {
-                    myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
-                    executeUseCard(weightResult)
-                }
+                when (weightResult) {
+                    is EndWeightResult -> {
+                        myLog.info { "找到需要使用的卡牌:${weightResult.bestCombination}" }
+                        executeUseCard(weightResult)
+                    }
 
+                    is EmptyWeightResult -> {
+                        log.info { "没有可用卡牌,剩余费用:${warManage.getCost()}" }
+                    }
+                }
             }
+
         }
+
     }
 
     /**
@@ -189,7 +178,7 @@ class ComboDomain : KoinComponent {
 
 
     /**
-     *
+     *todo
      */
     private fun executeUseCard(weightResult: EndWeightResult) {
         val bestCombination = weightResult.bestCombination

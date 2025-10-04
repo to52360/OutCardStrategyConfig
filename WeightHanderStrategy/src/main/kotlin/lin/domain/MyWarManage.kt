@@ -48,6 +48,7 @@ interface WarInfo {
      * @return 为true就执行过了
      */
     fun cleanPlayByRoundOnce(): Boolean
+    fun roundExecuteOnce(registryId: String): Boolean
 }
 
 /**
@@ -261,34 +262,37 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
 
         if (card.area !is HandArea) {//区域判断
-            if (!isPower(card)) //技能的处理
+            if (isPower(card)) {//技能的处理
+                if (useSkill) useSkill = false
+                else return false
+            } else {
                 return false
+            }
+
         }
         var useResult = useCard(comboCard)
         if (!useResult && card.area is HandArea) {//再次尝试
-
-            //处理发现
-            if (useStrategyUtils.tryAwait()) {
-                //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
-                myLog.info { "发现补偿打出" }
-                var num = 5
-                while (!useResult && num > 0) {
-                    useResult = useCard(comboCard)
-                    comboCard.card.action.chooseOne(0)
-                    num--
-                }
-            } else {
-                //处理战场已满情况
-                if (NotWeight == processPlayCardIsFull()) {
-                    myLog.info { "再次尝试打出" }
-                    useResult = useCard(comboCard)
-                }
-                //todo 未完善
-                if (!useResult && (card.cardType == CardTypeEnum.MINION && !isFull)) {
-                    myLog.info { "随机指向打出" }
-                    useResult = autoPower(card)
-                }
+            //处理战场已满情况
+            if (NotWeight == processPlayCardIsFull()) {
+                myLog.info { "再次尝试打出" }
+                useResult = useCard(comboCard)
             }
+            if (!useResult && !(card.cardType == CardTypeEnum.MINION && isFull)) {
+                //处理发现
+                if (useStrategyUtils.tryAwait()) {
+                    //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
+                    myLog.info { "发现补偿打出" }
+                    var num = 5
+                    while (useStrategyUtils.tryAwait() && num > 0) {
+                        comboCard.card.action.chooseOne(0)
+                        num--
+                    }
+                    useResult = useCard(comboCard)
+                }
+                myLog.info { "随机指向打出" }
+                useResult = autoPower(card)
+            }
+
         }
         //标记不能打出避免重复尝试
         if (!useResult) comboCard.unUse()
@@ -321,6 +325,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     private var isCleanWar = false
     private var isFull = false
+    private var useSkill = true
 
     /**
      * 重新设置状态
@@ -328,6 +333,8 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     fun reset() {
         isCleanWar = false
         isFull = false
+        useSkill = true
+        registryInfo.clear()
         //statusReset.reset()
     }
     fun clean() {
@@ -345,6 +352,15 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             return true
         }
         return false
+    }
+    private val registryInfo = HashSet<String>()
+    override fun roundExecuteOnce(registryId: String): Boolean {
+        val isExist = registryInfo.contains(registryId)
+        if (isExist) {
+            return false
+        }
+        registryInfo.add(registryId)
+        return true
     }
 
     fun processPlayCardIsFull(): Double {

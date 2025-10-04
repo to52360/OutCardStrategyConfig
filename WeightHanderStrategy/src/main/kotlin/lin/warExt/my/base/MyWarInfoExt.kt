@@ -4,7 +4,7 @@ package lin.warExt.my.base
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.hand.HandArea
-import lin.warExt.rival.rivalAllCardsByPlayArea
+import lin.warExt.rival.rivalCardsByPlayArea
 import kotlin.random.Random
 
 
@@ -48,7 +48,7 @@ fun WarInfo.getNowCost() = war.me.usableResource
 fun WarInfo.hasCost() = getCost() > 0
 
 fun WarInfo.autoPower(card: Card): Boolean {
-    val rivalCard = rivalAllCardsByPlayArea().randomSelectOrNull()
+    val rivalCard = rivalCardsByPlayArea().randomSelectOrNull()
     var useResult = card.useCard(rivalCard)
     if (useResult) {
         return true

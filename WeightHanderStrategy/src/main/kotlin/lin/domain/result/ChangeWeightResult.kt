@@ -173,22 +173,31 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
      * 根据费用阈值决定保留或移除卡牌
      */
     private fun processNotChangeRule() {
-        var removeAll = true
-        changeWeight.forEach {
-            val cost = it.cost()
-            //todo-future 这里费用判断要不要写死,2费需要权重大于NotWeight
-            if (cost < keepCost || (cost <= keepCost && it.changeWeight > NotWeight))
-                removeAll = false
-            else {
-                removeCards.add(it)
+        val retained = changeWeight.filter { card ->
+            val result = if (card.cost() < 3) {
+                card.changeWeight >= 0
+            } else {
+                card.changeWeight > 0
             }
+            if (!result) removeCards.add(card)
+            result
         }
-        if (removeAll) {
+        if (retained.isEmpty()) {
             myLog.info { "移除全部" }
             cards.clear()
         } else {
+            if (retained.size == changeWeight.size) {
+                retained.maxWithOrNull(
+                    compareBy<ComboCard> { it.cost() }
+                        .thenByDescending { it.changeWeight } // 注意：我们要移除 changeWeight 最小的，所以 maxWith 要反过来
+                )?.let { candidate ->
+                    removeCards.add(candidate)
+                }
+
+            }
             remove()
         }
+
     }
 
     /**

@@ -8,6 +8,10 @@ import lin.domain.context.CostWeight
  * 加权条件
  * 应该权重处理之后
  * [lin.weightHandler.condition.bean.ConditionGroup]
+ * 可选接口
+ * [DepWeightInfo]依赖
+ * [lin.lifecycle.RoundLifecycle] 生命周期
+ *
  */
 interface WeightCondition : WeightRule, GroupWeight {
     //唯一

@@ -50,7 +50,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     //使用卡牌分组和排序
     var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
         set(value) { //目前没有处理与基础信息冲突策略,先不允许改
-            if (field != DefUseGroupId)
+            if (field == DefUseGroupId)
                 field = value
         }
     var useGroupOrder: Double = basePowerWeight
@@ -143,7 +143,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
 
     override fun toString(): String {
         if (card.entityName.startsWith("UNK"))
-            return "{id=${cardId()},weight=${powerWeight}}"
+            return "{id=${cardId()},weight=${powerWeight},use}"
         return "{id=${cardId()},name=${card.entityName},weight=${powerWeight}}"
     }
 
