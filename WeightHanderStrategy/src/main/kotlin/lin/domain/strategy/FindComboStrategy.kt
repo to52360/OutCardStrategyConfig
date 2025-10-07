@@ -4,7 +4,8 @@ import lin.bean.COINGroupId
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
 import lin.domain.WeightHandlerDomain
-import lin.domain.context.HalfCostWeight
+import lin.domain.context.CostWeight
+
 import lin.domain.context.NotWeight
 import lin.domain.result.*
 import lin.domain.strategy.FindComboStrategy.Companion.DEF_PRIORITY
@@ -73,7 +74,7 @@ class ExtCostStrategy : FindComboStrategy {
         val extCostConfig: ExtCostConfig = { cost, extCostCards ->
             var reduceWeight = NotWeight
             val extCost = extCostCards.sumOf { it.extCost() }
-            if (cost < 5) reduceWeight = -extCost * HalfCostWeight
+            if (cost < 5) reduceWeight = -extCost * CostWeight
             Pair(extCost, reduceWeight)
         }
     }

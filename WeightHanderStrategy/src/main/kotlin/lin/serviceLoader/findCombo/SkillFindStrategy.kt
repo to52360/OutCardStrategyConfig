@@ -40,17 +40,19 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
             } ?: run { throw IllegalArgumentException("没有英雄技能") }
         }
         if (warManage.roundExecuteOnce(registerId)) {
-            isUsedSkill = false
-            skillComboCard?.let {
-                val skill = warManage.getPower()
-                if (it.card != skill) {
-                    createSkill()
-                }
-            } ?: run {
+            return isUsedSkill
+        }
+        skillComboCard?.let {
+            val skill = warManage.getPower()
+            if (it.card != skill) {
                 createSkill()
             }
+        } ?: run {
+            createSkill()
         }
-        return isUsedSkill
+        isUsedSkill = false
+        return false
+
 
 
     }

@@ -12,3 +12,6 @@ fun List<Card>.isExtWeight(): Boolean {
 fun List<Card>.canHurt(): List<Card> {
     return this.filter { it.canHurt() }
 }
+fun List<Card>.canHurtNum(): Int {
+    return this.count { it.canHurt() }
+}

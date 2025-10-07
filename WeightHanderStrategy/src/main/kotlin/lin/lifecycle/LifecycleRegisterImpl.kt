@@ -24,8 +24,8 @@ class LifecycleRegisterImpl : LifecycleRegister {
         }
     }
 
-    override fun logout(anys: List<Any>) {
-        anys.forEach { any ->
+    override fun logout(anyList: List<Any>) {
+        anyList.forEach { any ->
             if (any is RoundLifecycle) {
                 roundLifecycles.remove(any)
             }

@@ -6,7 +6,7 @@ import lin.domain.war.SimpleCleanWar
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.my.attack.attackAfterLessBlood
 import lin.warExt.my.attack.findMeAtc
-import java.util.LinkedList
+import java.util.*
 
 interface WarHandler {
     fun isToDie(comboCard: ComboCard, myWarManage: MyWarManage): Boolean
@@ -17,7 +17,7 @@ class ToDieHandler(val myWarManage: MyWarManage) {
     fun finToDie(canAttacks: List<ComboCard>, myWarManage: MyWarManage): MutableList<ComboCard> {
         val toDieList = LinkedList<ComboCard>()
         for (comboCard in canAttacks) {
-            var toDie = comboCard.toDie
+            var toDie = comboCard.toDie()
             if (toDie) { //单一标识的处理
                 toDieList.add(comboCard)
             } else {//通用的处理

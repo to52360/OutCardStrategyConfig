@@ -16,6 +16,7 @@ import lin.serviceLoader.parse.LieRenParse
 import lin.serviceLoader.parse.ParseCardRule
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.parse.ParseCombo
+import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
 import lin.utils.database.DefDBUrl
 import lin.utils.database.SqliteJdbcProvider
 import lin.utils.database.dao.CardInfoDao
@@ -55,13 +56,14 @@ class ModulesLoad {
 
     val mainModule = module {
         single { WAR }
-        singleOf(::MyWarManage)
+        singleOf(::MyWarManage) bind WarInfo::class
         singleOf(::WeightHandlerDomain)
     }
 
     val utilsModule = module {
         singleOf(::UseStrategyUtils)
         singleOf(::FindPlanner)
+        singleOf(::CleanWarUtils)
     }
     val findStrategy = module {
         singleOf(::ExtCostStrategy) bind FindComboStrategy::class

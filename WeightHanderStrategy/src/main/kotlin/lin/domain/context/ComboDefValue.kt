@@ -1,7 +1,7 @@
 package lin.domain.context
 
-//超模一费10点权重
-const val CostWeight = 10.0
+//表示一费5点权重,可以在打不满费用时打出
+const val CostWeight = 5.0
 const val HalfCostWeight = CostWeight / 2
 const val NotWeight = 0.0
 const val BaseWeight = 1.0

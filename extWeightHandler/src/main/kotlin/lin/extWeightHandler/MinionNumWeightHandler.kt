@@ -4,7 +4,7 @@ import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
 import lin.domain.MyWarManage
 import lin.domain.WarInfo
-import lin.domain.context.HalfCostWeight
+import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.lifecycle.RoundLifecycle
 import lin.warExt.my.base.getCost
@@ -19,7 +19,7 @@ import lin.weightHandler.WeightHandler
 class MinionNumWeightHandler : WeightHandler, RoundLifecycle {
     var tooMach = false
     val maxCostGap = 2
-    val gapCostWeight = -HalfCostWeight
+    val gapCostWeight = -CostWeight
 
     override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
         if (tooMach && callCard.card.cardType == CardTypeEnum.MINION) {

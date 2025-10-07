@@ -1,4 +1,4 @@
-package lin.serviceLoader.weightRule.onWar
+package lin.serviceLoader.weightRule.onWar.rival
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard

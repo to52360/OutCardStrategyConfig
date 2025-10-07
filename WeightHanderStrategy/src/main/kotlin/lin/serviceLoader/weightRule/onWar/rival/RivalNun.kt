@@ -1,4 +1,4 @@
-package lin.serviceLoader.weightRule.onWar
+package lin.serviceLoader.weightRule.onWar.rival
 
 import lin.bean.ComboCard
 import lin.domain.WarInfo

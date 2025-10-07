@@ -4,7 +4,7 @@ import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 
-open class PointWarCard(val option: (ComboCard) -> Boolean) : AbsWeightCondition() {
+abstract class PointWarCard(val option: (ComboCard) -> Boolean) : AbsWeightCondition() {
     override fun description(): String {
         return "指向指定目标,多个指向费用最高的"
     }

@@ -5,6 +5,7 @@ import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
+import lin.serviceLoader.weightRule.utils.cardUtils.canHurtNum
 
 /**
  * 敌方场上随从攻击力总和
@@ -24,7 +25,7 @@ fun WarInfo.rivalFindMaxAtcMinion(): Card? {
 fun WarInfo.rivalCardsByPlayArea() = war.rival.playArea.cards
 
 fun WarInfo.rivalCanHurt() = rivalCardsByPlayArea().canHurt()
-
+fun WarInfo.rivalCanHurtCount() = rivalCardsByPlayArea().canHurtNum()
 fun WarInfo.rivalSecretSize() = war.rival.secretArea.cards.size
 
 fun WarInfo.rivalHandSize() = war.rival.handArea.cards.size
@@ -38,8 +39,9 @@ fun WarInfo.rivalFindMinHealthCard(): Card? {
 fun WarInfo.rivalPlayAreaSize(): Int{
     return war.rival.playArea.cards.size
 }
-fun WarInfo.rivalIsNotCardByPlayArea():Boolean{
-    return rivalCardsByPlayArea().isEmpty()
+fun WarInfo.rivalNotHasMinion(): Boolean {
+    val cards = rivalCardsByPlayArea()
+    return cards.isEmpty() || cards.count { it.canHurt() } == 0
 }
 
 fun WarInfo.rivalBlood() = war.rival.playArea.hero!!.blood()

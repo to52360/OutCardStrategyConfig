@@ -11,12 +11,16 @@ import lin.domain.context.NotWeight
 import lin.domain.context.UseAnimationTime
 import lin.domain.result.*
 import lin.domain.strategy.*
+import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.my.base.getCost
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
 
 /**
@@ -48,6 +52,9 @@ class ComboDomain : KoinComponent {
             "ComboDao初始化"
         }
         threadContext {
+            loadKoinModules(module {
+                single { lifecycleRegisterImpl } bind LifecycleRegister::class
+            })
             warManage = get<MyWarManage>()
             weightHandlerDomain = get<WeightHandlerDomain>()
         }

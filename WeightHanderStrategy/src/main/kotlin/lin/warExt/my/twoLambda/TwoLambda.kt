@@ -23,5 +23,8 @@ fun WarInfo.findMeTauntSumBlood(): Int {
 fun WarInfo.findAtcSum(): Int {
     return getPlayCards().sumOf { it.atc }
 }
+fun WarInfo.minionHasCanAttack(): Boolean {
+    return getPlayCards().any { it.canAttack() }
+}
 
-fun WarInfo.hasCanAttack() = getPlayCards().any { it.canAttack() } || hero()?.canAttack() ?: false
+fun WarInfo.hasCanAttack() = minionHasCanAttack() || hero()?.canAttack() ?: false

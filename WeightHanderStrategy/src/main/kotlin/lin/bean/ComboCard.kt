@@ -76,13 +76,13 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
      * todo-future   or条件判断,存在问题(需要严格的顺序),目前不想大改先这样
      */
     fun isBaseWeight(): Boolean {
-        return extPowerWeight == NotWeight
+        return extPowerWeight == card.cost.toDouble()
     }
 
     /**
      * 战场相关
      */
-    val toDie = cardWeightInfo?.toDie ?: false
+    fun toDie() = cardWeightInfo?.toDie ?: false
 
 
 
@@ -143,8 +143,8 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
 
     override fun toString(): String {
         if (card.entityName.startsWith("UNK"))
-            return "{id=${cardId()},weight=${powerWeight},use}"
-        return "{id=${cardId()},name=${card.entityName},weight=${powerWeight}}"
+            return "{id=${cardId()},weight=${powerWeight},useGroupId=${useGroupId},useGroupOrder=${useGroupOrder}}"
+        return "{id=${cardId()},name=${card.entityName},weight=${powerWeight},useGroupId=${useGroupId},useGroupOrder=${useGroupOrder}"
     }
 
 }

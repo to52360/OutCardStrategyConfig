@@ -30,8 +30,7 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
         if (comboCard.basePowerWeight == BaseWeight && CardTypeEnum.MINION == card.cardType) {
             val c = cache[card.cardId + card.cost]
             if (c == null) {
-                var baseWeight = (card.atc + card.health) - (card.cost * 2)
-                if (baseWeight != 0) baseWeight /= 2
+                val baseWeight = (card.atc + card.health) / 2 - card.cost
                 myLog.info {
                     "${card.entityName}的基础权重:${baseWeight}"
                 }

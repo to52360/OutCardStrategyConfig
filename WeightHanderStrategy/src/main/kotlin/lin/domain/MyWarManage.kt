@@ -49,7 +49,9 @@ interface WarInfo {
      */
     fun cleanPlayByRoundOnce(): Boolean
     fun roundExecuteOnce(registryId: String): Boolean
+    fun reloadPlayComboCards()
 }
+
 
 /**
  * todo-future 东西太多,功能也太多了,看后面需不需要部分功能,采用组合
@@ -163,7 +165,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     }
 
 
-    fun reloadPlayComboCards() {
+    override fun reloadPlayComboCards() {
         playComboCards = parseComboCards(getPlayCards())
     }
 
@@ -289,8 +291,11 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
                     }
                     useResult = useCard(comboCard)
                 }
-                myLog.info { "随机指向打出" }
-                useResult = autoPower(card)
+                if (!useResult) {
+                    myLog.info { "随机指向打出" }
+                    useResult = autoPower(card)
+                }
+
             }
 
         }
@@ -357,10 +362,10 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     override fun roundExecuteOnce(registryId: String): Boolean {
         val isExist = registryInfo.contains(registryId)
         if (isExist) {
-            return false
+            return true
         }
         registryInfo.add(registryId)
-        return true
+        return false
     }
 
     fun processPlayCardIsFull(): Double {

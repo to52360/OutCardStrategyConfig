@@ -1,6 +1,5 @@
-package lin.serviceLoader.weightRule.onWar
+package lin.serviceLoader.weightRule.onWar.rival
 
-import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.util.CardUtil
 import lin.bean.CleanWarId
 import lin.bean.ComboCard
@@ -10,21 +9,17 @@ import lin.domain.context.UnUseWeight
 import lin.domain.strategy.UseBeforeStrategy
 import lin.domain.strategy.UseStrategyUtils
 import lin.lifecycle.RoundLifecycle
-import lin.serviceLoader.weightRule.onWar.ReleaseWar.Companion.ALL_CLEAN
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.cardUtils.isExtWeight
-import lin.warExt.my.base.meBlood
-import lin.warExt.my.twoLambda.findAtcSum
-import lin.warExt.my.twoLambda.findMeTauntSumBlood
-import lin.warExt.rival.findRivalAtcSum
-import lin.warExt.rival.rivalCanHurt
-import lin.warExt.rival.rivalCardsByPlayArea
+import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+
 
 /**
  * todo 数量可以用权重解决
  */
 abstract class ReleaseWar(var warCardGap: Int, var rivalAtc: Int, var lessBlood: Int) : AbsWeightCondition(),
-    RoundLifecycle, UseBeforeStrategy {
+    RoundLifecycle, UseBeforeStrategy, KoinComponent {
     companion object {
         //无伤害视为全部清理
         const val ALL_CLEAN: Int = 0
@@ -32,6 +27,7 @@ abstract class ReleaseWar(var warCardGap: Int, var rivalAtc: Int, var lessBlood:
     override fun name(): String {
         return "解场用的之aoe"
     }
+    val cleanWarUtils: CleanWarUtils = get<CleanWarUtils>()
     val cache = mutableMapOf<String, Int>()
     private var clean = true
     private var first = true
@@ -44,7 +40,7 @@ abstract class ReleaseWar(var warCardGap: Int, var rivalAtc: Int, var lessBlood:
     }
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
 
-        val weight = calWeight(callCard.cardId(), warInfo)
+        val weight = calWeight(callCard.cardId())
         if (weight + callCard.powerWeight > NotWeight) {
             callCard.useBeforeStrategy?.add(this) ?: run { callCard.useBeforeStrategy = useBeforeStrategy }
             callCard.useGroupId = CleanWarId
@@ -55,72 +51,36 @@ abstract class ReleaseWar(var warCardGap: Int, var rivalAtc: Int, var lessBlood:
     }
 
     override fun extAction(comboCard: ComboCard, useStrategyUtils: UseStrategyUtils, warInfo: WarInfo) {
-        warInfo.cleanPlayByRoundOnce()
-        if (calWeight(comboCard.cardId(), warInfo) == UnUseWeight) {
+        cleanWarUtils.reload()
+        if (calWeight(comboCard.cardId()) == UnUseWeight) {
             comboCard.unUse()
         }
 
     }
 
-    private fun calWeight(id: String, warInfo: WarInfo): Double {
+    private fun calWeight(id: String): Double {
+
         val damage = cache.getOrPut(id) {
             calDamage(id)
         }
-
-        val rivalCards = warInfo.rivalCardsByPlayArea().filter { it.canHurt() }
-        val extRivalNum = calExtRivalNum(rivalCards, warInfo)
-
-        val meCards = warInfo.rivalCanHurt()
-        var meCardsNun = meCards.size
-        if (damage != ALL_CLEAN) {
-            meCardsNun = meCards.filter { it.blood() <= damage }.size
+        /*        if (damage == ALL_CLEAN) { //无视条件
+                    if (cleanWarUtils.moreAtcThanGap(this.rivalAtc)) {
+                        if(cleanWarUtils.cleanOnce(damage)&&cleanWarUtils.moreAtcThanGap(this.rivalAtc))
+                            return groupWeight
+                    }
+                }*/
+        if (cleanWarUtils.rivalNumLessGap(warCardGap)) {
+            return UnUseWeight
         }
-        var warCardGap = extRivalNum - meCardsNun
-
-        if (extRivalNum >= this.warCardGap && warInfo.cleanPlayByRoundOnce()) {
-            warCardGap = extRivalNum - meCardsNun
-        }
-
-        if (warCardGap >= this.warCardGap) {
-            var meetNum = rivalCards.size
-            if (damage != ALL_CLEAN) {
-                meetNum = rivalCards.filter { it.blood() <= damage }.size
-            }
-            var extWeight = 0.0
-            if (meetNum != 0) {
-                extWeight = meetNum.toDouble() / rivalCards.size
-            }
-
-            return groupWeight + extWeight
-        }
+        cleanWarUtils.cleanOnce(damage)
 
 
-        //场攻大于12
-        if (damage == ALL_CLEAN) { //无视条件
-            val rivalAtc = warInfo.findRivalAtcSum() - warInfo.findAtcSum()
-            if (rivalAtc > this.rivalAtc) return groupWeight
-        }
+        if (cleanWarUtils.lessGap(warCardGap, damage)) return UnUseWeight
 
-
-        return UnUseWeight
+        return groupWeight
     }
 
-    /**
-     * 获取额外数量,类似数量加权
-     */
-    private fun calExtRivalNum(rivalCards: List<Card>, warInfo: WarInfo): Int {
-        var extRivalNum = rivalCards.size
-        if (extRivalNum < warCardGap) {
-            val meBlood = warInfo.meBlood() + warInfo.findMeTauntSumBlood()
-            if (meBlood - rivalAtc < lessBlood) extRivalNum++ //血量少判断数量加一
-            else {
-                //含有特殊随从判断加一
-                if (rivalCards.isExtWeight()) extRivalNum++
-            }
-        }
-        return extRivalNum
 
-    }
 }
 
 class DepNumRelWar() : ReleaseWar(0, 0, 0) {
@@ -139,7 +99,7 @@ class DepNumRelWar() : ReleaseWar(0, 0, 0) {
 fun calDamage(id: String): Int {
     val cardText = getText(id)
     val damage = extractNumber(cardText)
-    if (damage == ALL_CLEAN) return ALL_CLEAN
+    if (damage == ReleaseWar.Companion.ALL_CLEAN) return ReleaseWar.Companion.ALL_CLEAN
     val count = extractCount(cardText)
     return damage * count
 }
