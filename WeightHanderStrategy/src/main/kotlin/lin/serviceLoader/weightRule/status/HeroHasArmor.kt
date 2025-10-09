@@ -16,7 +16,7 @@ class HeroHasArmor : AbsWeightCondition() {
 
 class HeroWeightArmor : AbsWeightCondition() {
     override fun description(): String {
-        return "使用不符条件作为数量权重"
+        return ""
     }
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {

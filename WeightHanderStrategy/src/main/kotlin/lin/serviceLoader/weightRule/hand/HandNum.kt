@@ -1,8 +1,7 @@
 package lin.serviceLoader.weightRule.hand
 
-import club.xiaojiawei.hsscriptcardsdk.bean.Card
-import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
+import lin.bean.comboCardUtils.base.isMinion
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 import lin.warExt.my.base.getHandCards
@@ -16,12 +15,12 @@ class HandNumWeight : AbsWeightCondition() {
     }
 }
 
-abstract class AbsNumWeight(val filterList: (WarInfo) -> List<Card>) : AbsWeightCondition() {
+abstract class AbsNumWeight(val filterList: (WarInfo) -> Int) : AbsWeightCondition() {
     override fun description(): String {
         return "根据数量"
     }
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        val size = filterList(warInfo).size
+        val size = filterList(warInfo)
         return if (size > number) {
             groupWeight
         } else unConditionWeight
@@ -30,9 +29,9 @@ abstract class AbsNumWeight(val filterList: (WarInfo) -> List<Card>) : AbsWeight
 }
 
 class DefHandNum : AbsNumWeight({
-    it.getHandCards()
+    it.getHandCards().size
 })
 
 class HandNumMinion : AbsNumWeight({
-    it.getHandCards().filter { it.cardType == CardTypeEnum.MINION }
+    it.getHandCards().count { it -> it.isMinion() }
 })

@@ -1,11 +1,13 @@
 package lin.weightHandler
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
-import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.ComboCard
+import lin.bean.comboCardUtils.base.isMinion
 import lin.domain.MyWarManage
-import lin.domain.context.BaseWeight
+
 import lin.domain.context.CostWeight
+
+import lin.domain.context.MaxCostWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.myLog
@@ -26,38 +28,31 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
     }
     override fun cardWeight(comboCard: ComboCard):Double{
         val card = comboCard.card
-
-        if (comboCard.basePowerWeight == BaseWeight && CardTypeEnum.MINION == card.cardType) {
-            val c = cache[card.cardId + card.cost]
-            if (c == null) {
-                val baseWeight = (card.atc + card.health) / 2 - card.cost
-                myLog.info {
-                    "${card.entityName}的基础权重:${baseWeight}"
-                }
-                val weigh = getWeigh(card)
-                myLog.info {
-                    "${card.entityName}的特征权重:${weigh}"
-                }
-                var result = baseWeight + weigh * CostWeight
+        if (!(comboCard.isBaseWeight() && card.isMinion())) return NotWeight
 
 
-                //避免权重太夸张
-                if (result > CostWeight) result = CostWeight
-                cache[card.cardId + card.cost] = result
-                return result
+        val traitWeight = cache.getOrPut(card.cardId) {
+            val weigh = getWeigh(card) * CostWeight
+            myLog.info {
+                "${card.entityName}的特征权重:${weigh}"
             }
-            return c
-
-
+            weigh
         }
-        return NotWeight
+        var baseWeight = (card.atc + card.health).toDouble() / 2 - card.cost + traitWeight
+        myLog.info {
+            "${card.entityName}通用随从计算:${baseWeight}"
+        }
+        //避免权重太夸张
+        if (baseWeight > MaxCostWeight) baseWeight = MaxCostWeight
+
+        return baseWeight
     }
 
     /**
      * 处理战场已满
      */
     fun processPlayFull(callCard: ComboCard, warManage: MyWarManage): Double {
-        if (CardTypeEnum.MINION == callCard.card.cardType) {
+        if (callCard.isMinion()) {
             return warManage.processPlayCardIsFull()
         }
         return NotWeight

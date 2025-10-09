@@ -9,9 +9,6 @@ import lin.domain.combo.ComboParse.Companion.LastUseGroupId
 
 
 class LastUseCombo : ValidBindComboParse {
-    companion object {
-
-    }
 
     override fun processBindCombo(
         cardWeightInfos: List<CardWeightInfo>, comboInfo: ComboInfo

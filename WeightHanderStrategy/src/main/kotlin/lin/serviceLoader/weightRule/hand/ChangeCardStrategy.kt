@@ -21,9 +21,7 @@ class ChangeCardStrategy : AbsWeightCondition() {
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val handSize = warInfo.getHandCards().size
         if (handSize < number) {
-            //用权重作为数量限制,避免写死,灵活但是书写更复杂
             callCard.useGroupId = ChangeGroupId
-            if (warInfo.getCost() >= callCard.cost() * 2 && handSize < number - 2) return groupWeight * 2
             return groupWeight
         } else {
             if (warInfo.getHandCards().size > 8) {

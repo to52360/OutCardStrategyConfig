@@ -49,10 +49,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
 
     //使用卡牌分组和排序
     var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
-        set(value) { //目前没有处理与基础信息冲突策略,先不允许改
-            if (field == DefUseGroupId)
-                field = value
-        }
+
     var useGroupOrder: Double = basePowerWeight
 
     // 出牌权重 可能作为权重优先级

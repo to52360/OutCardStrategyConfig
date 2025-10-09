@@ -107,21 +107,22 @@ class ComboDomain : KoinComponent {
         //todo 这里存在问题
         val moreTryCard = weightResult.lessAbleUseCards()
         if (moreTryCard.isNotEmpty()) {
-            log.info { "剩余的卡:${moreTryCard}" }
             unAbleUseCards.addAll(moreTryCard)
         }
         val costWeight = CostWeight * warManage.getCost()
 
-
+        //没有为0的牌
         if (costWeight == NotWeight && !unAbleUseCards.any { it.cost() == 0 }) return false
+
         unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.powerWeight < NotWeight }
-        if (unAbleUseCards.isNotEmpty()) {
-            val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
-                .sortedWith(USE_ORDER)
-            for (bestCombo in bestCombos) {
-                if (useCardAndIsReload(bestCombo)) return true
-            }
+        if (unAbleUseCards.isEmpty()) return false
+
+        val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
+            .sortedWith(USE_ORDER)
+        for (bestCombo in bestCombos) {
+            if (useCardAndIsReload(bestCombo)) return true
         }
+
 
 
         return false
@@ -189,6 +190,7 @@ class ComboDomain : KoinComponent {
      */
     private fun executeUseCard(weightResult: EndWeightResult) {
         val bestCombination = weightResult.bestCombination
+        myLog.info { "能够使用的卡牌:${weightResult.lessAbleUseCards()}" }
         val result = useCombo(bestCombination)
         //重新执行
         if (result) return
