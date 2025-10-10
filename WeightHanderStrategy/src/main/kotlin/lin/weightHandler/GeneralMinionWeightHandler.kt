@@ -4,10 +4,7 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
 import lin.bean.comboCardUtils.base.isMinion
 import lin.domain.MyWarManage
-
 import lin.domain.context.CostWeight
-
-import lin.domain.context.MaxCostWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.myLog
@@ -28,24 +25,26 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
     }
     override fun cardWeight(comboCard: ComboCard):Double{
         val card = comboCard.card
-        if (!(comboCard.isBaseWeight() && card.isMinion())) return NotWeight
-
-
-        val traitWeight = cache.getOrPut(card.cardId) {
-            val weigh = getWeigh(card) * CostWeight
-            myLog.info {
-                "${card.entityName}的特征权重:${weigh}"
+        if (comboCard.isBaseWeight() && card.isMinion()) {
+            val traitWeight = cache.getOrPut(card.cardId) {
+                val weigh = getWeigh(card) * CostWeight
+                myLog.info {
+                    "${card.entityName}的特征权重:${weigh}"
+                }
+                weigh
             }
-            weigh
+            var baseWeight = (card.atc + card.health).toDouble() / 2 - card.cost + traitWeight
+            myLog.info {
+                "${card.entityName}通用随从计算:${baseWeight}"
+            }
+            //避免权重太夸张
+            if (baseWeight > CostWeight) baseWeight = CostWeight
+            return baseWeight
         }
-        var baseWeight = (card.atc + card.health).toDouble() / 2 - card.cost + traitWeight
-        myLog.info {
-            "${card.entityName}通用随从计算:${baseWeight}"
-        }
-        //避免权重太夸张
-        if (baseWeight > MaxCostWeight) baseWeight = MaxCostWeight
 
-        return baseWeight
+
+
+        return NotWeight
     }
 
     /**

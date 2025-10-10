@@ -20,7 +20,7 @@ class SimpleCleanWar(canAttacks: MutableList<ComboCard>, val rival: Player) {
      * 判断有没有攻击目标,有进行初始化
      */
     private fun initAttack(): Boolean {
-        if (rivalPlayArea.cards.isEmpty()) return false
+        if (rivalPlayArea.cards.isEmpty()) return true
         rivalCards = LinkedList(rivalPlayArea.cards)//复制一下避免并发修改错误
         auraCards = mutableListOf()
         tauntCards = mutableListOf()
@@ -38,14 +38,16 @@ class SimpleCleanWar(canAttacks: MutableList<ComboCard>, val rival: Player) {
             }
 
         }
-        return true
+        return false
     }
 
-    fun executeAttack() {
-        if (initAttack()) {
-            myLog.info { "执行送随从" }
-            attack()
-        }
+    fun executeAttack(): Boolean {
+        if (initAttack()) return false
+        myLog.info { "执行送随从" }
+        attack()
+        return true
+
+
 
     }
 

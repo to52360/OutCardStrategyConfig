@@ -107,7 +107,7 @@ class FindPlanner(val warManage: MyWarManage, val weightHandlerDomain: WeightHan
     }
 
     fun evaluateCurrentCombos(canUseCardsByGroup: Map<Boolean, List<ComboCard>>): FindNowResult {
-        val canUseCard = canUseCardsByGroup.get(false)
+        val canUseCard = canUseCardsByGroup[false]
         var nowWeightResult: WeightResult = EmptyWeightResult
         canUseCard?.let {
             nowWeightResult = weightHandlerDomain.findCombination(canUseCardsByCost = it)
@@ -124,7 +124,7 @@ class FindPlanner(val warManage: MyWarManage, val weightHandlerDomain: WeightHan
     ): WeightResult {
         val canUseCardsByGroup = this.first
         val nowWeightResult = this.second
-        val skipCard = canUseCardsByGroup.get(true)
+        val skipCard = canUseCardsByGroup[true]
         skipCard?.let { skipCard ->
             val (extCost, extWeight) = calWeightAndExtCost(skipCard)
             val extWeightResult = evaluateWithExtra(extCost, skipCard)

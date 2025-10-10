@@ -50,8 +50,10 @@ class EndWeightResult(
      * 处理权重之后的挫折
      */
     fun processWeightAfter(comboCard: ComboCard) {
+        if (comboCard.isUnUse()) return
         if (comboCard.canUse()) _canUseCardsByHandler.add(comboCard)
         else _unUseCards.add(comboCard)
+
     }
     fun addAll(comboCards: List<ComboCard>) {
         _canUseCardsByHandler.addAll(comboCards)
@@ -65,8 +67,8 @@ class EndWeightResult(
         return result
     }
 
-    override fun weightSum() = bestCombination.sumOf { it.powerWeight }
-    fun costSum() = bestCombination.sumOf { it.cost() } + extWeight
+    override fun weightSum() = bestCombination.sumOf { it.powerWeight } + extWeight
+    fun costSum() = bestCombination.sumOf { it.cost() }
     fun notAbleUseCards(): Boolean = _canUseCardsByHandler.isEmpty()
 
     override fun log() {

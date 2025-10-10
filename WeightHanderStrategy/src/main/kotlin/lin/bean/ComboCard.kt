@@ -25,14 +25,13 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
         get() = cardWeightInfo?.changeWeight ?: NotWeight
 
 
+
     //指定目标
     var pointCard: Card? = null
 
 
 
-    var useAfterStrategy: MutableList<UseAfterStrategy>? = cardWeightInfo?.useAfterStrategy
 
-    var useBeforeStrategy: MutableList<UseBeforeStrategy>? = cardWeightInfo?.useBeforeStrategy
 
 
     //换牌策略
@@ -47,6 +46,9 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
 
     val basePowerWeight = cardWeightInfo?.powerWeight ?: BaseWeight
 
+    var useAfterStrategy: MutableList<UseAfterStrategy>? = cardWeightInfo?.useAfterStrategy
+
+    var useBeforeStrategy: MutableList<UseBeforeStrategy>? = cardWeightInfo?.useBeforeStrategy
     //使用卡牌分组和排序
     var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
 

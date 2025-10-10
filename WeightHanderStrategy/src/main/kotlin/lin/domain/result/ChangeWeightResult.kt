@@ -205,7 +205,13 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
      * 从cards集合中移除所有标记为移除的卡牌
      */
     private fun remove() {
-        myLog.info { "移除的卡牌:$removeCards" }
+        myLog.info {
+            val info = StringBuffer("移除的卡牌:")
+            removeCards.forEach { card ->
+                info.append("{id:${card.cardId()},换牌权重:${card.changeWeight}}")
+            }
+            info.toString()
+        }
         /*        if(cards.size==BeginHandCardNum&&removeCards.isEmpty()){
                     for (card in changeWeight){
                         //等于0等于可抛弃

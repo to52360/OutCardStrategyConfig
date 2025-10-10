@@ -281,20 +281,20 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
             }
             if (!useResult && !(card.cardType == CardTypeEnum.MINION && isFull)) {
                 //处理发现
-                if (useStrategyUtils.tryAwait()) {
-                    //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
-                    myLog.info { "发现补偿打出" }
-                    var num = 5
-                    while (useStrategyUtils.tryAwait() && num > 0) {
-                        comboCard.card.action.chooseOne(0)
-                        num--
-                    }
-                    useResult = useCard(comboCard)
-                }
-                if (!useResult) {
-                    myLog.info { "随机指向打出" }
-                    useResult = autoPower(card)
-                }
+                /*             if (useStrategyUtils.tryAwait()) {
+                                 //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
+                                 myLog.info { "发现补偿打出" }
+                                 var num = 5
+                                 while (useStrategyUtils.tryAwait() && num > 0) {
+                                     comboCard.card.action.chooseOne(0)
+                                     num--
+                                 }
+                                 useResult = useCard(comboCard)
+                             }*/
+
+                myLog.info { "随机指向打出" }
+                useResult = autoPower(card)
+
 
             }
 
@@ -359,6 +359,10 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         return false
     }
     private val registryInfo = HashSet<String>()
+
+    /**
+     * 执行过了就返回true
+     */
     override fun roundExecuteOnce(registryId: String): Boolean {
         val isExist = registryInfo.contains(registryId)
         if (isExist) {

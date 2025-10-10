@@ -114,7 +114,8 @@ class ComboDomain : KoinComponent {
         //没有为0的牌
         if (costWeight == NotWeight && !unAbleUseCards.any { it.cost() == 0 }) return false
 
-        unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.powerWeight < NotWeight }
+        //todo-select 使用useGroupOrder排除费用权重影响
+        unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.useGroupOrder < NotWeight }
         if (unAbleUseCards.isEmpty()) return false
 
         val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
@@ -260,6 +261,8 @@ class ComboDomain : KoinComponent {
             if (useResult) {
                 myLog.info { "打出等待动画" }
                 Thread.sleep(UseAnimationTime)
+                //select 暂时这样处理发现看一下有没有问题
+                processDiscover(card)
                 card
             } else null
         }
@@ -270,6 +273,20 @@ class ComboDomain : KoinComponent {
             findAndUse()
         }
         return changeResult
+    }
+
+    private fun processDiscover(comboCard: ComboCard): Boolean {
+        if (useStrategyUtils.tryAwait()) {
+            //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
+            myLog.info { "发现补偿打出" }
+            var num = 5
+            while (useStrategyUtils.tryAwait() && num > 0) {
+                comboCard.card.action.chooseOne(0)
+                num--
+            }
+            return true
+        }
+        return false
     }
 
     fun executeChangeCard(cards: HashSet<Card>) {

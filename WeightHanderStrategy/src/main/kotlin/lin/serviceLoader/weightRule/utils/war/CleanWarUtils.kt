@@ -34,7 +34,11 @@ class CleanWarUtils(val warInfo: WarInfo) {
     //todo
     fun cleanOnce(damage: Int): Boolean {
         if (warInfo.roundExecuteOnce(CLEAN_KEY)) return false
-        if (clean(damage)) return true
+        if (clean(damage)) {
+            myLog.info { "解场之前清理随从" }
+            reload()
+            return true
+        }
         return false
 
     }
@@ -55,21 +59,20 @@ class CleanWarUtils(val warInfo: WarInfo) {
     private fun clean(damage: Int): Boolean {
         if (!warInfo.minionHasCanAttack()) return false //没有能够攻击的
         if (damage == ALL_CLEAN) {
-            myLog.info { "清理全部" }
+            myLog.info { "战场清理全部" }
             warInfo.cleanPlayByRoundOnce()
         } else {
             val meCards = warInfo.playComboCards.filter { it.card.canHurt() }
             val lessDamageCards = meCards.filterTo(mutableListOf()) { it.card.blood() <= damage }
             if (lessDamageCards.isEmpty()) {
-                warInfo.cleanPlayByRoundOnce()
+                return warInfo.cleanPlayByRoundOnce()
             } else {
                 lessDamageCards.removeIf { !it.card.canAttack() }
                 if (lessDamageCards.isEmpty()) return false
-                SimpleCleanWar(lessDamageCards, warInfo.war.rival).executeAttack()
+                return SimpleCleanWar(lessDamageCards, warInfo.war.rival).executeAttack()
 
             }
         }
-        reload()
         return true
     }
 

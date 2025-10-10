@@ -31,22 +31,7 @@ data class CardWeightInfo(
     val changeWeight: Double = NotWeight
 ) : KoinComponent {
 
-    //使用相关
-    private var _useAfterStrategy: MutableList<UseAfterStrategy>? = null
-    val useAfterStrategy: MutableList<UseAfterStrategy>?
-        get() = _useAfterStrategy
-    private var _useBeforeStrategy: MutableList<UseBeforeStrategy>? = null
-    val useBeforeStrategy: MutableList<UseBeforeStrategy>?
-        get() = _useBeforeStrategy
 
-    fun addUseStrategy(useStrategy: UseStrategy) {
-        if (useStrategy is UseBeforeStrategy) {
-            _useBeforeStrategy = _useBeforeStrategy.addSafe(useStrategy)
-        }
-        if (useStrategy is UseAfterStrategy) {
-            _useAfterStrategy = _useAfterStrategy.addSafe(useStrategy)
-        }
-    }
 
 
 
@@ -77,6 +62,22 @@ data class CardWeightInfo(
     }
 
 
+    //使用相关
+    private var _useAfterStrategy: MutableList<UseAfterStrategy>? = null
+    val useAfterStrategy: MutableList<UseAfterStrategy>?
+        get() = _useAfterStrategy
+    private var _useBeforeStrategy: MutableList<UseBeforeStrategy>? = null
+    val useBeforeStrategy: MutableList<UseBeforeStrategy>?
+        get() = _useBeforeStrategy
+
+    fun addUseStrategy(useStrategy: UseStrategy) {
+        if (useStrategy is UseBeforeStrategy) {
+            _useBeforeStrategy = _useBeforeStrategy.addSafe(useStrategy)
+        }
+        if (useStrategy is UseAfterStrategy) {
+            _useAfterStrategy = _useAfterStrategy.addSafe(useStrategy)
+        }
+    }
     /**
      *  combo相关
      *  最后使用暂时这样,没想到其他方案
@@ -84,6 +85,7 @@ data class CardWeightInfo(
      */
     var useGroupId = DefUseGroupId
     var useGroupOrder = DefUseGroupOrder
+
     private var _combos: MutableList<Combo>? = null
 
     val combos: List<Combo>?
