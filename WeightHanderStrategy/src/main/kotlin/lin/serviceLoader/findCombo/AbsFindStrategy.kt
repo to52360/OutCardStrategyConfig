@@ -32,7 +32,14 @@ abstract class AbsFindStrategy(var extCost: Int = 0, var extWeight: Double = Not
         }
     }
 
+    /**
+     * 是否执行查找动作
+     */
     abstract fun isExecute(findPlanner: FindPlanner): Boolean
+
+    /**
+     * 单播查询
+     */
     override fun find(findPlanner: FindPlanner): CmdPlanner {
         if (isExecute(findPlanner)) return ContinuePlanner
         val weightHandlerDomain = findPlanner.weightHandlerDomain
@@ -41,12 +48,22 @@ abstract class AbsFindStrategy(var extCost: Int = 0, var extWeight: Double = Not
         return result.toPlanner()
     }
 
+    /**
+     * 多重查询实现
+     */
     override fun find(findPlanner: FindPlanner, weightResult: WeightResult): WeightResult {
         if (isExecute(findPlanner)) return weightResult
         return processResult(findPlanner, weightResult)
     }
 
+    /**
+     * 空结果执行的动作
+     */
     abstract fun emptyResultAction(findPlanner: FindPlanner)
+
+    /**
+     * 权重大执行的动作
+     */
     open fun resultAction(findPlanner: FindPlanner, endWeightResult: EndWeightResult) {
         emptyResultAction(findPlanner)
     }
