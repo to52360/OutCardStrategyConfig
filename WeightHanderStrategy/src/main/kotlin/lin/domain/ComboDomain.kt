@@ -5,6 +5,7 @@ import club.xiaojiawei.hsscriptbase.config.log
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
+import lin.bean.comboCardUtils.base.isMinion
 import lin.domain.context.ChangeAnimationTime
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
@@ -113,18 +114,17 @@ class ComboDomain : KoinComponent {
 
         //没有为0的牌
         if (costWeight == NotWeight && !unAbleUseCards.any { it.cost() == 0 }) return false
-
-        //todo-select 使用useGroupOrder排除费用权重影响
-        unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.useGroupOrder < NotWeight }
+        val isFull = warManage.isFull
+        //todo 注意使用useGroupOrder排除费用权重的影响,还调整了满了,随从
+        unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.useGroupOrder < NotWeight || (isFull && it.isMinion()) }
         if (unAbleUseCards.isEmpty()) return false
 
         val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
             .sortedWith(USE_ORDER)
+        //todo 还会存在打不出的情况
         for (bestCombo in bestCombos) {
             if (useCardAndIsReload(bestCombo)) return true
         }
-
-
 
         return false
     }
@@ -261,7 +261,7 @@ class ComboDomain : KoinComponent {
             if (useResult) {
                 myLog.info { "打出等待动画" }
                 Thread.sleep(UseAnimationTime)
-                //select 暂时这样处理发现看一下有没有问题
+                //select 暂时这样处理发现,看一下有没有问题
                 processDiscover(card)
                 card
             } else null

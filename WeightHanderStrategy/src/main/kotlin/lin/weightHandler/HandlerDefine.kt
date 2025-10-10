@@ -6,7 +6,7 @@ import lin.domain.MyWarManage
 
 interface WeightHandler : Priority {
     /**
-     * todo-future 这里权重信息各自处理,要不要回收权重操作,比较好集中起来统一处理
+     * todo-future 这里设计问题,不应该用基本类型作为返回值
      */
     fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double
 

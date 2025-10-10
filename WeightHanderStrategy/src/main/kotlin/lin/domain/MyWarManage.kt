@@ -329,9 +329,10 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
 
     private var isCleanWar = false
-    private var isFull = false
-    private var useSkill = true
-
+    var isFull = false
+        private set
+    var useSkill = true
+        private set
     /**
      * 重新设置状态
      */
