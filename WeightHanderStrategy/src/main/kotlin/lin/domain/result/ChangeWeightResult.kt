@@ -39,7 +39,8 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
                 changeWeight.add(comboCard)
                 // 如果卡牌有变更规则，则添加到hasChangeRule集合
                 comboCard.changeComboRule?.let { rule ->
-                    hasChangeRule.add(comboCard)
+                    if (rule.isNotEmpty())
+                        hasChangeRule.add(comboCard)
             }
         }
     }
@@ -175,9 +176,9 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
     private fun processNotChangeRule() {
         val retained = changeWeight.filter { card ->
             val result = if (card.cost() < 3) {
-                card.changeWeight >= 0
+                card.changeWeight >= NotWeight
             } else {
-                card.changeWeight > 0
+                card.changeWeight > NotWeight
             }
             if (!result) removeCards.add(card)
             result

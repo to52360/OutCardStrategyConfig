@@ -12,7 +12,6 @@ import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.domain.strategy.UseStrategyUtils
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
@@ -23,7 +22,9 @@ import lin.warExt.action.cleanPlayAll
 import lin.warExt.my.base.*
 import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
+import org.koin.core.context.loadKoinModules
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
 
 interface WarInfo {
@@ -68,7 +69,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         private set
     override val infoMap: Map<String, CardWeightInfo>
     override var extCost: Int = 0
-    private val useStrategyUtils = get<UseStrategyUtils>()
 
     inline fun consumeExtCost(extCost: Int, consumeCost: (Int) -> Unit) {
         this.extCost = extCost
@@ -84,20 +84,20 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     //private val statusReset: StatusReset
     init {
         infoMap = getCardInfos()
-        /*      todo-future 有空在看一下,全局只执行一次
-                statusReset = StatusReset()
 
-                loadKoinModules(module{single{statusReset}})*/
+
+        loadKoinModules(module {
+            single(named("weightInfo")) { infoMap }
+        })
         parseCombo(infoMap)
     }
 
     //把配置信息转化成上下文信息
     private fun getCardInfos(): Map<String, CardWeightInfo> {
-        var infoMap: Map<String, CardWeightInfo> = emptyMap()
+        val infoMap: MutableMap<String, CardWeightInfo> = HashMap()
         ServiceLoaderUtils.loadServices(CardWeightInfoProvide::class.java).forEach {
-            infoMap = it.getInfos() + infoMap
+            infoMap.putAll(it.getInfos())
         }
-
         return infoMap
     }
 

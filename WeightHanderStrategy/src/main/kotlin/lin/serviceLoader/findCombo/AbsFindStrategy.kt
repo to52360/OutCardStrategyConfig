@@ -26,7 +26,7 @@ abstract class AbsFindStrategy(var extCost: Int = 0, var extWeight: Double = Not
 
                 ).compareSumWeight(weightResult, extWeight)
                 {
-                    resultAction(findPlanner, weightResult)
+                    resultAction(findPlanner, it)
                 }
             }
         }
@@ -64,7 +64,7 @@ abstract class AbsFindStrategy(var extCost: Int = 0, var extWeight: Double = Not
     /**
      * 权重大执行的动作
      */
-    open fun resultAction(findPlanner: FindPlanner, endWeightResult: EndWeightResult) {
+    open fun resultAction(findPlanner: FindPlanner, weightResult: WeightResult) {
         emptyResultAction(findPlanner)
     }
 }

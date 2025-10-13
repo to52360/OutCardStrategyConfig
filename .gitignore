@@ -39,3 +39,4 @@ build/
 .DS_Store
 /log/weightHandler.log
 /临时2/
+/WeightHanderStrategy/dependency-reduced-pom.xml

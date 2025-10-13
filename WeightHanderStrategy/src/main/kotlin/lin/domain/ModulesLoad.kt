@@ -1,6 +1,8 @@
 package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.status.WAR
+import lin.config.handler.ConfigHandler
+import lin.config.handler.UseConfigHandler
 import lin.domain.combo.*
 import lin.domain.combo.ComboParse.Companion.BEFORE
 import lin.domain.combo.ComboParse.Companion.CHANGE
@@ -58,6 +60,9 @@ class ModulesLoad {
         single { WAR }
         singleOf(::MyWarManage) bind WarInfo::class
         singleOf(::WeightHandlerDomain)
+    }
+    val configHandler = module {
+        singleOf(::UseConfigHandler) bind ConfigHandler::class
     }
 
     val utilsModule = module {

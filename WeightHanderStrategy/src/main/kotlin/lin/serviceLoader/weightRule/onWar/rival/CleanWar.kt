@@ -23,10 +23,12 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
     protected val cache = DamageCache()
     protected val useBeforeStrategy: MutableList<UseBeforeStrategy> by lazy { mutableListOf(this) }
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        val weight = calWeight(callCard)
+        var weight = calWeight(callCard)
         if (weight + callCard.powerWeight > NotWeight) {
             callCard.useBeforeStrategy?.add(this) ?: run { callCard.useBeforeStrategy = useBeforeStrategy }
             callCard.useGroupId = useGroupId
+            //todo 血量少于20权重翻倍 试验线标记
+            if (cleanWarUtils.isLessBlood(20)) weight *= 2
         }
         return weight
     }

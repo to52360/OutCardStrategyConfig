@@ -9,10 +9,13 @@ import org.koin.core.component.get
 
 class SoftCleanByRivalNum : AbsWeightCondition(), KoinComponent {
     val cleanWarUtils: CleanWarUtils = get<CleanWarUtils>()
+    override fun description(): String {
+        return "包含血量加权,写死在代码里"
+    }
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val warCardGap = number
         val damage = CleanWar.ALL_CLEAN
-        if (cleanWarUtils.rivalNumLessGap(warCardGap)) return unConditionWeight
+        if (cleanWarUtils.rivalNumLessGap(warCardGap, damage)) return unConditionWeight
         if (cleanWarUtils.lessGap(warCardGap, damage)) return unConditionWeight
         return groupWeight
 

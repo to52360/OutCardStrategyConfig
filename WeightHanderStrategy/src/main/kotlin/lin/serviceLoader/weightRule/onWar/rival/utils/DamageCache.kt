@@ -4,6 +4,7 @@ import club.xiaojiawei.hsscriptcardsdk.util.CardUtil
 import lin.bean.ComboCard
 import lin.bean.comboCardUtils.base.atc
 import lin.bean.comboCardUtils.base.isMinion
+import lin.myLog
 import lin.serviceLoader.weightRule.onWar.rival.CleanWar.Companion.ALL_CLEAN
 
 
@@ -19,6 +20,7 @@ class DamageCache {
         if (damage == ALL_CLEAN && callCard.isMinion()) {
             return callCard.atc()
         }
+        myLog.info { "解析到伤害值为:${damage}" }
         return damage
     }
 

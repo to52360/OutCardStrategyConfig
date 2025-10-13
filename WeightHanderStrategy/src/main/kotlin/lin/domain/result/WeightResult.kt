@@ -89,6 +89,7 @@ class EndWeightResult(
 
     }
     fun addUseCard(comboCard: ComboCard) {
+        myLog.info { "中途添加卡牌,卡牌为:${comboCard}" }
         if (comboCard.canUse()) this.bestCombination = this.bestCombination + comboCard
         else _unUseCards.add(comboCard)
     }
@@ -98,10 +99,10 @@ class EndWeightResult(
 inline fun WeightResult.compareSumWeight(
     compareWeight: WeightResult,
     extWeight: Double,
-    action: () -> Unit
+    action: (WeightResult) -> Unit
 ): WeightResult {
     if (this.weightSum() + extWeight >= compareWeight.weightSum()) {
-        action()
+        action(this)
         return this
     } else {
         return compareWeight

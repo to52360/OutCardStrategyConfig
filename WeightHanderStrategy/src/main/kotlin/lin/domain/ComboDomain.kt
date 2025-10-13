@@ -15,6 +15,7 @@ import lin.domain.strategy.*
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
+import lin.serviceLoader.findCombo.SkillFindStrategy
 import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.my.base.getCost
 import org.koin.core.component.KoinComponent
@@ -46,6 +47,7 @@ class ComboDomain : KoinComponent {
     private val useStrategyUtils = get<UseStrategyUtils>()
     private val findComboStrategyList = getKoin().getAll<FindComboStrategy>().sortedBy { it.priority() }
     private val findPlanner = get<FindPlanner>()
+    private val skillFindStrategy = get<SkillFindStrategy>()
 
     //存储策略分组
     init {
@@ -56,6 +58,7 @@ class ComboDomain : KoinComponent {
             loadKoinModules(module {
                 single { lifecycleRegisterImpl } bind LifecycleRegister::class
             })
+            //不能移动,需要线程上下文
             warManage = get<MyWarManage>()
             weightHandlerDomain = get<WeightHandlerDomain>()
         }
@@ -136,7 +139,8 @@ class ComboDomain : KoinComponent {
         myLog.info { "执行出牌策略" }
         executeEnvironment {
             findAndUse()
-            //processLessCost()
+            //todo 临时不使用技能解决方案
+            skillFindStrategy.useSkill(warManage)
         }
     }
 

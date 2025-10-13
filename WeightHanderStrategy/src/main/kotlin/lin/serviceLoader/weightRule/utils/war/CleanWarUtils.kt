@@ -40,20 +40,23 @@ class CleanWarUtils(val warInfo: WarInfo) {
             return true
         }
         return false
-
     }
 
-    fun rivalNumLessGap(warCardGap: Int): Boolean {
+
+    fun rivalNumLessGap(warCardGap: Int, atc: Int): Boolean {
         reLoadOnce()
-        val num = rivalCards.size + extRivalNum
+        val extNum = extNumByDamage(atc)
+        val num = rivalCards.size + extRivalNum + extNum
         return num < warCardGap
     }
 
     /**
      * 每回合加载一次
      */
-    fun reLoadOnce() {
-        if (!warInfo.roundExecuteOnce(RELOAD_RIVAL_KEY)) reload()
+    fun reLoadOnce(): Boolean {
+        if (warInfo.roundExecuteOnce(RELOAD_RIVAL_KEY)) return false
+        reload()
+        return true
     }
 
     private fun clean(damage: Int): Boolean {
@@ -78,18 +81,27 @@ class CleanWarUtils(val warInfo: WarInfo) {
 
 
     fun lessGap(warCardGap: Int, damage: Int): Boolean {
+
+        val extNum = extNumByDamage(damage)
         var meCardsNun = this.meCards.size
-        val rivalNun = rivalCards.size + extRivalNum
+        val rivalNun = rivalCards.size + extRivalNum + extNum
         if (rivalNun > meCardsNun && damage != ALL_CLEAN) { //
             myLog.info { "敌方数量大于我方数量无视我方" }
             val meSurvive = warInfo.getPlayCards().count { it.canHurt() && it.blood() > damage }
             meCardsNun -= meSurvive
         }
 
-
-
         return rivalNun - meCardsNun < warCardGap
     }
+
+    fun extNumByDamage(atc: Int): Int {
+        //todo 实验性添加攻击力判断
+        var extNum = 0
+        if (atc > 0 && rivalCards.sumOf { it.atc } >= atc) extNum++
+        return extNum
+
+    }
+
 
 
     fun reload() {
@@ -134,11 +146,16 @@ class CleanWarUtils(val warInfo: WarInfo) {
         val rivalNun = rivalCards.size
         if (rivalNun < meCardsNun) return
 
+
+        if (isLessBlood(10, meTauntBlood)) extRivalNum++ //快没血就保守一点
+
+
+    }
+
+    fun isLessBlood(blood: Int, meTauntBlood: Int = warInfo.findMeTauntSumBlood()): Boolean {
         val meBlood = warInfo.meBlood() + meTauntBlood
         val rivalAtc = warInfo.findRivalAtcSum()
-        if (meBlood - rivalAtc < 10) extRivalNum++ //快没血就保守一点
-
-
+        return meBlood - rivalAtc < blood
     }
 
     /**

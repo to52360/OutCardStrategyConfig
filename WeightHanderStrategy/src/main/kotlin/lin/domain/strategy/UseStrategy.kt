@@ -6,7 +6,7 @@ import lin.domain.context.AwaitAnimationTime
 import lin.myLog
 
 
-interface UseStrategy
+sealed interface UseStrategy
 
 interface UseAfterStrategy : UseStrategy {
     fun afterExtAction(comboCard: ComboCard, useStrategyUtils: UseStrategyUtils, warInfo: WarInfo)

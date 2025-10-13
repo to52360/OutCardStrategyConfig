@@ -11,6 +11,7 @@ import lin.domain.strategy.FindComboStrategy.Companion.SKILL_PRIORITY
 import lin.domain.strategy.FindPlanner
 import lin.domain.strategy.UseAfterStrategy
 import lin.domain.strategy.UseStrategyUtils
+import lin.myLog
 import lin.warExt.my.base.getCost
 import lin.warExt.my.base.getPower
 
@@ -45,6 +46,7 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
         skillComboCard?.let {
             val skill = warManage.getPower()
             if (it.card != skill) {
+                myLog.info { "变更技能" }
                 createSkill()
             }
         } ?: run {
@@ -64,7 +66,17 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
         val warManage = findPlanner.warManage
         return processSkill(warManage) || skillComboCard?.let { warManage.getCost() < it.cost() } ?: true
     }
+    fun useSkill(warManage: MyWarManage) {
+        skillComboCard?.let {
+            if (warManage.getCost() < it.cost()) return
+            if (isUsedSkill) return
+            warManage.tryUseCard(it)
+        } ?: run {
+            myLog.warn { "没有技能信息" }
+            return
+        }
 
+    }
 
     override fun emptyResultAction(findPlanner: FindPlanner) {
         isUsedSkill = true
@@ -99,8 +111,8 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
         }
     }
 
-    override fun resultAction(findPlanner: FindPlanner, endWeightResult: EndWeightResult) {
-        skillComboCard?.let { endWeightResult.addUseCard(it) } ?: throw IllegalStateException("没有技能信息")
+    override fun resultAction(findPlanner: FindPlanner, weightResult: WeightResult) {
+        processIsNotCalculate(findPlanner, weightResult)
     }
 
     override fun afterExtAction(
