@@ -19,6 +19,7 @@ import lin.serviceLoader.parse.ParseCardRule
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.parse.ParseCombo
 import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
+import lin.serviceLoader.weightRule.utils.war.WarStatus
 import lin.utils.database.DefDBUrl
 import lin.utils.database.SqliteJdbcProvider
 import lin.utils.database.dao.CardInfoDao
@@ -69,6 +70,7 @@ class ModulesLoad {
         singleOf(::UseStrategyUtils)
         singleOf(::FindPlanner)
         singleOf(::CleanWarUtils)
+        singleOf(::WarStatus)
     }
     val findStrategy = module {
         singleOf(::ExtCostStrategy) bind FindComboStrategy::class

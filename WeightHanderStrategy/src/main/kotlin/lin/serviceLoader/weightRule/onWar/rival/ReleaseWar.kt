@@ -2,7 +2,6 @@ package lin.serviceLoader.weightRule.onWar.rival
 
 import lin.bean.CleanWarId
 import lin.bean.ComboCard
-import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 
 
@@ -25,7 +24,6 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
         if (cleanWarUtils.lessGap(warCardGap, damage)) return UnUseWeight
         if (damage == ALL_CLEAN) return groupWeight
         val cutWeight = unConditionWeight * cleanWarUtils.unPassRate(damage)
-        if (groupWeight + cutWeight <= NotWeight) return UnUseWeight
         return groupWeight + cutWeight
     }
 

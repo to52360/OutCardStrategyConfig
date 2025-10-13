@@ -18,9 +18,7 @@ class WarStatus(val warInfo: WarInfo) {
     var rivalAvgAct = 0.0
 
 
-    fun overAvgAtcByRival(avgAct: Int): Boolean {
-        return rivalAvgAct > avgAct
-    }
+
 
     fun reLoadOnce(): Boolean {
         if (warInfo.roundExecuteOnce(ONCE_WAR_STATUS)) return false
@@ -28,8 +26,20 @@ class WarStatus(val warInfo: WarInfo) {
         return true
     }
 
+
     fun reload() {
-        rivalCards = warInfo.rivalCardsByPlayArea().canHurt()
+        val rivalCards = warInfo.rivalCardsByPlayArea().canHurt()
+        //select 亡语会有出入
+        if (rivalCards.size != this.rivalCards.size) {
+            this.rivalCards = rivalCards
+            sumAtc = rivalCards.sumOf { it.atc }
+            rivalAvgAct = if (rivalCards.isEmpty()) 0.0
+            else sumAtc / rivalCards.size.toDouble()
+
+        }
+
+        reloadMe()
+
         sumAtc = rivalCards.sumOf { it.atc }
         rivalAvgAct = if (rivalCards.isEmpty()) 0.0
         else sumAtc / rivalCards.size.toDouble()
@@ -46,10 +56,14 @@ class WarStatus(val warInfo: WarInfo) {
      * 有优势
      * todo 暂定 初步方案
      */
-    fun isAdv(avgAct: Int): Boolean {
+    fun isAdv(): Boolean {
+        if (meCards.size >= rivalCards.size) return true
         if (meTaunt >= sumAtc) return true
-        if (rivalAvgAct < avgAct) return true
-
         return false
+    }
+
+    fun isAdvByAvgAtc(avgAct: Int): Boolean {
+        if (isAdv()) return true
+        return rivalAvgAct > avgAct
     }
 }

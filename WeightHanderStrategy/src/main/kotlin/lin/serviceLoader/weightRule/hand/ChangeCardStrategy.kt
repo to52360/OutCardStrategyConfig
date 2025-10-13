@@ -3,10 +3,10 @@ package lin.serviceLoader.weightRule.hand
 import lin.bean.ChangeGroupId
 import lin.bean.ComboCard
 import lin.domain.WarInfo
+import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.serviceLoader.weightRule.onWar.rival.CleanWar.Companion.ALL_CLEAN
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
+import lin.serviceLoader.weightRule.utils.war.WarStatus
 import lin.warExt.my.base.getHandCards
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -15,19 +15,19 @@ import org.koin.core.component.get
  * 更改手牌
  */
 class ChangeCardStrategy : AbsWeightCondition(), KoinComponent {
-    val cleanWarUtils = get<CleanWarUtils>()
+    val warWeight = get<WarStatus>()
     override fun description(): String {
         return "groupWeight作为真正的权重,unConditionWeight和powerWeight用来判断数量"
     }
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val handSize = warInfo.getHandCards().size
-        //临时性
-        cleanWarUtils.reLoadOnce()
-        if (!cleanWarUtils.lessGap(3, ALL_CLEAN)) return unConditionWeight
-
+        //todo 临时性
+        warWeight.reLoadOnce()
+        callCard.useGroupId = ChangeGroupId
+        if (!warWeight.isAdvByAvgAtc(5)) return NotWeight
         if (handSize < number) {
-            callCard.useGroupId = ChangeGroupId
+
             return groupWeight
         } else {
             if (warInfo.getHandCards().size > 8) {
@@ -38,7 +38,6 @@ class ChangeCardStrategy : AbsWeightCondition(), KoinComponent {
                                 }*/
                 return UnUseWeight
             }
-            callCard.useGroupId = ChangeGroupId
             return unConditionWeight
         }
 

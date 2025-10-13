@@ -36,9 +36,9 @@ fun calDamage(card: ComboCard): Int {
 
 fun extractNumber(text: String): Int {
     // 使用正则表达式匹配整数（包括负数）
-    val regex = """[$]?(\d+)点伤害""".toRegex()
+    val regex = """\$?(\d+)点伤害""".toRegex()
     val match = regex.find(text)
-    return match?.value?.toIntOrNull() ?: 0
+    return match?.groupValues?.get(1)?.toIntOrNull() ?: 0
 }
 
 fun getText(id: String): String {

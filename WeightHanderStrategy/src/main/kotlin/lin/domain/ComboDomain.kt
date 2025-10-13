@@ -281,10 +281,11 @@ class ComboDomain : KoinComponent {
     private fun processDiscover(comboCard: ComboCard): Boolean {
         if (useStrategyUtils.tryAwait()) {
             //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
-            myLog.info { "发现补偿打出" }
+            myLog.info { "发现补偿操作" }
             var num = 5
             while (useStrategyUtils.tryAwait() && num > 0) {
                 comboCard.card.action.chooseOne(0)
+                Thread.sleep(UseAnimationTime)
                 num--
             }
             return true
