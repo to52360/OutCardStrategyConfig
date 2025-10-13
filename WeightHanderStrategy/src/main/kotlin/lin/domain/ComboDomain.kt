@@ -105,24 +105,20 @@ class ComboDomain : KoinComponent {
      * 处理剩余费用
      */
     private fun processLessCost(weightResult: EndWeightResult): Boolean {
-        //记录剩余的卡
-        val unAbleUseCards = weightResult.unUseCards
-        myLog.info { "权重为负的卡:${unAbleUseCards}" }
-        //todo 这里存在问题
-        val moreTryCard = weightResult.lessAbleUseCards()
-        if (moreTryCard.isNotEmpty()) {
-            unAbleUseCards.addAll(moreTryCard)
-        }
+
+        val unAbleUseCards = weightResult.lessAbleUseCards()
+        myLog.info { "剩余未卡牌:${unAbleUseCards}" }
         val costWeight = CostWeight * warManage.getCost()
 
         //没有为0的牌
         if (costWeight == NotWeight && !unAbleUseCards.any { it.cost() == 0 }) return false
         val isFull = warManage.isFull
         //todo 注意使用useGroupOrder排除费用权重的影响,还调整了满了,随从
-        unAbleUseCards.removeIf { it.cost() > warManage.getCost() || costWeight + it.useGroupOrder < NotWeight || (isFull && it.isMinion()) }
-        if (unAbleUseCards.isEmpty()) return false
+        val moreTryCard =
+            unAbleUseCards.filter { it.cost() <= warManage.getCost() && costWeight + it.useGroupOrder > NotWeight && !(isFull && it.isMinion()) }
+        if (moreTryCard.isEmpty()) return false
 
-        val bestCombos = DefaultFindBestCombination.findBestCombination(unAbleUseCards, warManage.getCost())
+        val bestCombos = DefaultFindBestCombination.findBestCombination(moreTryCard, warManage.getCost())
             .sortedWith(USE_ORDER)
         //todo 还会存在打不出的情况
         for (bestCombo in bestCombos) {
@@ -196,11 +192,14 @@ class ComboDomain : KoinComponent {
     private fun executeUseCard(weightResult: EndWeightResult) {
         val bestCombination = weightResult.bestCombination
         myLog.info { "能够使用的卡牌:${weightResult.lessAbleUseCards()}" }
+        val extLessCost = warManage.getCost() - weightResult.costSum()
         val result = useCombo(bestCombination)
         //重新执行
         if (result) return
 
-        processLessCost(weightResult)
+        val realLessCost = warManage.getCost()
+        if (realLessCost > extLessCost) //说明有些牌没打出去,进行补偿
+            processLessCost(weightResult)
 
 
 

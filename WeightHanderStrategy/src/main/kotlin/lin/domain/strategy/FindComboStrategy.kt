@@ -153,7 +153,6 @@ class FindPlanner(val warManage: MyWarManage, val weightHandlerDomain: WeightHan
             val noHasFindRule = endWeightResult.canUseCards.filter { it.cost() <= sumExtCost && !findRule(it) }
             if (noHasFindRule.isEmpty()) return EmptyWeightResult
             val newWeight = EndWeightResult(noHasFindRule, sumExtCost)
-            newWeight.unUseCards.addAll(newWeight.unUseCards)
             newWeight.addAll(noHasFindRule)
             newWeight.findBestCombination()
             return newWeight

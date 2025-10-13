@@ -37,11 +37,8 @@ class EndWeightResult(
     //todo-future 存在直接操作权重,导致查找不到元素 想改成ArrayList,太复杂了,后面再说
     private val _canUseCardsByHandler = mutableListOf<ComboCard>()
 
-    val unUseCards: MutableList<ComboCard>
-        get() = _unUseCards
 
-    //todo-future 存在直接操作权重,导致查找不到元素
-    private val _unUseCards = mutableListOf<ComboCard>()
+
     var bestCombination: List<ComboCard> = emptyList()
         private set
     var extWeight = 0.0
@@ -50,9 +47,12 @@ class EndWeightResult(
      * 处理权重之后的挫折
      */
     fun processWeightAfter(comboCard: ComboCard) {
-        if (comboCard.isUnUse()) return
-        if (comboCard.canUse()) _canUseCardsByHandler.add(comboCard)
-        else _unUseCards.add(comboCard)
+        if (comboCard.isUnUse()) {
+            myLog.info { "忽略的匹配卡牌:${comboCard}" }
+            return
+        }
+        _canUseCardsByHandler.add(comboCard)
+
 
     }
     fun addAll(comboCards: List<ComboCard>) {
@@ -91,7 +91,7 @@ class EndWeightResult(
     fun addUseCard(comboCard: ComboCard) {
         myLog.info { "中途添加卡牌,卡牌为:${comboCard}" }
         if (comboCard.canUse()) this.bestCombination = this.bestCombination + comboCard
-        else _unUseCards.add(comboCard)
+        else _canUseCardsByHandler.add(comboCard)
     }
 
 }
