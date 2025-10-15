@@ -1,6 +1,7 @@
 package lin.serviceLoader.weightRule
 
 import lin.bean.ComboCard
+import lin.config.CardConfig
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 
@@ -11,6 +12,7 @@ import lin.domain.context.CostWeight
  * 可选接口
  * [DepWeightInfo]依赖
  * [lin.lifecycle.RoundLifecycle] 生命周期
+ * []
  *
  */
 interface WeightCondition : WeightRule, GroupWeight {
@@ -23,6 +25,9 @@ interface WeightCondition : WeightRule, GroupWeight {
     }
 
     fun description() = name()
+}
+interface ExtConfig {
+    fun cardConfigs(): List<CardConfig>
 }
 
 /**
@@ -39,7 +44,6 @@ abstract class AbstractWeightRule : WeightCondition {
 /**
  * todo-future 收起权重操作还在思考中
  */
-@Suppress("ConstantConditionIf")
 interface AddWeightByWarInfo : WeightCondition {
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         return calculateWeight(warInfo)

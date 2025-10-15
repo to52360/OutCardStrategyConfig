@@ -1,10 +1,15 @@
 package koin
 
+import lin.config.ConfigDispatcher
+import lin.config.handler.ConfigHandler
+import lin.config.handler.UseConfigHandler
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.inject
 import kotlin.test.AfterTest
@@ -22,7 +27,8 @@ class TestInject : KoinComponent {
     fun install() {
         startKoin {
             modules(module {
-                singleOf(::A)
+                singleOf(::UseConfigHandler) bind ConfigHandler::class
+                single<ConfigDispatcher> { ConfigDispatcher(getAll()) }
             })
         }
     }
@@ -43,4 +49,11 @@ class TestInject : KoinComponent {
         val a: A by inject()
         a.sayHello()
     }
+
+    @Test
+    fun test3() {
+        val configDispatcher = get<ConfigDispatcher>()
+        println(configDispatcher)
+    }
+
 }

@@ -8,13 +8,19 @@ import lin.domain.WarInfo
  * [lin.weightHandler.WeightHandler]
  * 回合开始
  */
-interface RoundLifecycle {
+sealed interface Lifecycle
+
+interface RoundLifecycle : Lifecycle {
     fun start(warInfo: WarInfo)
+}
+
+interface RoundEnd : Lifecycle {
+    fun end(warInfo: WarInfo)
 }
 
 /**
  * 游戏开始
  */
-interface GameLifecycle {
+interface GameLifecycle : Lifecycle {
     fun start()
 }

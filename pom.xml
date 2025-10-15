@@ -38,8 +38,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <java.version>21</java.version>
+        <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <kt-version>2.2.0</kt-version>
+        <kapt.include.compile>false</kapt.include.compile>
         <sdk-version>v4.9.0-GA</sdk-version>
     </properties>
 
@@ -64,12 +66,6 @@
                         <phase>test-compile</phase>
                         <goals>
                             <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>kapt </id>
-                        <goals>
-                            <goal>kapt </goal>
                         </goals>
                     </execution>
                 </executions>

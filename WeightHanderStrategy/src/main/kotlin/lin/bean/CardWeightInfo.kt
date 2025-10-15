@@ -44,6 +44,7 @@ data class CardWeightInfo(
 
     /**
      * 添加权重规则
+     * 会额外判断是否需要注册到
      */
     fun addWeightRule(weightRule: WeightRule){
         setWeightRule(weightRule)
@@ -52,6 +53,7 @@ data class CardWeightInfo(
         lifecycleRegister.register(weightRule)
     }
 
+    //只是简单的添加
     fun setWeightRule(weightRule: WeightRule) {
         _weightRules = _weightRules.addSafe(weightRule)
     }

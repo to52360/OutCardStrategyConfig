@@ -3,6 +3,7 @@ package lin.weightHandler.condition
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
+import lin.config.ConfigDispatcher
 import lin.domain.MyWarManage
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
@@ -12,6 +13,7 @@ import lin.weightHandler.WeightHandler
 import lin.weightHandler.condition.bean.ConditionGroup
 import lin.weightHandler.condition.config.GroupStrategyDao
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
 
 /**
@@ -57,7 +59,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
         val weightGroupInfos: List<ConditionGroup> = loadConfig() ?: return
 
 
-        val init = ConditionHandlerInit(infos)
+        val init = ConditionHandlerInit(infos, get<ConfigDispatcher>())
         //遍历解析组信息
         weightGroupInfos.forEach { conditionGroup ->
             init.parseConditionGroup(conditionGroup)

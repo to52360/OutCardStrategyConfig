@@ -6,7 +6,7 @@ import lin.domain.context.UnUseWeight
 
 
 /**
- * todo 数量可以用权重解决
+ * 用于方便单卡权重实现
  */
 abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
 

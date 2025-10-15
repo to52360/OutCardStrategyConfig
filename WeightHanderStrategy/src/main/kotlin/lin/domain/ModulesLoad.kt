@@ -1,6 +1,7 @@
 package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.status.WAR
+import lin.config.ConfigDispatcher
 import lin.config.handler.ConfigHandler
 import lin.config.handler.UseConfigHandler
 import lin.domain.combo.*
@@ -39,13 +40,13 @@ class ModulesLoad {
         singleOf(::GroupStrategyDao)
         singleOf(::ComboInfoDao)
         singleOf(::CardInfoDao)
-
-        //ui广告
         singleOf(::WeightConditionDao)
     }
     val parseCardWeightInfoModule = module {
         singleOf(::ParseCardRule) bind ParseCardWeightInfo::class
         singleOf(::ParseCombo) bind ParseCardWeightInfo::class
+
+        //todo-future 暂挂
         singleOf(::LieRenParse) bind ParseCardWeightInfo::class
     }
 
@@ -64,6 +65,7 @@ class ModulesLoad {
     }
     val configHandler = module {
         singleOf(::UseConfigHandler) bind ConfigHandler::class
+        single<ConfigDispatcher> { ConfigDispatcher(getAll()) }
     }
 
     val utilsModule = module {
@@ -80,9 +82,18 @@ class ModulesLoad {
 
     }
 
+
     fun loadModules() {
         startKoin {
-            modules(mainModule, dbModules, parseCardWeightInfoModule, comBoInfoModule, utilsModule, findStrategy)
+            modules(
+                mainModule,
+                dbModules,
+                parseCardWeightInfoModule,
+                comBoInfoModule,
+                utilsModule,
+                findStrategy,
+                configHandler
+            )
             modules(module { singleOf(::LifecycleRegisterImpl) bind LifecycleRegister::class })
             val extraModule = ServiceLoaderUtils.loadServices(ModulesInfo::class.java)
             extraModule.forEach {

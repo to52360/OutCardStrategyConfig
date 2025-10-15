@@ -12,6 +12,8 @@ import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
+import lin.lifecycle.LifecycleRegister
+import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
@@ -24,6 +26,7 @@ import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.loadKoinModules
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 
@@ -49,8 +52,23 @@ interface WarInfo {
      * @return 为true就执行过了
      */
     fun cleanPlayByRoundOnce(): Boolean
+
+    /**
+     * 没回合执行一次
+     * @return 为ture表示执行过了
+     */
     fun roundExecuteOnce(registryId: String): Boolean
+
+    /**
+     * 刷新战场信息
+     */
     fun reloadPlayComboCards()
+
+    /**
+     * 回合生命周期处理
+     * 问题只能处理一种类型
+     */
+    fun registerLifecycle(lifecycle: Any)
 }
 
 
@@ -69,6 +87,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         private set
     override val infoMap: Map<String, CardWeightInfo>
     override var extCost: Int = 0
+    private val lifecycleRegisterImpl = LifecycleRegisterImpl()
 
     inline fun consumeExtCost(extCost: Int, consumeCost: (Int) -> Unit) {
         this.extCost = extCost
@@ -84,12 +103,15 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     //private val statusReset: StatusReset
     init {
         infoMap = getCardInfos()
-
-
         loadKoinModules(module {
             single(named("weightInfo")) { infoMap }
+            single { lifecycleRegisterImpl } bind LifecycleRegister::class
         })
         parseCombo(infoMap)
+    }
+
+    override fun registerLifecycle(lifecycle: Any) {
+        lifecycleRegisterImpl.register(lifecycle)
     }
 
     //把配置信息转化成上下文信息
@@ -131,15 +153,15 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     inline fun isChange(useCard: () -> ComboCard?): Boolean {
         val beginCard = getHandCards().lastOrNull()
         val expNum = getHandCards().size
-        val useCard = useCard() //返回null表示打出失败
-        useCard?.let {
+        val useResult = useCard() //返回null表示打出失败
+        useResult?.let {
             val nowNum = getHandCards().size
             if (nowNum >= expNum) {
                 //技能不会被移除的
                 return it.card != getPower()
             } else {// 为弃牌写的
                 val endCard = getHandCards().lastOrNull()
-                if (beginCard != endCard && useCard != beginCard) //排除打出最后一张的情况
+                if (beginCard != endCard && useResult != beginCard) //排除打出最后一张的情况
                     return true
             }
         }
@@ -346,6 +368,8 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     fun clean() {
         handComboCards = emptyList()
         playComboCards = emptyList()
+        canUseCards = emptyList()
+        lifecycleRegisterImpl.endRound(this)
     }
 
     /**
@@ -394,12 +418,24 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         return NotWeight
     }
 
+    /**
+     * 生命周期的处理
+     */
+    private fun lifecycle() {
+        lifecycleRegisterImpl.startAllRuleLifecycles(this)
+        val isStart = isStart()
+        if (isStart) {
+            lifecycleRegisterImpl.startAllGameLifecycles()
+        }
+    }
+
 
     /**
      * 策略执行环境
      */
-    inline fun executeEnvironment(runnable: () -> Unit) {
+    fun executeEnvironment(runnable: () -> Unit) {
             if (war.isValid()) {
+                lifecycle()
                 //重新加载信息
                 reLoad()
                 reset()

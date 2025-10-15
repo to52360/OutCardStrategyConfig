@@ -12,17 +12,12 @@ import lin.domain.context.NotWeight
 import lin.domain.context.UseAnimationTime
 import lin.domain.result.*
 import lin.domain.strategy.*
-import lin.lifecycle.LifecycleRegister
-import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.serviceLoader.findCombo.SkillFindStrategy
 import lin.utils.serviceLoader.JarClassLoader
 import lin.warExt.my.base.getCost
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import org.koin.core.context.loadKoinModules
-import org.koin.dsl.bind
-import org.koin.dsl.module
 
 
 /**
@@ -39,7 +34,7 @@ class ComboDomain : KoinComponent {
     //存储转化权重信息
     private lateinit var warManage: MyWarManage
     private lateinit var weightHandlerDomain: WeightHandlerDomain
-    private val lifecycleRegisterImpl = LifecycleRegisterImpl()
+
     private val classLoader = JarClassLoader(parent = javaClass.classLoader).classLoader() ?: run {
         myLog.warn { "没有获取到类加载器" }
         javaClass.classLoader
@@ -55,9 +50,7 @@ class ComboDomain : KoinComponent {
             "ComboDao初始化"
         }
         threadContext {
-            loadKoinModules(module {
-                single { lifecycleRegisterImpl } bind LifecycleRegister::class
-            })
+
             //不能移动,需要线程上下文
             warManage = get<MyWarManage>()
             weightHandlerDomain = get<WeightHandlerDomain>()
@@ -78,20 +71,12 @@ class ComboDomain : KoinComponent {
     }
     private var stackNum = 0
 
-    private inline fun executeEnvironment(runnable: () -> Unit) {
+    private fun executeEnvironment(runnable: () -> Unit) {
         //重置状态
         stackNum = 0
-
-
-
-
         //生命周期
         threadContext {
-            lifecycleRegisterImpl.startAllRuleLifecycles(warManage)
-            val isStart = warManage.isStart()
-            if (isStart) {
-                lifecycleRegisterImpl.startAllGameLifecycles()
-            }
+            //战场环境处理
             warManage.executeEnvironment {
                 runnable()
             }

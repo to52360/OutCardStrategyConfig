@@ -2,11 +2,12 @@ package lin.serviceLoader.weightRule.utils.war
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.WarInfo
+import lin.lifecycle.RoundEnd
 import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
 import lin.warExt.my.base.getPlayCards
 import lin.warExt.rival.rivalCardsByPlayArea
 
-class WarStatus(val warInfo: WarInfo) {
+class WarStatus(val warInfo: WarInfo) : RoundEnd {
     companion object {
         const val ONCE_WAR_STATUS = "once"
     }
@@ -17,6 +18,9 @@ class WarStatus(val warInfo: WarInfo) {
     var meTaunt = 0
     var rivalAvgAct = 0.0
 
+    init {
+        warInfo.registerLifecycle(this)
+    }
 
 
 
@@ -24,6 +28,11 @@ class WarStatus(val warInfo: WarInfo) {
         if (warInfo.roundExecuteOnce(ONCE_WAR_STATUS)) return false
         reload()
         return true
+    }
+
+    override fun end(warInfo: WarInfo) {
+        rivalCards = emptyList()
+        meCards = emptyList()
     }
 
 

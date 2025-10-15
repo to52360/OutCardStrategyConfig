@@ -7,7 +7,6 @@ import lin.domain.context.UnUseWeight
 import lin.domain.result.EmptyWeightResult
 import lin.domain.result.EndWeightResult
 import lin.domain.result.WeightResult
-import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.my.base.getCost
@@ -15,7 +14,6 @@ import lin.weightHandler.DiscoverWeightHandler
 import lin.weightHandler.InitHandler
 import lin.weightHandler.WeightHandler
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 
 
 class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
@@ -28,13 +26,16 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
             val cardWeightInfos =  infos.values.toList()
             val services = ServiceLoaderUtils.loadServicesByMutable(WeightHandler::class.java, weightHandlers)
 
-            val lifecycle = get<LifecycleRegister>()
             services.sortBy {
                 //按ai的说法会语义多重,实践看看有什么后果
                 if(it is InitHandler) {
                     it.init(cardWeightInfos)
                 }
-                lifecycle.register(it)
+
+
+                warManage.registerLifecycle(it)
+
+
                 //todo 存在一个问题没法单独扩展发现策略
                 if (it is DiscoverWeightHandler) {
                     discoverWeightHandlers.add(it)

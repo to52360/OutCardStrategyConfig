@@ -1,9 +1,11 @@
 package lin.weightHandler.condition
 
 import lin.bean.CardWeightInfo
+import lin.config.ConfigDispatcher
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
 import lin.serviceLoader.weightRule.DepProcessor
+import lin.serviceLoader.weightRule.ExtConfig
 import lin.serviceLoader.weightRule.WeightCondition
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.bean.ConditionGroup
@@ -14,7 +16,7 @@ import org.koin.core.component.get
  * 目的 降低ConditionWeightHandler的复杂
  * [ConditionWeightHandler]
  */
-class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
+class ConditionHandlerInit(infos: List<CardWeightInfo>, val configDispatcher: ConfigDispatcher) : KoinComponent {
     val groupCondition: HashMap<String, WeightCondition> = hashMapOf()
     val weightGroupInfos = infos.groupBy { it.groupId }
     val lifecycleRegister = get<LifecycleRegister>()
@@ -70,7 +72,15 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>) : KoinComponent {
         bindWeightInfos.forEach { info ->
             info.setWeightRule(weightCondition)
         }
+        if (weightCondition is ExtConfig) {
+            val cardConfigs = weightCondition.cardConfigs()
+            configDispatcher.dispatch(cardConfigs, bindWeightInfos)
+            println(weightCondition)
+        }
+
         lifecycleRegister.register(weightCondition)
+
+
     }
 
     private fun processDep(weightCondition: WeightCondition, conditionGroup: ConditionGroup): Boolean {

@@ -4,6 +4,7 @@ package lin.serviceLoader.weightRule.utils.war
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.WarInfo
 import lin.domain.war.SimpleCleanWar
+import lin.lifecycle.RoundEnd
 import lin.myLog
 import lin.serviceLoader.weightRule.onWar.rival.CleanWar.Companion.ALL_CLEAN
 import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
@@ -19,18 +20,25 @@ import lin.warExt.rival.rivalCardsByPlayArea
 /**
  * 省性能,但是没有考虑突袭和冲锋情况
  */
-class CleanWarUtils(val warInfo: WarInfo) {
+class CleanWarUtils(val warInfo: WarInfo) : RoundEnd {
     companion object {
         const val CLEAN_KEY = "cleanWar"
         const val RELOAD_RIVAL_KEY = "reLoadRival"
 
     }
 
-    lateinit var rivalCards: List<Card>
+
     private var extRivalNum = 0
+    var rivalCards: List<Card> = emptyList()
+    var meCards: List<Card> = emptyList()
 
-    lateinit var meCards: List<Card>
-
+    /**
+     * 辅助回收垃圾
+     */
+    override fun end(warInfo: WarInfo) {
+        rivalCards = emptyList()
+        meCards = emptyList()
+    }
     //todo
     fun cleanOnce(damage: Int): Boolean {
         if (warInfo.roundExecuteOnce(CLEAN_KEY)) return false
