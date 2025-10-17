@@ -353,6 +353,8 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     private var isCleanWar = false
     var isFull = false
         private set
+
+    //todo-future 用于限制技能只使用一次,可以考虑删除
     var useSkill = true
         private set
     /**

@@ -70,7 +70,15 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
         skillComboCard?.let {
             if (warManage.getCost() < it.cost()) return
             if (isUsedSkill) return
-            warManage.tryUseCard(it)
+            val result = warManage.useCard(it)
+            //todo-future 当前回合变更技能 临时处理方案
+            if (!result) {
+                val skill = warManage.getPower()
+                if (it.card != skill) {
+                    skill?.action?.power()
+                }
+
+            }
         } ?: run {
             myLog.warn { "没有技能信息" }
             return

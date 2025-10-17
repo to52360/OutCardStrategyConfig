@@ -20,9 +20,9 @@ class WeightHandlerPlugin: StrategyPlugin {
     override fun name(): String = "权重处理策略"
 
     override fun homeUrl(): String = "https://github.com/xjw580/Hearthstone-Script"
-    override fun cardSDKVersion() = "4.9.0-GA"
+    override fun cardSDKVersion() = "4.11.0-GA"
 
-    override fun strategySDKVersion() = "4.9.0-GA"
+    override fun strategySDKVersion() = "4.11.0-GA"
 
 
 }

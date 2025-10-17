@@ -57,7 +57,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     // 出牌权重 可能作为权重优先级
     val powerWeight: Double
         get() = basePowerWeight + extPowerWeight
-    var extPowerWeight: Double = card.cost.toDouble()
+    var extPowerWeight: Double = BaseWeight
 
     /**
      * 权重累加方法
@@ -68,14 +68,14 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     }
 
     fun cleanWeight() {
-        extPowerWeight = NotWeight
+        extPowerWeight = BaseWeight
     }
 
     /**
      * todo-future   or条件判断,存在问题(需要严格的顺序),目前不想大改先这样
      */
     fun isBaseWeight(): Boolean {
-        return extPowerWeight == card.cost.toDouble()
+        return extPowerWeight == BaseWeight
     }
 
     /**

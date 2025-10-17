@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.xjw580.Hearthstone-Script</groupId>
-        <artifactId>hs-script-parent</artifactId>
-        <version>v4.7.0-GA</version>
+        <artifactId>hs-script</artifactId>
+        <version>v4.11.0-GA</version>
     </parent>
 
     <groupId>club.xiaojiawei</groupId>
@@ -38,11 +38,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <kt-version>2.2.0</kt-version>
         <kapt.include.compile>false</kapt.include.compile>
         <sdk-version>v4.9.0-GA</sdk-version>
+        <strategy-sdk-version>${hs-script-strategy-sdk-version}</strategy-sdk-version>
+        <card-sdk-version>${hs-script-card-sdk-version}</card-sdk-version>
     </properties>
 
 
@@ -110,21 +112,22 @@
         <dependency>
             <groupId>com.github.xjw580</groupId>
             <artifactId>hs-script-base-strategy-plugin</artifactId>
-            <version>1.0.2</version>
+            <version>1.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <!--策略SDK-->
         <dependency>
             <groupId>com.github.xjw580</groupId>
-            <artifactId>hs-script-plugin-sdk</artifactId>
-            <version>1.0.2</version>
-            <scope>provided</scope>
+            <artifactId>hs-script-strategy-sdk</artifactId>
+            <version>${strategy-sdk-version}</version>
         </dependency>
+        <!--卡牌SDK-->
         <dependency>
             <groupId>com.github.xjw580</groupId>
             <artifactId>hs-script-card-sdk</artifactId>
-            <version>1.1.1</version>
-            <scope>provided</scope>
+            <version>${card-sdk-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>

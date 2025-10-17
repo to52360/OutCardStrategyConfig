@@ -5,7 +5,9 @@ import lin.bean.DefUseGroupId
 import lin.config.CardConfig
 import lin.config.UseConfig
 import lin.domain.WarInfo
+import lin.domain.context.ChangeAnimationTime
 import lin.domain.context.UnUseWeight
+import lin.domain.strategy.UseAfterStrategy
 import lin.domain.strategy.UseBeforeStrategy
 import lin.domain.strategy.UseStrategyUtils
 import lin.serviceLoader.weightRule.ExtConfig
@@ -15,7 +17,8 @@ import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
-abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinComponent, UseBeforeStrategy, ExtConfig {
+abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinComponent, UseBeforeStrategy, ExtConfig,
+    UseAfterStrategy {
     companion object {
         //无伤害视为全部清理
         const val ALL_CLEAN: Int = 0
@@ -44,6 +47,10 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
         }
     }
 
+    override fun afterExtAction(comboCard: ComboCard, useStrategyUtils: UseStrategyUtils, warInfo: WarInfo) {
+        Thread.sleep(ChangeAnimationTime)
+    }
+
     abstract fun calWeight(callCard: ComboCard): Double
 }
 
@@ -55,6 +62,7 @@ class DepNumRelWar : CleanWar(DefUseGroupId) {
         val cutWeight = unConditionWeight * cleanWarUtils.unPassRate(damage)
         return groupWeight + cutWeight
     }
+
 
     override fun description(): String {
         return "单向解场"

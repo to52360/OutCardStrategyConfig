@@ -40,6 +40,16 @@ object DiscoverUseStrategy : UseAfterStrategy, UseBeforeStrategy {
     }
 
 }
+object AwaitAnimationStrategy : UseAfterStrategy {
+    override fun afterExtAction(
+        comboCard: ComboCard,
+        useStrategyUtils: UseStrategyUtils,
+        warInfo: WarInfo
+    ) {
+        Thread.sleep(AwaitAnimationTime)
+    }
+
+}
 
 
 

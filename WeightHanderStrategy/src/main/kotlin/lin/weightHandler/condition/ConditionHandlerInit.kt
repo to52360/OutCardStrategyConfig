@@ -75,7 +75,6 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>, val configDispatcher: Co
         if (weightCondition is ExtConfig) {
             val cardConfigs = weightCondition.cardConfigs()
             configDispatcher.dispatch(cardConfigs, bindWeightInfos)
-            println(weightCondition)
         }
 
         lifecycleRegister.register(weightCondition)

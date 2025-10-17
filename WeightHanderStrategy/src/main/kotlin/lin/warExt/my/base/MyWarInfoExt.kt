@@ -2,10 +2,12 @@ package lin.warExt.my.base
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import club.xiaojiawei.hsscriptcardsdk.enums.CardActionEnum
+import club.xiaojiawei.hsscriptcardsdk.enums.CardEffectTypeEnum
 import lin.domain.WarInfo
 import lin.myLog
 import lin.serviceLoader.weightRule.hand.HandArea
-import lin.warExt.rival.rivalCanHurt
+import lin.warExt.rival.rivalCardsByPlayArea
 import kotlin.random.Random
 
 
@@ -49,16 +51,25 @@ fun WarInfo.getNowCost() = war.me.usableResource
 fun WarInfo.hasCost() = getCost() > 0
 
 fun WarInfo.autoPower(card: Card): Boolean {
-    val rivalCard = rivalCanHurt().randomSelectOrNull()
-    myLog.info { "指向对手随从: $rivalCard" }
-    var useResult = card.useCard(rivalCard)
-    if (useResult) {
-        return true
+
+
+    val rivalHasPoint = rivalCardsByPlayArea().any { it.canHurt() }
+    if (rivalHasPoint) {
+        myLog.info { "指向对手随从" }
+        val useResult = CardActionEnum.POINT_RIVAL_MINION.playExec(card, CardEffectTypeEnum.UNKNOWN, war)
+        if (useResult) {
+            return true
+        }
     }
-    val meCard = getPlayCards().randomSelectOrNull()
-    myLog.info { "指向自己随从: $meCard" }
-    useResult = card.useCard(meCard)
-    return useResult
+    val meHasPoint = getPlayCards().any { it.canHurt() }
+    if (meHasPoint) {
+        myLog.info { "指向自己随从" }
+        val useResult = CardActionEnum.POINT_MY_MINION.playExec(card, CardEffectTypeEnum.UNKNOWN, war)
+        if (useResult) {
+            return true
+        }
+    }
+    return false
 }
 
 fun Card.useCard(card: Card?): Boolean {
