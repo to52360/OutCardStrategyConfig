@@ -21,24 +21,35 @@ class LifecycleRegisterImpl : LifecycleRegister {
     // 新增：接受 Any 类型参数的 register 方法
     override fun register(lifecycle: Any) {
         if (lifecycle !is Lifecycle) return
-        when (lifecycle) {
-            is RoundLifecycle -> register(lifecycle)
-            is GameLifecycle -> register(lifecycle)
-            is RoundEnd -> register(lifecycle)
+        if (lifecycle is RoundLifecycle) {
+            roundLifecycles.add(lifecycle)
+        }
+        if (lifecycle is GameLifecycle) {
+            gameLifecycles.add(lifecycle)
+        }
+        if (lifecycle is RoundEnd) {
+            roundEndLifecycles.add(lifecycle)
         }
 
     }
 
-    override fun logout(anyList: List<Any>) {
+    override fun logouts(anyList: List<Any>) {
         anyList.forEach { any ->
-            if (any is RoundLifecycle) {
-                roundLifecycles.remove(any)
-            }
-            if (any is GameLifecycle) {
-                gameLifecycles.remove(any)
-            }
+            logout(any)
         }
 
+    }
+
+    fun logout(any: Any) {
+        if (any is RoundLifecycle) {
+            roundLifecycles.remove(any)
+        }
+        if (any is GameLifecycle) {
+            gameLifecycles.remove(any)
+        }
+        if (any is RoundEnd) {
+            roundEndLifecycles.remove(any)
+        }
     }
 
     // 注册 GameLifecycle 实例

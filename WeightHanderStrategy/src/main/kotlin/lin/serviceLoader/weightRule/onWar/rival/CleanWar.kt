@@ -67,6 +67,9 @@ class DepNumRelWar : CleanWar(DefUseGroupId) {
     override fun description(): String {
         return "单向解场"
     }
-
-
 }
+
+/**
+ * 例如:困倦的岛民
+ */
+class SoftCleanWar

@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit
  */
 class UseStrategyUtils {
     var countDownLatch: CountDownLatch? = null
+
     var useResult: Boolean = false
     fun register() {
         myLog.info { "注册发现" }

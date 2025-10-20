@@ -69,6 +69,7 @@ interface WarInfo {
      * 问题只能处理一种类型
      */
     fun registerLifecycle(lifecycle: Any)
+    fun logoutLifecycle(lifecycle: Any)
 }
 
 
@@ -112,6 +113,10 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
     override fun registerLifecycle(lifecycle: Any) {
         lifecycleRegisterImpl.register(lifecycle)
+    }
+
+    override fun logoutLifecycle(lifecycle: Any) {
+        lifecycleRegisterImpl.logout(lifecycle)
     }
 
     //把配置信息转化成上下文信息
@@ -286,10 +291,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
 
         if (card.area !is HandArea) {//区域判断
-            if (isPower(card)) {//技能的处理
-                if (useSkill) useSkill = false
-                else return false
-            } else {
+            if (!isPower(card)) {//技能的处理
                 return false
             }
 
@@ -354,16 +356,12 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     var isFull = false
         private set
 
-    //todo-future 用于限制技能只使用一次,可以考虑删除
-    var useSkill = true
-        private set
     /**
      * 重新设置状态
      */
     fun reset() {
         isCleanWar = false
         isFull = false
-        useSkill = true
         registryInfo.clear()
         //statusReset.reset()
     }

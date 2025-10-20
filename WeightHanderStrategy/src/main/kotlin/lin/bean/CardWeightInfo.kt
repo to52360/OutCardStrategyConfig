@@ -59,7 +59,7 @@ data class CardWeightInfo(
     }
     fun clearWeightRule(){
         val lifecycleRegister = get<LifecycleRegister>()
-        lifecycleRegister.logout(weightRules)
+        lifecycleRegister.logouts(weightRules)
         _weightRules = null
     }
 
@@ -128,7 +128,7 @@ fun <T> CardContext?.addSafe(key: MetadataKey<T>, item: T): CardContext {
 
 class CardContext {
     //元数据 用来存储
-    private val metadata: MutableMap<MetadataKey<*>, Any> = mutableMapOf()
+    private val metadata: MutableMap<MetadataKey<*>, Any> = hashMapOf()
     fun <T> putMetadata(key: MetadataKey<T>, value: T) {
         metadata[key] = value as Any
     }

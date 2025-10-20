@@ -47,6 +47,7 @@ fun WarInfo.getCost() = getNowCost() + extCost
 fun WarInfo.getResource() = war.me.resources
 
 fun WarInfo.getNowCost() = war.me.usableResource
+fun WarInfo.resource() = war.me.resources
 
 fun WarInfo.hasCost() = getCost() > 0
 

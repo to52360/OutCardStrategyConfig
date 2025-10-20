@@ -75,7 +75,9 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
             if (!result) {
                 val skill = warManage.getPower()
                 if (it.card != skill) {
-                    skill?.action?.power()
+                    skill?.action?.power() ?: run {
+                        myLog.warn { "没有技能信息" }
+                    }
                 }
 
             }

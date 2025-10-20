@@ -18,20 +18,19 @@ import org.koin.core.component.get
  * 更改手牌
  */
 class ChangeCardStrategy : AbsWeightCondition(), KoinComponent, ExtConfig {
-    val warWeight = get<WarStatus>()
+    val warStatus = get<WarStatus>()
     override fun description(): String {
         return "groupWeight作为真正的权重,unConditionWeight和powerWeight用来判断数量"
     }
 
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
+        //todo-future 存在魔数,没太大问题就这样了,(可以正则文本和复杂策略)
         if (warInfo.getHandCards().size > 8) return UnUseWeight
         val handSize = warInfo.getHandCards().size
         //todo 临时性,没优势重新加载
-        warWeight.reLoadOnce()
-        callCard.useGroupId = ChangeGroupId
-        if (!warWeight.isAdvByAvgAtc(5)) return NotWeight
-
+        warStatus.reloadByOption()
+        if (!warStatus.isAdv) return NotWeight
 
         return if (handSize < number) {
             groupWeight

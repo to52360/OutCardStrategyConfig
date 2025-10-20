@@ -30,6 +30,9 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
 
 }
 
+/**
+ *
+ */
 class DepNumRelWarByAll : ReleaseWar(0) {
 
     override fun setNum(num: Int) {
