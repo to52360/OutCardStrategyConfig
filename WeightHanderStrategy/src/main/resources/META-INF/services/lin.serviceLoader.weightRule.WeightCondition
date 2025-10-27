@@ -5,24 +5,30 @@ lin.serviceLoader.weightRule.hand.race.HandAreaRaceByAbleUse
 lin.serviceLoader.weightRule.hand.HandNumWeight
 lin.serviceLoader.weightRule.hand.DefHandNum
 lin.serviceLoader.weightRule.hand.HandNumMinion
+lin.serviceLoader.weightRule.hand.HandNumMinionByTaunt
 
 lin.serviceLoader.weightRule.onWar.OnWarByGroupId
 lin.serviceLoader.weightRule.onWar.buff.OnWarNum
 lin.serviceLoader.weightRule.onWar.buff.OnWarRaceNum
 lin.serviceLoader.weightRule.onWar.buff.PointDeathRattleCard
+
+
 lin.serviceLoader.weightRule.onWar.rival.DepNumRelWarByAll
 lin.serviceLoader.weightRule.onWar.rival.DepNumRelWar
 lin.serviceLoader.weightRule.onWar.rival.RivalNun
 lin.serviceLoader.weightRule.onWar.rival.RivalHasActByNum
 lin.serviceLoader.weightRule.onWar.rival.RivalHasBloodByNum
 lin.serviceLoader.weightRule.onWar.rival.RivalHasBloodOrActByNum
-lin.serviceLoader.weightRule.onWar.rival.SoftCleanByRivalNum
+lin.serviceLoader.weightRule.onWar.rival.softClean.SoftCleanByResource
+lin.serviceLoader.weightRule.onWar.rival.softClean.ExcessDamageFactorByNum
+
+
 
 lin.serviceLoader.weightRule.afterRule.HaloRule
 
 
 lin.serviceLoader.weightRule.status.HeroHasArmor
 lin.serviceLoader.weightRule.status.HeroWeightArmor
-lin.serviceLoader.weightRule.status.HeroBloodByNum
+lin.serviceLoader.weightRule.status.HeroExcessDamageByNum
 lin.serviceLoader.weightRule.status.CostWeightByNum
 

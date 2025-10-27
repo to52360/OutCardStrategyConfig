@@ -52,8 +52,6 @@ fun WarInfo.resource() = war.me.resources
 fun WarInfo.hasCost() = getCost() > 0
 
 fun WarInfo.autoPower(card: Card): Boolean {
-
-
     val rivalHasPoint = rivalCardsByPlayArea().any { it.canHurt() }
     if (rivalHasPoint) {
         myLog.info { "指向对手随从" }

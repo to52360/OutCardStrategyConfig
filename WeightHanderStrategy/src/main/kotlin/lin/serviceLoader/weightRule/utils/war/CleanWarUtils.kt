@@ -35,9 +35,10 @@ class CleanWarUtils(val warInfo: WarInfo) : RoundEnd {
     /**
      * 辅助回收垃圾
      */
-    override fun end(warInfo: WarInfo) {
+    override fun end(warInfo: WarInfo): Boolean {
         rivalCards = emptyList()
         meCards = emptyList()
+        return true
     }
     //todo
     fun cleanOnce(damage: Int): Boolean {

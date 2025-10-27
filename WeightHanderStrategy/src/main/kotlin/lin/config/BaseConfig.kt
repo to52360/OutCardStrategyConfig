@@ -1,6 +1,6 @@
 package lin.config
 
-import lin.domain.strategy.UseStrategy
+import lin.domain.use.UseStrategy
 
 sealed interface BaseConfig : CardConfig
 

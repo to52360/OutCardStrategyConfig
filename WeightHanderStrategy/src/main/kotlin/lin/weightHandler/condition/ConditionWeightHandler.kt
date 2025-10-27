@@ -38,7 +38,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
             for (weightRule in this) {
                 val weight = weightRule.calculateWeight(callCard, warManage)
                 if (weight != NotWeight) {
-                    myLog.info { "处理id:${weightRule.id()},卡牌id:${callCard.cardId()}的计算权重:${weight},id:${callCard.cardId()},总权重:${callCard.powerWeight + weight}" }
+                    myLog.info { "处理id:${weightRule.id()},卡牌id:${callCard.cardId()}的计算权重:${weight},总权重:${callCard.powerWeight + weight}" }
                     if (weight == UnUseWeight) {
                         return weight
                     }

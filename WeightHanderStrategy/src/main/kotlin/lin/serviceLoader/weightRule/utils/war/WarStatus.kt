@@ -7,8 +7,14 @@ import lin.myLog
 import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
 import lin.serviceLoader.weightRule.utils.war.WarStatus.Companion.ATTENTION_AVG_ATC
 import lin.warExt.my.base.getPlayCards
+import lin.warExt.my.base.hero
+import lin.warExt.my.base.meBlood
 import lin.warExt.my.base.resource
 import lin.warExt.rival.rivalCardsByPlayArea
+
+/**
+ * 用于判断战场整体局势
+ */
 
 class WarStatus(val warInfo: WarInfo) : RoundEnd {
     companion object {
@@ -21,12 +27,14 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
     var meCards = emptyList<Card>()
     var meTaunt = emptyList<Card>()
 
+    //用于判断缓存是否失效
     var meNum = 0
         private set
+
+    //用于判断缓存是否失效
     var rivalNum = 0
         private set
-    var isAdv = true
-        private set
+
 
 
 
@@ -39,36 +47,29 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
         return true
     }
 
-    override fun end(warInfo: WarInfo) {
+    override fun end(warInfo: WarInfo): Boolean {
         rivalCards = emptyList()
         meCards = emptyList()
         meTaunt = emptyList()
-        //todo-future 不知道是否需要一直存在
-        warInfo.logoutLifecycle(this)
-    }
-
-    fun reload() {
-        reloadMe()
-        reloadRival()
+        return true
     }
 
     /**
-     * 节省性能,可能出错
+     * todo 有些信息没有加全
+     */
+    fun reload() {
+        reloadMe()
+        reloadRival()
+        reloadStatus()
+    }
+
+    /**
+     * 节省性能,可能不是最新的
      */
     fun reloadByOption() {
-        val rivalCards = warInfo.rivalCardsByPlayArea()
-        var isUpdate = false
-        //select 亡语会有出入
-        if (rivalCards.size != rivalNum) {
-            myLog.info { "对手战场有变化重新加载" }
-            reloadRival(rivalCards)
-            isUpdate = true
-        }
-        if (isUpdate || reloadMeByOption()) {
-            myLog.info { "有变化重新加载是否有优势,现在是否有优势:${isAdv}" }
-            isAdv = isAdvByComplex()
-            myLog.info { "执行之后,isAdv=${isAdv}" }
-
+        val isChange = reloadRivalByOption()
+        if (reloadMeByOption() || isChange) {
+            reloadStatus()
         }
     }
 
@@ -86,7 +87,7 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
     }
 
     /**
-     * @return true
+     * @return true 表示有变化
      */
     fun reloadMeByOption(): Boolean {
         val meCards = warInfo.getPlayCards()
@@ -96,85 +97,87 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
         }
         return false
     }
+    /**
+     * @return true 表示有变化
+     */
+    fun reloadRivalByOption(): Boolean {
+        val rivalCards = warInfo.rivalCardsByPlayArea()
+        if (rivalCards.size == rivalNum) {
+            return false
+        }
+        // select 亡语会有出入
 
+        myLog.info { "对手战场有变化重新加载" }
+        reloadRival(rivalCards)
+        return true
+
+    }
+
+    var meSumAtc = 0
+        private set
+    var excessDamage = 0
+        private set
+    var ableAtcSum = 0
+        private set
 
     /**
-     * 有优势,复杂策略.没考虑血量问题
-     * @param ableAtcSum 可接受场攻是多少
+     *
      */
-    fun isAdvByComplex(ableAtcSum: Int = acceptableRivalAttack(warInfo.resource())): Boolean {
-        //todo 没考虑随从数量
-
-        val rivalAtcSum = rivalCards.sumOf { it.atc }
-        //快速结束我方有优势
-        if (rivalAtcSum <= ableAtcSum) return true
+    private fun reloadStatus() {
+        meSumAtc = meCards.sumOf { it.atc }
+        this.excessDamage = excessDamage()
 
 
-        val excessDamage = excessDamageByTaunt(rivalAtcSum)
+        ableAtcSum = ableAtcSum()
 
+    }
 
-
-        if (excessDamage <= ableAtcSum) return true
-
-        //场攻击大于可接收范围,进一步判断
-        if (meTaunt.isEmpty()) return false
-
-        val tauntNum = meTaunt.size
-
-        val rivalNum = rivalCards.size
-
-
-        // 1. 如果嘲讽数量 ≥ 敌方数量：全部攻击被挡
-        if (tauntNum >= rivalNum) {
-
-            return true
-        }
-
-        val sortedRivalAtc = rivalCards.map { it.atc }.sortedDescending()
-        val attackingTauntAtc = sortedRivalAtc.take(tauntNum).sum()      // 打嘲讽的总攻
-        val directDamage = sortedRivalAtc.drop(tauntNum).sum()           // 打脸的溢出伤害
-
-        val canBlock = meTauntBlood >= attackingTauntAtc
-        val acceptableDirect = directDamage <= ableAtcSum
-        return canBlock && acceptableDirect
+    private fun ableAtcSum(): Int {
+        val ableAtcSum = acceptableRivalAttack(warInfo.resource())
+        return warInfo.meBlood() * ableAtcSum / warInfo.hero()!!.bloodLimit()
 
     }
 
 }
 
-fun WarStatus.excessDamageByTaunt(rivalAtcSum: Int): Int {
-    if (meTaunt.isEmpty()) return rivalAtcSum
-    val meTauntBlood = meTaunt.sumOf { it.blood() }
-    if (meTauntBlood >= rivalSumAtc) return 0
 
-    val tauntNum = meTaunt.size
+const val ONE_FACTOR = 10
 
-    val rivalNum = rivalCards.size
+fun WarStatus.excessDamageFactor(): Int {
+    return excessDamage * ONE_FACTOR / ableAtcSum
 
+}
 
-    // 1. 如果嘲讽数量 ≥ 敌方数量：全部攻击被挡
-    if (tauntNum >= rivalNum) {
-        return 0
-    }
-    return rivalAtcSum - meTauntBlood
+fun WarStatus.excessDamageFactorByMeAtc(): Int {
+    return (excessDamage - meSumAtc) * ONE_FACTOR / ableAtcSum
 }
 
 /**
- * 实验性算溢出伤害,暂时方案
- * select ai生成 有点问题,只考虑到攻击力最高攻击情况
+ * todo-future 可以考虑英雄血量
+ * 暂定方案
+ * 还要考虑我方攻击力与动态攻击取最大值
  */
-fun WarStatus.excessDamageByAi(): Int {
-    //  2. 嘲讽数量 < 敌方数量：部分攻击会溢出
-    val sortedRivalAtc = rivalCards.map { it.atc }.sortedDescending()
-    val directDamage = sortedRivalAtc.drop(meTaunt.size).sum()
+fun WarStatus.isAdvByMeAtc(ableAtcSum: Int = this.ableAtcSum): Boolean {
 
-    return directDamage
+    val isAdv = isAdvByMeAtcLog(ableAtcSum)
+    myLog.info { "是否有优势:$isAdv" }
+    return isAdv
+
 }
 
+fun WarStatus.isAdvByMeAtcLog(ableAtcSum: Int = this.ableAtcSum): Boolean {
+    myLog.info { "rivalSumAtc=$rivalSumAtc,meSumAtc=$meSumAtc,excessDamage=$excessDamage" }
+    //val meSumAtc = if(this.meSumAtc==0) 0 else this.meSumAtc/2
+    if (excessDamage * 2 > warInfo.hero()!!.blood()) return false
+    if (rivalSumAtc <= ableAtcSum) return true
+    if (rivalSumAtc - meSumAtc <= ableAtcSum) return true
+    if (excessDamage - meSumAtc <= ableAtcSum) return true
+    return false
+}
 
-fun WarStatus.compareRivalMeGap(numGap: Int, ableAtcSum: Int = acceptableRivalAttack(warInfo.resource())): Boolean {
-
-    TODO()
+fun WarStatus.isAdv(ableAtcSum: Int = this.ableAtcSum): Boolean {
+    myLog.info { "excessDamage=$excessDamage,ableAtcSum=$ableAtcSum" }
+    return excessDamage < ableAtcSum
 }
 
 /**

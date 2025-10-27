@@ -15,7 +15,10 @@ interface RoundLifecycle : Lifecycle {
 }
 
 interface RoundEnd : Lifecycle {
-    fun end(warInfo: WarInfo)
+    /**
+     * todo-future 并发修改错误 临时解决方案,返回ture移除
+     */
+    fun end(warInfo: WarInfo): Boolean
 }
 
 /**

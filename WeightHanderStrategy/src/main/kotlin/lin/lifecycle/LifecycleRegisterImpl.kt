@@ -62,7 +62,12 @@ class LifecycleRegisterImpl : LifecycleRegister {
         roundLifecycles.forEach { it.start(warInfo) }
     }
     fun endRound(warInfo: WarInfo) {
-        roundEndLifecycles.forEach { it.end(warInfo) }
+        val roundLifecycleIterator = roundEndLifecycles.iterator()
+        while (roundLifecycleIterator.hasNext()) {
+            val roundLifecycle = roundLifecycleIterator.next()
+            if (roundLifecycle.end(warInfo))
+                roundLifecycleIterator.remove()
+        }
     }
 
 

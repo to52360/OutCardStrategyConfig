@@ -17,6 +17,7 @@ class UseConfigHandler : ConfigHandler<BaseConfig> {
         cardConfigs.forEach { config ->
             when (config) {
                 is UseConfig -> {
+                    //使用策略存在重复添加问题
                     cardWeightInfos.forEach { info ->
                         config.useGroupId?.let { info.useGroupId = it }
                         config.useGroupOrder?.let { info.useGroupOrder = it }

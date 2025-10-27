@@ -6,28 +6,39 @@ import lin.config.CardConfig
 import lin.config.UseConfig
 import lin.domain.WarInfo
 import lin.domain.context.ChangeAnimationTime
+import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.domain.strategy.UseAfterStrategy
-import lin.domain.strategy.UseBeforeStrategy
-import lin.domain.strategy.UseStrategyUtils
+import lin.domain.use.UseAfterStrategy
+import lin.domain.use.UseDomain
 import lin.serviceLoader.weightRule.ExtConfig
 import lin.serviceLoader.weightRule.onWar.rival.utils.DamageCache
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
+import lin.serviceLoader.weightRule.utils.war.WarStatus
+import lin.serviceLoader.weightRule.utils.war.acceptableRivalAttack
+import lin.warExt.my.base.resource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
-abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinComponent, UseBeforeStrategy, ExtConfig,
-    UseAfterStrategy {
+abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinComponent, UseAfterStrategy, ExtConfig {
     companion object {
         //无伤害视为全部清理
         const val ALL_CLEAN: Int = 0
     }
 
-    protected val cleanWarUtils: CleanWarUtils = get<CleanWarUtils>()
+    protected val cleanWarUtils: CleanWarUtils = get()
     protected val cache = DamageCache()
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        val weight = calWeight(callCard)
+        var weight = calWeight(callCard)
+        if (weight > NotWeight) {
+            //溢出伤害太高加权重
+            val warStatus = warInfo.warStatus
+            val ableAtc = acceptableRivalAttack(warInfo.resource())
+            val excessDamageFactor = warStatus.excessDamage / ableAtc
+            val maxFactor = 2
+            if (excessDamageFactor >= maxFactor) weight *= 2
+
+        }
         return weight
     }
 
@@ -35,20 +46,11 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
         return listOf(UseConfig(useGroupId, useStrategyList = listOf(this)))
     }
 
-    override fun extAction(
-        comboCard: ComboCard,
-        useStrategyUtils: UseStrategyUtils,
-        warInfo: WarInfo
-    ) {
-        //todo 存在重复调用问题,牺牲性能获取简单正确实现
-        cleanWarUtils.reload()
-        if (calWeight(comboCard) == UnUseWeight) {
-            comboCard.unUse()
-        }
-    }
 
-    override fun afterExtAction(comboCard: ComboCard, useStrategyUtils: UseStrategyUtils, warInfo: WarInfo) {
-        Thread.sleep(ChangeAnimationTime)
+    override fun afterExtAction(comboCard: ComboCard, useDomain: UseDomain) {
+        useDomain.extAwait = ChangeAnimationTime
+        cleanWarUtils.reload()
+        useDomain.reFindCombo = true
     }
 
     abstract fun calWeight(callCard: ComboCard): Double

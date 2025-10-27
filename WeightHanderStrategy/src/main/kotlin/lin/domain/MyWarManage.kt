@@ -4,19 +4,19 @@ package lin.domain
 import club.xiaojiawei.hsscriptbasestrategy.util.DeckStrategyUtil
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.bean.War
-import club.xiaojiawei.hsscriptcardsdk.bean.area.HandArea
 import club.xiaojiawei.hsscriptcardsdk.bean.isValid
-import club.xiaojiawei.hsscriptcardsdk.data.CARD_INFO_TRIE
 import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
+import lin.domain.use.tryUseCard
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
 import lin.serviceLoader.parse.ParseCardWeightInfo
+import lin.serviceLoader.weightRule.utils.war.WarStatus
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
@@ -25,6 +25,7 @@ import lin.warExt.my.base.*
 import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.loadKoinModules
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -46,6 +47,9 @@ interface WarInfo {
     val infoMap: Map<String, CardWeightInfo>
 
     val extCost: Int
+
+    //战场状态,判断局势用的
+    val warStatus: WarStatus
 
     /**
      * 用于重复调用,但是每回合只能调用一次
@@ -69,6 +73,10 @@ interface WarInfo {
      * 问题只能处理一种类型
      */
     fun registerLifecycle(lifecycle: Any)
+
+    /**
+     * todo-future 会存在并发修改错误,谨慎使用
+     */
     fun logoutLifecycle(lifecycle: Any)
 }
 
@@ -86,8 +94,14 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         private set
     override var canUseCards = emptyList<ComboCard>()
         private set
-    override val infoMap: Map<String, CardWeightInfo>
+
     override var extCost: Int = 0
+    override val warStatus: WarStatus
+        get() {
+            field.reLoadOnce()
+            return field
+        }
+
     private val lifecycleRegisterImpl = LifecycleRegisterImpl()
 
     inline fun consumeExtCost(extCost: Int, consumeCost: (Int) -> Unit) {
@@ -99,16 +113,24 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         }
     }
     val toDieHandler = ToDieHandler(this)
-
+    override val infoMap: Map<String, CardWeightInfo>
 
     //private val statusReset: StatusReset
     init {
+        val warStatus = WarStatus(this)
+        loadKoinModules(module {
+            //todo-future 用于兼容之前用注入方式,现在改成从上下文获取,减少内存占用
+            single { warStatus }
+        })
+        this.warStatus = warStatus
+
         infoMap = getCardInfos()
         loadKoinModules(module {
             single(named("weightInfo")) { infoMap }
+
             single { lifecycleRegisterImpl } bind LifecycleRegister::class
         })
-        parseCombo(infoMap)
+
     }
 
     override fun registerLifecycle(lifecycle: Any) {
@@ -128,15 +150,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         return infoMap
     }
 
-    /**
-     * 解析Combo信息
-     */
-    private fun parseCombo(infoMap: Map<String, CardWeightInfo>) {
-        val parseCardWeightInfo = getKoin().getAll<ParseCardWeightInfo>()
-        //todo-future 插入combo策略,应用不同的排序策略
-        parseCardWeightInfo.forEach { it.parse(infoMap) }
-    }
-
 
     //转化
     fun parseComboCards(cards: List<Card> = getHandCards()): List<ComboCard> {
@@ -152,39 +165,21 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         )
     }
 
-    /**
-     * todo-future 使用最后一张的情况处理不了(无法判断是否有变更),会有问题
-     */
-    inline fun isChange(useCard: () -> ComboCard?): Boolean {
-        val beginCard = getHandCards().lastOrNull()
-        val expNum = getHandCards().size
-        val useResult = useCard() //返回null表示打出失败
-        useResult?.let {
-            val nowNum = getHandCards().size
-            if (nowNum >= expNum) {
-                //技能不会被移除的
-                return it.card != getPower()
-            } else {// 为弃牌写的
-                val endCard = getHandCards().lastOrNull()
-                if (beginCard != endCard && useResult != beginCard) //排除打出最后一张的情况
-                    return true
-            }
-        }
-
-        return false
-    }
-
-
 
     /**
      * todo-future 暂时重新读取数据,性能太差或者有空 改成复杂状态管理
      * 重新加载
      */
     fun reLoad() {
+        //todo-future 临时方案,使用手牌改变战场,重新更新数组,但是不知道有没有普适性
+        //之前位置在clean方法里
+        registryInfo.clear()
+
         //select 先转换后再过滤考虑存在费用变更情况
         reLoadHandCards()
         canUseCards = canUseCardsByCost()
         reloadPlayComboCards()
+
     }
 
     fun reLoadHandCards() {
@@ -242,7 +237,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
      *未更新
      */
     fun useCardAndRemove(comBoCard: ComboCard) {
-
         if (tryUseCard(comBoCard)) {
             handComboCards -= comBoCard
             canUseCards -= comBoCard
@@ -252,83 +246,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
 
         }
     }
-
-    fun useCard(comboCard: ComboCard): Boolean {
-        val card = comboCard.card
-        val actionInfo = CARD_INFO_TRIE[card.cardId]
-        var result = true
-        actionInfo?.let {
-            card.action.autoPower(it)
-        } ?: run {
-            result = comboCard.pointCard?.let {
-                card.action.power(comboCard.pointCard)?.let { true } ?: false
-            } ?: run {
-                card.action.power()?.let {
-                    if (card.isChooseOne) {
-                        card.action.chooseOne(0)
-                    }
-                    true
-                } ?: false
-
-            }
-        }
-        result = result && card.area !is HandArea
-        return result
-
-    }
-
-
-    fun tryUseCard(comboCard: ComboCard): Boolean {
-        val card = comboCard.card
-        //费用不够,动态变更为不能使用
-        if (card.cost > getCost() || comboCard.isUnUse()) {
-            return false
-        }
-        //随从已满
-        if ((isFull && card.cardType == CardTypeEnum.MINION)) {
-            comboCard.unUse()
-            return false
-        }
-
-        if (card.area !is HandArea) {//区域判断
-            if (!isPower(card)) {//技能的处理
-                return false
-            }
-
-        }
-        var useResult = useCard(comboCard)
-        if (!useResult && card.area is HandArea) {//再次尝试
-            //处理战场已满情况
-            if (NotWeight == processPlayCardIsFull()) {
-                myLog.info { "再次尝试打出" }
-                useResult = useCard(comboCard)
-            }
-            if (!useResult && !(card.cardType == CardTypeEnum.MINION && isFull)) {
-                //处理发现
-                /*             if (useStrategyUtils.tryAwait()) {
-                                 //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
-                                 myLog.info { "发现补偿打出" }
-                                 var num = 5
-                                 while (useStrategyUtils.tryAwait() && num > 0) {
-                                     comboCard.card.action.chooseOne(0)
-                                     num--
-                                 }
-                                 useResult = useCard(comboCard)
-                             }*/
-
-                myLog.info { "随机指向打出" }
-                useResult = autoPower(card)
-
-
-            }
-
-        }
-        //标记不能打出避免重复尝试
-        if (!useResult) comboCard.unUse()
-        return useResult
-    }
-
-
 
     private var gameId: String? = null
 
@@ -362,7 +279,7 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
     fun reset() {
         isCleanWar = false
         isFull = false
-        registryInfo.clear()
+
         //statusReset.reset()
     }
     fun clean() {

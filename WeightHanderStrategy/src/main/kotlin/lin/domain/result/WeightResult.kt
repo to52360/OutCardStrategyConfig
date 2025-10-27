@@ -3,6 +3,7 @@ package lin.domain.result
 import lin.bean.ComboCard
 import lin.domain.context.NotWeight
 import lin.myLog
+import java.util.TreeSet
 
 sealed class CmdPlanner
 object ContinuePlanner : CmdPlanner()
@@ -36,7 +37,11 @@ class EndWeightResult(
 ) : WeightResult() {
     //todo-future 存在直接操作权重,导致查找不到元素 想改成ArrayList,太复杂了,后面再说
     private val _canUseCardsByHandler = mutableListOf<ComboCard>()
-
+    val unUseCards: List<ComboCard>
+        get() = _unUseCards
+    private val _unUseCards: MutableList<ComboCard> by lazy {
+        mutableListOf()
+    }
 
 
     var bestCombination: List<ComboCard> = emptyList()
@@ -48,12 +53,9 @@ class EndWeightResult(
      */
     fun processWeightAfter(comboCard: ComboCard) {
         if (comboCard.isUnUse()) {
-            myLog.info { "忽略的匹配卡牌:${comboCard}" }
-            return
-        }
-        _canUseCardsByHandler.add(comboCard)
+            _unUseCards.add(comboCard)
 
-
+        } else _canUseCardsByHandler.add(comboCard)
     }
     fun addAll(comboCards: List<ComboCard>) {
         _canUseCardsByHandler.addAll(comboCards)

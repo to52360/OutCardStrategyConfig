@@ -10,6 +10,7 @@ import lin.domain.context.NotWeight
 import lin.domain.result.*
 import lin.domain.strategy.FindComboStrategy.Companion.DEF_PRIORITY
 import lin.domain.strategy.FindComboStrategy.Companion.EXT_COST_PRIORITY
+import lin.domain.use.tryUseCard
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.COINProvide
 import lin.warExt.my.base.getCost

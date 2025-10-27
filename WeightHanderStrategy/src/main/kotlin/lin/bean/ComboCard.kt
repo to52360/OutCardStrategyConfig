@@ -5,8 +5,8 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.domain.context.BaseWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
-import lin.domain.strategy.UseAfterStrategy
-import lin.domain.strategy.UseBeforeStrategy
+import lin.domain.use.UseAfterStrategy
+import lin.domain.use.UseBeforeStrategy
 
 
 typealias ComboRule = (ComboCard) -> Double
@@ -64,6 +64,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
      */
     fun addWeight(weight: Double) {
         extPowerWeight += weight
+        //todo-future 临时方案 使用和权重不应该共用,遇到奥秘情况会吃亏,遇到有变化就会吃亏
         useGroupOrder += weight
     }
 
@@ -75,7 +76,7 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
      * todo-future   or条件判断,存在问题(需要严格的顺序),目前不想大改先这样
      */
     fun isBaseWeight(): Boolean {
-        return extPowerWeight == BaseWeight
+        return powerWeight == BaseWeight
     }
 
     /**

@@ -6,12 +6,13 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
 import lin.bean.comboCardUtils.base.isMinion
+import lin.config.cardConfig.CardConfigBind
 import lin.domain.context.ChangeAnimationTime
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
-import lin.domain.context.UseAnimationTime
 import lin.domain.result.*
 import lin.domain.strategy.*
+import lin.domain.use.UseDomain
 import lin.myLog
 import lin.serviceLoader.findCombo.SkillFindStrategy
 import lin.utils.serviceLoader.JarClassLoader
@@ -39,7 +40,7 @@ class ComboDomain : KoinComponent {
         myLog.warn { "没有获取到类加载器" }
         javaClass.classLoader
     }
-    private val useStrategyUtils = get<UseStrategyUtils>()
+    private val useDomain = get<UseDomain>()
     private val findComboStrategyList = getKoin().getAll<FindComboStrategy>().sortedBy { it.priority() }
     private val findPlanner = get<FindPlanner>()
     private val skillFindStrategy = get<SkillFindStrategy>()
@@ -53,6 +54,9 @@ class ComboDomain : KoinComponent {
 
             //不能移动,需要线程上下文
             warManage = get<MyWarManage>()
+            //todo-future 配置绑定暂定放在这,需要warManage之后
+            CardConfigBind(warManage.infoMap)
+
             weightHandlerDomain = get<WeightHandlerDomain>()
         }
     }
@@ -228,55 +232,22 @@ class ComboDomain : KoinComponent {
     }
 
 
-    fun List<UseBeforeStrategy>.executeAction(card: ComboCard, useStrategyUtils: UseStrategyUtils) {
-        this.forEach {
-            it.extAction(card, useStrategyUtils, warManage)
-        }
-    }
-
-    fun List<UseAfterStrategy>.executeAfterAction(card: ComboCard, useStrategyUtils: UseStrategyUtils) {
-        this.forEach {
-            it.afterExtAction(card, useStrategyUtils, warManage)
-        }
-    }
+    /**
+     * todo 需要重构, 这里返回指令就好了,做的事太多了
+     * 权重有变化重新匹配
+     */
     fun useCardAndIsReload(card: ComboCard): Boolean {
-        val changeResult = warManage.isChange {
-            card.useBeforeStrategy?.executeAction(card, useStrategyUtils)
-            val useResult = warManage.tryUseCard(card)
-            myLog.info { "打出$card,使用结果:$useResult" }
-            useStrategyUtils.useResult = useResult
-            card.useAfterStrategy?.executeAfterAction(card, useStrategyUtils)
-            if (useResult) {
-                myLog.info { "打出等待动画" }
-                Thread.sleep(UseAnimationTime)
-                //select 暂时这样处理发现,看一下有没有问题
-                processDiscover(card)
-                card
-            } else null
-        }
+        useDomain.useCard(card)
+        val changeResult = useDomain.isChange
         if (changeResult) {
-            myLog.info { "有变化,重新查询combo,等待变化动画" }
-            Thread.sleep(ChangeAnimationTime)
+
             warManage.reLoad()
             findAndUse()
         }
         return changeResult
     }
 
-    private fun processDiscover(comboCard: ComboCard): Boolean {
-        if (useStrategyUtils.tryAwait()) {
-            //补偿发现动画(主要底层原因,无法使用发现),导致无法打出
-            myLog.info { "发现补偿操作" }
-            var num = 5
-            while (useStrategyUtils.tryAwait() && num > 0) {
-                comboCard.card.action.chooseOne(0)
-                Thread.sleep(UseAnimationTime)
-                num--
-            }
-            return true
-        }
-        return false
-    }
+
 
     fun executeChangeCard(cards: HashSet<Card>) {
         threadContext {
@@ -293,14 +264,14 @@ class ComboDomain : KoinComponent {
 
     fun executeDiscoverChooseCard(vararg cards: Card): Int {
         try {
-            useStrategyUtils.tryRegister()
+            useDomain.tryRegister()
             var index = 0
             threadContext {
                 index = weightHandlerDomain.executeDiscoverChooseCard(*cards)
             }
             return index
         } finally {
-            useStrategyUtils.down()
+            useDomain.down()
         }
 
     }

@@ -11,6 +11,7 @@ import lin.domain.combo.ComboParse.Companion.DEF
 import lin.domain.combo.ComboParse.Companion.FIRST
 import lin.domain.combo.ComboParse.Companion.LAST
 import lin.domain.strategy.*
+import lin.domain.use.UseDomain
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.serviceLoader.findCombo.SkillFindStrategy
@@ -69,10 +70,10 @@ class ModulesLoad {
     }
 
     val utilsModule = module {
-        singleOf(::UseStrategyUtils)
+        singleOf(::UseDomain)
         singleOf(::FindPlanner)
         singleOf(::CleanWarUtils)
-        singleOf(::WarStatus)
+
     }
     val findStrategy = module {
         singleOf(::ExtCostStrategy) bind FindComboStrategy::class

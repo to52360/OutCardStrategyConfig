@@ -35,3 +35,6 @@ class DefHandNum : AbsNumWeight({
 class HandNumMinion : AbsNumWeight({
     it.getHandCards().count { it -> it.isMinion() }
 })
+class HandNumMinionByTaunt : AbsNumWeight({
+    it.getHandCards().count { it -> it.isMinion() && it.isTaunt }
+})

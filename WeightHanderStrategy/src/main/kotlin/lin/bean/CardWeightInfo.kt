@@ -2,9 +2,9 @@ package lin.bean
 
 
 import lin.domain.context.NotWeight
-import lin.domain.strategy.UseAfterStrategy
-import lin.domain.strategy.UseBeforeStrategy
-import lin.domain.strategy.UseStrategy
+import lin.domain.use.UseAfterStrategy
+import lin.domain.use.UseBeforeStrategy
+import lin.domain.use.UseStrategy
 import lin.lifecycle.LifecycleRegister
 import lin.serviceLoader.weightRule.WeightRule
 import org.koin.core.component.KoinComponent

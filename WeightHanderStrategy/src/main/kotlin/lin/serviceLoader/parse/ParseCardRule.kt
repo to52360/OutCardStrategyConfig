@@ -6,7 +6,7 @@ import lin.serviceLoader.weightRule.CardRule
 import lin.utils.serviceLoader.ServiceLoaderUtils
 
 /**
- * 解析单卡条件并绑定
+ * 单卡条件绑定并绑定
  */
 class ParseCardRule : ParseCardWeightInfo {
     override fun parse(infoMap: Map<String, CardWeightInfo>) {

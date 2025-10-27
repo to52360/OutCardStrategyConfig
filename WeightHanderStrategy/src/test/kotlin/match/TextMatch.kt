@@ -11,4 +11,9 @@ class TextMatch {
         println(damage)
 
     }
+
+    @Test
+    fun test2() {
+        println(3 * 10 / 6)
+    }
 }

@@ -4,13 +4,14 @@ package lin.serviceLoader.findCombo
 import lin.bean.ComboCard
 import lin.bean.addSafe
 import lin.domain.MyWarManage
-import lin.domain.WarInfo
 import lin.domain.context.UseSkillWeight
 import lin.domain.result.*
 import lin.domain.strategy.FindComboStrategy.Companion.SKILL_PRIORITY
 import lin.domain.strategy.FindPlanner
-import lin.domain.strategy.UseAfterStrategy
-import lin.domain.strategy.UseStrategyUtils
+import lin.domain.use.UseAfterStrategy
+import lin.domain.use.UseDomain
+import lin.domain.use.tryUseCard
+import lin.domain.use.useCard
 import lin.myLog
 import lin.warExt.my.base.getCost
 import lin.warExt.my.base.getPower
@@ -70,7 +71,7 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
         skillComboCard?.let {
             if (warManage.getCost() < it.cost()) return
             if (isUsedSkill) return
-            val result = warManage.useCard(it)
+            val result = useCard(it)
             //todo-future 当前回合变更技能 临时处理方案
             if (!result) {
                 val skill = warManage.getPower()
@@ -127,8 +128,7 @@ class SkillFindStrategy : AbsFindStrategy(findRule = { false }), UseAfterStrateg
 
     override fun afterExtAction(
         comboCard: ComboCard,
-        useStrategyUtils: UseStrategyUtils,
-        warInfo: WarInfo
+        useDomain: UseDomain
     ) {
         isUsedSkill = true
     }
