@@ -14,8 +14,8 @@ import lin.warExt.rival.rivalCardsByPlayArea
 
 /**
  * 用于判断战场整体局势
+ *
  */
-
 class WarStatus(val warInfo: WarInfo) : RoundEnd {
     companion object {
         const val ONCE_WAR_STATUS = "once"
@@ -55,7 +55,7 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
     }
 
     /**
-     * todo 有些信息没有加全
+     *
      */
     fun reload() {
         reloadMe()
@@ -144,6 +144,7 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
 const val ONE_FACTOR = 10
 
 fun WarStatus.excessDamageFactor(): Int {
+    if (ableAtcSum == 0) return excessDamage * ONE_FACTOR
     return excessDamage * ONE_FACTOR / ableAtcSum
 
 }

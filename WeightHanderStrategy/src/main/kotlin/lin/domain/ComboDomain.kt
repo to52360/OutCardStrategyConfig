@@ -7,11 +7,11 @@ import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
 import lin.bean.comboCardUtils.base.isMinion
 import lin.config.cardConfig.CardConfigBind
-import lin.domain.context.ChangeAnimationTime
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.domain.result.*
-import lin.domain.strategy.*
+import lin.domain.strategy.FindComboStrategy
+import lin.domain.strategy.FindPlanner
 import lin.domain.use.UseDomain
 import lin.myLog
 import lin.serviceLoader.findCombo.SkillFindStrategy
@@ -233,7 +233,6 @@ class ComboDomain : KoinComponent {
 
 
     /**
-     * todo 需要重构, 这里返回指令就好了,做的事太多了
      * 权重有变化重新匹配
      */
     fun useCardAndIsReload(card: ComboCard): Boolean {

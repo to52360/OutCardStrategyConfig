@@ -29,6 +29,6 @@ lin.serviceLoader.weightRule.afterRule.HaloRule
 
 lin.serviceLoader.weightRule.status.HeroHasArmor
 lin.serviceLoader.weightRule.status.HeroWeightArmor
-lin.serviceLoader.weightRule.status.HeroExcessDamageByNum
-lin.serviceLoader.weightRule.status.CostWeightByNum
+lin.serviceLoader.weightRule.status.ExcessDamageByNum
+lin.serviceLoader.weightRule.status.LessCostFactorByNum
 

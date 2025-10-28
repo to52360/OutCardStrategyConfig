@@ -4,7 +4,6 @@ import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 import lin.serviceLoader.weightRule.utils.war.ONE_FACTOR
-import lin.serviceLoader.weightRule.utils.war.WarStatus
 import lin.serviceLoader.weightRule.utils.war.excessDamageFactor
 
 class ExcessDamageFactorByNum : AbsWeightCondition() {
@@ -17,7 +16,13 @@ class ExcessDamageFactorByNum : AbsWeightCondition() {
         val warStatus = warInfo.warStatus
         val excessDamageFactor = warStatus.excessDamageFactor()
         val offer = ONE_FACTOR / 2 + 2 //区间偏移量,随便写的
-        if (excessDamageFactor in number - offer until number + offer) return groupWeight
-        return unConditionWeight
+        if (number - offer < excessDamageFactor) return unConditionWeight
+        return if (excessDamageFactor < number + offer) groupWeight
+        else groupWeight / 2
+        /*{
+        //todo-future 临时算法,暂时想出的方案
+        if(unConditionWeight==NotWeight) return NotWeight
+        return groupWeight-unConditionWeight
+    }*/
     }
 }

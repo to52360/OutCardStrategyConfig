@@ -15,22 +15,26 @@ import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.CardWeightInfoProvide
-import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.weightRule.utils.war.WarStatus
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.warExt.action.activeLocation
 import lin.warExt.action.cleanPlay
 import lin.warExt.action.cleanPlayAll
-import lin.warExt.my.base.*
+import lin.warExt.my.base.getCost
+import lin.warExt.my.base.getHandCards
+import lin.warExt.my.base.getPlayCards
+import lin.warExt.my.base.playCardIsFull
 import lin.weightHandler.warHandler.ToDieHandler
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.loadKoinModules
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
 
+/**
+ * 还包含战场管理
+ */
 interface WarInfo {
     val war: War
 
