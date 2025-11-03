@@ -1,6 +1,7 @@
 package lin.bean
 
 
+import lin.config.CardType
 import lin.domain.context.NotWeight
 import lin.domain.use.UseAfterStrategy
 import lin.domain.use.UseBeforeStrategy
