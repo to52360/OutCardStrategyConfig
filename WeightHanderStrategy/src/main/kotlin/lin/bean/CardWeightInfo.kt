@@ -30,10 +30,18 @@ data class CardWeightInfo(
     val groupId: Double = 1.0,
     val changeWeight: Double = NotWeight
 ) : KoinComponent {
+    // 卡牌类型集合
+    private var _cardTypes: HashSet<CardType>? = null
+    val cardTypes: Set<CardType>
+        get() = _cardTypes ?: emptySet()
 
+    fun addCardType(cardType: CardType) {
+        _cardTypes = _cardTypes.addSafeToSet(cardType)
+    }
 
-
-
+    fun isCardType(cardType: CardType): Boolean {
+        return _cardTypes?.contains(cardType) ?: false
+    }
 
     private var _weightRules: MutableList<WeightRule>? = null
 
@@ -118,6 +126,10 @@ data class CardWeightInfo(
 // 扩展函数：安全添加元素到可空列表
 fun <T> MutableList<T>?.addSafe(item: T): MutableList<T> {
     return this?.apply { add(item) } ?: mutableListOf(item)
+}
+
+fun <T> HashSet<T>?.addSafeToSet(item: T): HashSet<T> {
+    return this?.apply { add(item) } ?: hashSetOf(item)
 }
 
 fun <T> CardContext?.addSafe(key: MetadataKey<T>, item: T): CardContext {

@@ -1,8 +1,11 @@
 package lin.config.handler
 
+
 import lin.bean.CardWeightInfo
 import lin.config.BaseConfig
+
 import lin.config.CardConfig
+import lin.config.CardType
 import lin.config.UseConfig
 import kotlin.reflect.KClass
 
@@ -24,9 +27,17 @@ class UseConfigHandler : ConfigHandler<BaseConfig> {
                         config.useStrategyList.forEach {
                             info.addUseStrategy(it)
                         }
+
+                    }
+                }
+
+                is CardType -> {
+                    cardWeightInfos.forEach { info ->
+                        info.addCardType(config)
                     }
                 }
             }
         }
     }
 }
+

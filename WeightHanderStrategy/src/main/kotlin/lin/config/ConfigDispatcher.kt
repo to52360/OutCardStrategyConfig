@@ -5,6 +5,9 @@ import lin.config.handler.ConfigHandler
 import lin.myLog
 import kotlin.reflect.KClass
 
+/**
+ * 分管配置,过度版(存放还是原来位置,逐渐分离)
+ */
 class ConfigDispatcher(
     handlers: List<ConfigHandler<*>>
 ) {
@@ -19,6 +22,7 @@ class ConfigDispatcher(
 
     /**
      * todo-future 暂时方案,不应该传cardWeightInfos,应该传什么还没想想清
+     * 待定是分组List
      */
     fun dispatch(cardConfigs: List<CardConfig>, cardWeightInfos: List<CardWeightInfo>) {
         val buckets = handlerMap.keys.associateWith { mutableListOf<CardConfig>() }

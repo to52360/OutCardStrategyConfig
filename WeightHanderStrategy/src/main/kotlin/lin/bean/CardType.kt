@@ -1,5 +1,10 @@
 package lin.bean
 
-interface CardType
+import lin.config.CardType
 
-interface CleanCard : CardType
+
+object CleanCard : CardType
+
+object AllCleanCard : CardType
+
+object ChangeCard : CardType

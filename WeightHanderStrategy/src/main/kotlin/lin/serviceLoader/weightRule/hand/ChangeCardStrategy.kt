@@ -1,5 +1,6 @@
 package lin.serviceLoader.weightRule.hand
 
+import lin.bean.ChangeCard
 import lin.bean.ChangeGroupId
 import lin.bean.ComboCard
 import lin.config.CardConfig
@@ -44,7 +45,7 @@ class ChangeCardStrategy : AbsWeightCondition(), KoinComponent, ExtConfig {
     }
 
     override fun cardConfigs(): List<CardConfig> {
-        return listOf(UseConfig(ChangeGroupId))
+        return listOf(UseConfig(ChangeGroupId), ChangeCard)
     }
 
 

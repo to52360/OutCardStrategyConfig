@@ -1,7 +1,10 @@
 package lin.serviceLoader.weightRule.onWar.rival
 
+import lin.bean.AllCleanCard
 import lin.bean.CleanWarId
 import lin.bean.ComboCard
+import lin.config.CardConfig
+import lin.config.UseConfig
 import lin.domain.context.UnUseWeight
 import lin.myLog
 import lin.serviceLoader.weightRule.utils.war.*
@@ -15,7 +18,9 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
     override fun name(): String {
         return "解场用的之aoe"
     }
-
+    override fun cardConfigs(): List<CardConfig> {
+        return listOf(UseConfig(useGroupId, useStrategyList = listOf(this)), AllCleanCard)
+    }
     override fun calWeight(callCard: ComboCard): Double {
         val damage = cache.getDamageById(callCard)
         return if (damage == ALL_CLEAN) {

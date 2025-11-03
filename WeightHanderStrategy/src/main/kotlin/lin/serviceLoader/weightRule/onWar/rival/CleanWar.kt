@@ -1,5 +1,6 @@
 package lin.serviceLoader.weightRule.onWar.rival
 
+import lin.bean.CleanCard
 import lin.bean.ComboCard
 import lin.bean.DefUseGroupId
 import lin.config.CardConfig
@@ -40,9 +41,7 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
         return weight
     }
 
-    override fun cardConfigs(): List<CardConfig> {
-        return listOf(UseConfig(useGroupId, useStrategyList = listOf(this)))
-    }
+
 
 
     override fun afterExtAction(comboCard: ComboCard, useDomain: UseDomain) {
@@ -62,7 +61,9 @@ class DepNumRelWar : CleanWar(DefUseGroupId) {
             unConditionWeight * cleanWarUtils.unPassRate(damage) + cleanWarUtils.getExcessDamageFixWeight(damage)
         return groupWeight + cutWeight
     }
-
+    override fun cardConfigs(): List<CardConfig> {
+        return listOf(UseConfig(useGroupId, useStrategyList = listOf(this)), CleanCard)
+    }
 
     override fun description(): String {
         return "单向解场"
