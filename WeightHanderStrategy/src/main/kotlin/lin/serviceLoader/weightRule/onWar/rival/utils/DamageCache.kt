@@ -2,8 +2,8 @@ package lin.serviceLoader.weightRule.onWar.rival.utils
 
 import club.xiaojiawei.hsscriptcardsdk.util.CardUtil
 import lin.bean.ComboCard
-import lin.bean.comboCardUtils.base.atc
-import lin.bean.comboCardUtils.base.isMinion
+import lin.bean.cardExt.base.atc
+import lin.bean.cardExt.base.isMinion
 import lin.myLog
 import lin.serviceLoader.weightRule.onWar.rival.CleanWar.Companion.ALL_CLEAN
 

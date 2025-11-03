@@ -4,11 +4,11 @@ import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.war.WarStatus
+
 import lin.serviceLoader.weightRule.utils.war.isAdv
-import lin.serviceLoader.weightRule.utils.war.isAdvByMeAtc
+
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
+
 
 /**
  * 光环类,后置规则,暂没有优先级,采用isBaseWeight,来判断有没有前置规则满足

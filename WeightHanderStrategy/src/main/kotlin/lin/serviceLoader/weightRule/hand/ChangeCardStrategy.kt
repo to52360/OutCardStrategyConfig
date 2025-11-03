@@ -9,10 +9,8 @@ import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.serviceLoader.weightRule.ExtConfig
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.war.ONE_FACTOR
-
-import lin.serviceLoader.weightRule.utils.war.excessDamageFactorByMeAtc
 import lin.serviceLoader.weightRule.utils.war.isAdvByMeAtc
+import lin.warExt.my.base.deckArea
 import lin.warExt.my.base.getHandCards
 import org.koin.core.component.KoinComponent
 
@@ -29,6 +27,7 @@ class ChangeCardStrategy : AbsWeightCondition(), KoinComponent, ExtConfig {
 
         //todo-future 存在魔数,没太大问题就这样了,(可以正则文本和复杂策略)
         if (warInfo.getHandCards().size > 8) return UnUseWeight
+        if (warInfo.deckArea().size < 3) return UnUseWeight
         val handSize = warInfo.getHandCards().size
 
         return if (handSize < number) {

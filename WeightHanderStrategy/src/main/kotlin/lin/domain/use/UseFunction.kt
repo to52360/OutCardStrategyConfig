@@ -8,11 +8,7 @@ import lin.domain.MyWarManage
 import lin.domain.WarInfo
 import lin.domain.context.NotWeight
 import lin.myLog
-import lin.warExt.my.base.autoPower
-import lin.warExt.my.base.getCost
-import lin.warExt.my.base.getHandCards
-import lin.warExt.my.base.getPower
-import lin.warExt.my.base.isPower
+import lin.warExt.my.base.*
 
 /**
  * todo-future 使用最后一张的情况处理不了(无法判断是否有变更),会有问题
@@ -70,7 +66,9 @@ fun MyWarManage.tryUseCard(comboCard: ComboCard): Boolean {
                          }*/
 
             myLog.info { "随机指向打出" }
-            useResult = autoPower(card)
+            //todo-future  指向自己没打出也返回ture,card.area !is HandArea是临时方案
+            autoPower(card)
+            useResult = card.area !is HandArea
 
 
         }
@@ -112,9 +110,8 @@ fun useCard(comboCard: ComboCard): Boolean {
         } ?: run {
             card.action.power()?.let {
                 if (card.isChooseOne) {
-                    card.action.chooseOne(0)
-                }
-                true
+                    card.action.chooseOne(0, true)?.let { true } ?: false
+                } else true
             } ?: false
 
         }

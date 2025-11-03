@@ -1,12 +1,13 @@
-package lin.serviceLoader.weightRule.utils.cardUtils
+package lin.bean.cardExt.cardList
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import lin.bean.cardExt.base.hasWorth
 
 /**
  * 存在额外价值
  */
 fun List<Card>.isExtWeight(): Boolean {
-    return this.any { it.isAura || it.isTriggerVisual || it.isTitan }
+    return this.any { hasWorth(it) }
 }
 
 fun List<Card>.canHurt(): List<Card> {

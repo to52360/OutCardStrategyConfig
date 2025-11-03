@@ -1,10 +1,10 @@
 package lin.serviceLoader.weightRule.utils.war
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import lin.bean.cardExt.cardList.canHurt
 import lin.domain.WarInfo
 import lin.lifecycle.RoundEnd
 import lin.myLog
-import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
 import lin.serviceLoader.weightRule.utils.war.WarStatus.Companion.ATTENTION_AVG_ATC
 import lin.warExt.my.base.getPlayCards
 import lin.warExt.my.base.hero
@@ -61,6 +61,8 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
         reloadMe()
         reloadRival()
         reloadStatus()
+        myLog.info { "rivalSumAtc=$rivalSumAtc,meSumAtc=$meSumAtc,excessDamage=$excessDamage,meNum=$meNum" }
+        myLog.info { "嘲讽血量:${meTaunt.sumOf { it.blood() }},能接受的攻击力:$ableAtcSum" }
     }
 
     /**
@@ -134,7 +136,7 @@ class WarStatus(val warInfo: WarInfo) : RoundEnd {
 
     private fun ableAtcSum(): Int {
         val ableAtcSum = acceptableRivalAttack(warInfo.resource())
-        return warInfo.meBlood() * ableAtcSum / warInfo.hero()!!.bloodLimit()
+        return warInfo.meBlood().coerceAtMost(warInfo.hero()!!.health) * ableAtcSum / warInfo.hero()!!.health
 
     }
 
@@ -146,7 +148,10 @@ const val ONE_FACTOR = 10
 fun WarStatus.excessDamageFactor(): Int {
     if (ableAtcSum == 0) return excessDamage * ONE_FACTOR
     return excessDamage * ONE_FACTOR / ableAtcSum
+}
 
+fun WarStatus.overLimitByDamage(limit: Int = warInfo.meBlood() * 2): Boolean {
+    return excessDamage - meSumAtc >= limit
 }
 
 fun WarStatus.excessDamageFactorByMeAtc(): Int {
@@ -159,7 +164,6 @@ fun WarStatus.excessDamageFactorByMeAtc(): Int {
  * 还要考虑我方攻击力与动态攻击取最大值
  */
 fun WarStatus.isAdvByMeAtc(ableAtcSum: Int = this.ableAtcSum): Boolean {
-
     val isAdv = isAdvByMeAtcLog(ableAtcSum)
     myLog.info { "是否有优势:$isAdv" }
     return isAdv
@@ -167,7 +171,7 @@ fun WarStatus.isAdvByMeAtc(ableAtcSum: Int = this.ableAtcSum): Boolean {
 }
 
 fun WarStatus.isAdvByMeAtcLog(ableAtcSum: Int = this.ableAtcSum): Boolean {
-    myLog.info { "rivalSumAtc=$rivalSumAtc,meSumAtc=$meSumAtc,excessDamage=$excessDamage" }
+
     //val meSumAtc = if(this.meSumAtc==0) 0 else this.meSumAtc/2
     if (excessDamage * 2 > warInfo.hero()!!.blood()) return false
     if (rivalSumAtc <= ableAtcSum) return true
@@ -177,7 +181,6 @@ fun WarStatus.isAdvByMeAtcLog(ableAtcSum: Int = this.ableAtcSum): Boolean {
 }
 
 fun WarStatus.isAdv(ableAtcSum: Int = this.ableAtcSum): Boolean {
-    myLog.info { "excessDamage=$excessDamage,ableAtcSum=$ableAtcSum" }
     return excessDamage < ableAtcSum
 }
 

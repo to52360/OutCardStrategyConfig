@@ -2,10 +2,9 @@ package lin.warExt.rival
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.enums.CardTypeEnum
-
+import lin.bean.cardExt.cardList.canHurt
+import lin.bean.cardExt.cardList.canHurtNum
 import lin.domain.WarInfo
-import lin.serviceLoader.weightRule.utils.cardUtils.canHurt
-import lin.serviceLoader.weightRule.utils.cardUtils.canHurtNum
 
 /**
  * 敌方场上随从攻击力总和

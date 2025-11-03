@@ -2,6 +2,7 @@ package lin.bean
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
+import lin.domain.combo.ComboParse.Companion.LastUseGroupId
 import lin.domain.context.BaseWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
@@ -105,7 +106,11 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
     fun unUse() {
         extPowerWeight = UnUseWeight
     }
-    fun isUnUse() = extPowerWeight == UnUseWeight
+    fun isUnUse(): Boolean {
+        //todo-future 负权重要最后使用的临时方案
+        if (powerWeight < NotWeight && useGroupId == DefUseGroupId) useGroupId = LastUseGroupId + 1
+        return extPowerWeight == UnUseWeight
+    }
 
 
 

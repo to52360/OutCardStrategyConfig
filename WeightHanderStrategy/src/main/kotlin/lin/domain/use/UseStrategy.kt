@@ -20,6 +20,9 @@ object UseAfterLClick : UseAfterStrategy {
         myLog.info { "等待地标动画" }
         Thread.sleep(AwaitAnimationTime)
         comboCard.card.action.lClick()
+        useDomain.register()
+        useDomain.await()
+        //避免没点到
         myLog.info { "再点一下" }
         Thread.sleep(AwaitAnimationTime)
         comboCard.card.action.lClick()

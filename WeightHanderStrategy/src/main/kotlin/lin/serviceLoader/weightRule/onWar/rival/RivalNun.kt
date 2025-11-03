@@ -1,9 +1,9 @@
 package lin.serviceLoader.weightRule.onWar.rival
 
 import lin.bean.ComboCard
+import lin.bean.cardExt.cardList.isExtWeight
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.cardUtils.isExtWeight
 import lin.warExt.rival.rivalCanHurt
 
 class RivalNun : AbsWeightCondition() {

@@ -35,6 +35,9 @@ fun WarInfo.meBlood() = hero()!!.blood()
 fun WarInfo.getHandCards(): List<Card> {
     return war.me.handArea.cards
 }
+fun WarInfo.deckArea(): List<Card> {
+    return war.me.deckArea.cards
+}
 fun WarInfo.playCardIsFull(): Boolean {
     return getPlayCards().size == 7
 }

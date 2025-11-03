@@ -3,6 +3,8 @@ package lin.serviceLoader.weightRule.onWar.rival
 import lin.bean.CleanWarId
 import lin.bean.ComboCard
 import lin.domain.context.UnUseWeight
+import lin.myLog
+import lin.serviceLoader.weightRule.utils.war.*
 
 
 /**
@@ -16,15 +18,73 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
 
     override fun calWeight(callCard: ComboCard): Double {
         val damage = cache.getDamageById(callCard)
-        if (cleanWarUtils.rivalNumLessGap(warCardGap, damage * number)) {
+        return if (damage == ALL_CLEAN) {
+            processAll()
+        } else {
+            processHasDamage(damage)
+        }
+    }
+
+    /**
+     * 全清理和有限清理
+     * 暂时分为两个方法,后续有大改动再分为两个对象
+     */
+    private fun processAll(): Double {
+        val warStatus = cleanWarUtils.warStatus
+        //溢出伤害太严重
+        var warCardGap = this.warCardGap + if (warStatus.excessDamageFactor() > 2 * ONE_FACTOR) -1 else 0
+        //高费有价值才值得清理
+        if (cleanWarUtils.worthTarget.any { it.cost > 2 }) warCardGap--
+        if (cleanWarUtils.rivalNumLessGap(warCardGap)) {
             return UnUseWeight
         }
-        cleanWarUtils.cleanOnce(damage)
+        cleanWar(ALL_CLEAN)
+        if (cleanWarUtils.lessGap(warCardGap, ALL_CLEAN)) return UnUseWeight
+        //伤害达不到标准就降低
+        return if (warStatus.isAdvByMeAtc()) groupWeight - unConditionWeight else groupWeight
+    }
+
+    /**
+     * 有限伤害清理
+     */
+    private fun processHasDamage(damage: Int): Double {
+        //这里能可以把血量压下去也可以考虑,或者有价值目标清理成残血也可以考虑
+        val warCardGap = cleanWarUtils.hasWorthReduceNum(this.warCardGap)
+        if (cleanWarUtils.rivalNumLessGap(warCardGap)) {
+            return UnUseWeight
+        }
+        cleanWar(damage)
 
         if (cleanWarUtils.lessGap(warCardGap, damage)) return UnUseWeight
-        if (damage == ALL_CLEAN) return groupWeight
-        val cutWeight = unConditionWeight * cleanWarUtils.unPassRate(damage)
-        return groupWeight + cutWeight
+
+        //todo-future 配置字段不够,暂时使用代码定义配置
+        var cutWeight = unConditionWeight * cleanWarUtils.unPassRate(damage)
+        val ableLessBlood = 3
+        //存在值得清理
+        var hasNotWorth = true
+
+
+        //要不要没达到场攻就降权重,能清理有价值减少降低的权重,但是也要降低权重
+        if (cleanWarUtils.hasWorthTarget() && cleanWarUtils.worthTarget.any { it.blood() < damage + ableLessBlood }) {
+            myLog.info { "能降低关键目标减少降低的权重,降低之前:${cutWeight}(会除以2)" }
+            cutWeight /= 2
+            hasNotWorth = false
+        }
+        cutWeight += cleanWarUtils.getExcessDamageFixWeight(damage)
+
+        val weight = groupWeight + cutWeight
+
+        return if (hasNotWorth && !cleanWarUtils.isHasAvg()) {
+            //这样下回合有buff就麻烦了,虽然避免小场面清场
+            myLog.info { "没有有价值目标且达不到指定平均攻击力,将降低权重,默认为2" }
+            weight / 2
+        } else weight
+
+
+    }
+
+    open fun cleanWar(damage: Int) {
+        cleanWarUtils.cleanOnce(damage)
     }
 
 

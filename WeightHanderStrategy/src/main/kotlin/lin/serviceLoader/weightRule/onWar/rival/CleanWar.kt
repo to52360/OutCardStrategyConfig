@@ -5,7 +5,7 @@ import lin.bean.DefUseGroupId
 import lin.config.CardConfig
 import lin.config.UseConfig
 import lin.domain.WarInfo
-import lin.domain.context.ChangeAnimationTime
+import lin.domain.context.FourAnimationTime
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.domain.use.UseAfterStrategy
@@ -13,9 +13,7 @@ import lin.domain.use.UseDomain
 import lin.serviceLoader.weightRule.ExtConfig
 import lin.serviceLoader.weightRule.onWar.rival.utils.DamageCache
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
-import lin.serviceLoader.weightRule.utils.war.WarStatus
-import lin.serviceLoader.weightRule.utils.war.acceptableRivalAttack
+import lin.serviceLoader.weightRule.utils.war.*
 import lin.warExt.my.base.resource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -48,8 +46,7 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
 
 
     override fun afterExtAction(comboCard: ComboCard, useDomain: UseDomain) {
-        useDomain.extAwait = ChangeAnimationTime
-        cleanWarUtils.reload()
+        useDomain.extAwait = FourAnimationTime
         useDomain.reFindCombo = true
     }
 
@@ -58,10 +55,11 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
 
 class DepNumRelWar : CleanWar(DefUseGroupId) {
     override fun calWeight(callCard: ComboCard): Double {
-        if (cleanWarUtils.compareRivalNum(number)) return UnUseWeight
+        if (cleanWarUtils.compareRivalNum(cleanWarUtils.hasWorthReduceNum(number))) return UnUseWeight
         val damage = cache.getDamageById(callCard)
         if (damage == ALL_CLEAN) return groupWeight
-        val cutWeight = unConditionWeight * cleanWarUtils.unPassRate(damage)
+        val cutWeight =
+            unConditionWeight * cleanWarUtils.unPassRate(damage) + cleanWarUtils.getExcessDamageFixWeight(damage)
         return groupWeight + cutWeight
     }
 

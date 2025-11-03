@@ -5,7 +5,7 @@ import club.xiaojiawei.hsscriptbase.config.log
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import club.xiaojiawei.hsscriptcardsdk.data.BaseData
 import lin.bean.ComboCard
-import lin.bean.comboCardUtils.base.isMinion
+import lin.bean.cardExt.base.isMinion
 import lin.config.cardConfig.CardConfigBind
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight

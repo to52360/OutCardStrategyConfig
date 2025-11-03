@@ -2,7 +2,7 @@ package lin.weightHandler
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
-import lin.bean.comboCardUtils.base.isMinion
+import lin.bean.cardExt.base.isMinion
 import lin.domain.MyWarManage
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
@@ -25,15 +25,16 @@ class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
     }
     override fun cardWeight(comboCard: ComboCard):Double{
         val card = comboCard.card
+        //todo-future 暂时去掉通用权重计算 comboCard.isBaseWeight()
         if (comboCard.isBaseWeight() && card.isMinion()) {
             val traitWeight = cache.getOrPut(card.cardId) {
-                val weigh = getWeigh(card) * CostWeight
+                val weigh = getWeigh(card)
                 myLog.info {
                     "${card.entityName}的特征权重:${weigh}"
                 }
                 weigh
             }
-            var baseWeight = (card.atc + card.health).toDouble() / 2 - card.cost + traitWeight
+            var baseWeight = (card.atc + card.health).toDouble() / 2 - card.cost + traitWeight * card.cost
             myLog.info {
                 "${card.entityName}通用随从计算:${baseWeight}"
             }

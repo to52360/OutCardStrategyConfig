@@ -15,8 +15,8 @@ class ExcessDamageFactorByNum : AbsWeightCondition() {
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
         val warStatus = warInfo.warStatus
         val excessDamageFactor = warStatus.excessDamageFactor()
-        val offer = ONE_FACTOR / 2 + 2 //区间偏移量,随便写的
-        if (number - offer < excessDamageFactor) return unConditionWeight
+        val offer = ONE_FACTOR / 2  //区间偏移量,随便写的
+        if (excessDamageFactor < number - offer) return unConditionWeight
         return if (excessDamageFactor < number + offer) groupWeight
         else groupWeight / 2
         /*{

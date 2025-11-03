@@ -178,7 +178,7 @@ class ChangeWeightResult(val cards: HashSet<Card>, comboCards: List<ComboCard>) 
             val result = if (card.cost() < 3) {
                 card.changeWeight >= NotWeight
             } else {
-                card.changeWeight > NotWeight
+                card.changeWeight > NotWeight && card.powerWeight > NotWeight
             }
             if (!result) removeCards.add(card)
             result

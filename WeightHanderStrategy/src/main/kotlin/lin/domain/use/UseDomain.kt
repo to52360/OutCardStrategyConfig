@@ -8,7 +8,6 @@ import lin.domain.context.UseAnimationTime
 import lin.myLog
 import lin.warExt.my.base.getCost
 import lin.warExt.my.base.getHandCards
-import lin.warExt.my.base.getPlayCards
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -25,7 +24,7 @@ class UseDomain(val warManage: MyWarManage) {
 
 
     fun reset() {
-        //todo-future 临时方案 切换为使用上下文,跟线程协作写在一起,还没想好怎么处理
+        //todo-future 临时方案 切换为使用上下文,跟线程协作写在一起不好分开,还没想好怎么处理
         extAwait = 0
         reFindCombo = false
         isChange = false
@@ -88,7 +87,7 @@ class UseDomain(val warManage: MyWarManage) {
                 }
                 myLog.info { "阻塞等待发现操作" }
                 //等待发现动画
-                Thread.sleep(UseAnimationTime)
+                Thread.sleep(ChangeAnimationTime)
                 clean()
                 return
             }

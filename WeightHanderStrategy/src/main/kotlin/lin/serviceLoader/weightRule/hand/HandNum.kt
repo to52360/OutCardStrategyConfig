@@ -1,7 +1,7 @@
 package lin.serviceLoader.weightRule.hand
 
 import lin.bean.ComboCard
-import lin.bean.comboCardUtils.base.isMinion
+import lin.bean.cardExt.base.isMinion
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 import lin.warExt.my.base.getHandCards
