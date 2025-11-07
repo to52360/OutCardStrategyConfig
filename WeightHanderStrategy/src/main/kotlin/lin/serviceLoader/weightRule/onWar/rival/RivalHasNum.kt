@@ -4,7 +4,7 @@ import club.xiaojiawei.hsscriptcardsdk.bean.Card
 import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.warExt.my.base.getPlayCards
+import lin.warExt.rival.rivalCanHurt
 
 abstract class RivalHasNum : AbsWeightCondition() {
     override fun description(): String {
@@ -12,7 +12,7 @@ abstract class RivalHasNum : AbsWeightCondition() {
     }
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        val result = warInfo.getPlayCards().any { it.canHurt() && cardToNumber(it) > number }
+        val result = warInfo.rivalCanHurt().any { it.canHurt() && cardToNumber(it) > number }
         return if (result) groupWeight
         else unConditionWeight
     }

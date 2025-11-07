@@ -32,7 +32,7 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
 
     //todo-future 存在魔数
     override fun priority() = 5
-    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
+    override fun cardWeightCompute(callCard: ComboCard, warManage: MyWarManage): Double {
         var calWeight = NotWeight
         callCard.weightRules?.run {
             for (weightRule in this) {

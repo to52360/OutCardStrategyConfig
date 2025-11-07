@@ -5,7 +5,6 @@ import lin.bean.ComboCard
 import lin.domain.MyWarManage
 import lin.domain.WeightHandlerDomain
 import lin.domain.context.CostWeight
-
 import lin.domain.context.NotWeight
 import lin.domain.result.*
 import lin.domain.strategy.FindComboStrategy.Companion.DEF_PRIORITY
@@ -13,7 +12,7 @@ import lin.domain.strategy.FindComboStrategy.Companion.EXT_COST_PRIORITY
 import lin.domain.use.tryUseCard
 import lin.myLog
 import lin.serviceLoader.cardInfoProvide.COINProvide
-import lin.warExt.my.base.getCost
+import lin.warExt.my.base.getResource
 
 
 typealias FindRule = (ComboCard) -> Boolean
@@ -88,7 +87,7 @@ class ExtCostStrategy : FindComboStrategy {
     override fun find(findPlanner: FindPlanner): CmdPlanner {
         return findPlanner.findIfAny(extCostPredicate) {
             val result = evaluateCurrentCombos(extCostPredicate).evaluateWithSkippedCards({ skipCard ->
-                extCostConfig(warManage.getCost(), skipCard)
+                extCostConfig(warManage.getResource(), skipCard)
             }) { skip ->
                 skip.forEach {
                     warManage.tryUseCard(it)

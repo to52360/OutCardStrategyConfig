@@ -1,9 +1,9 @@
 package lin.domain.result
 
 import lin.bean.ComboCard
+import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
 import lin.myLog
-import java.util.TreeSet
 
 sealed class CmdPlanner
 object ContinuePlanner : CmdPlanner()
@@ -84,14 +84,18 @@ class EndWeightResult(
     }
 
     fun findBestCombination() {
-        if (isLessCost()) this.bestCombination = _canUseCardsByHandler
+        if (isLessCost()) {//这里还是存在使用负数很离谱的情况
+            this.bestCombination = _canUseCardsByHandler
+            val lessCost = cost - costSum()
+            extWeight -= lessCost * CostWeight
+        }
         else {
             this.bestCombination = findStrategy.findBestCombination(_canUseCardsByHandler, cost)
         }
 
     }
     fun addUseCard(comboCard: ComboCard) {
-        myLog.info { "中途添加卡牌,卡牌为:${comboCard}" }
+        //myLog.info { "中途添加卡牌,卡牌为:${comboCard}" }
         if (comboCard.canUse()) this.bestCombination = this.bestCombination + comboCard
         else _canUseCardsByHandler.add(comboCard)
     }

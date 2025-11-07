@@ -6,7 +6,7 @@ import lin.bean.DefUseGroupId
 import lin.config.CardConfig
 import lin.config.UseConfig
 import lin.domain.WarInfo
-import lin.domain.context.FourAnimationTime
+import lin.domain.context.ChangeAnimationTime
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.domain.use.UseAfterStrategy
@@ -45,7 +45,7 @@ abstract class CleanWar(val useGroupId: Int) : AbsWeightCondition(), KoinCompone
 
 
     override fun afterExtAction(comboCard: ComboCard, useDomain: UseDomain) {
-        useDomain.extAwait = FourAnimationTime
+        useDomain.extAwait = ChangeAnimationTime
         useDomain.reFindCombo = true
     }
 

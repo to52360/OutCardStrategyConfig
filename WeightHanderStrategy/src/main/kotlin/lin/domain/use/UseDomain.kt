@@ -47,6 +47,7 @@ class UseDomain(val warManage: MyWarManage) {
             if (useResult) {
                 //超过指定测试应该不要等待时间了
                 myLog.info { "打出等待动画" }
+                //todo 增加等待时间看看效果
                 Thread.sleep(UseAnimationTime + extAwait)
                 //select 暂时这样处理发现,看一下有没有问题
                 tryAwait()

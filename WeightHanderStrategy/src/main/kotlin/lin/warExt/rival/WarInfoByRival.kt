@@ -23,6 +23,7 @@ fun WarInfo.rivalFindMaxAtcMinion(): Card? {
 
 fun WarInfo.rivalCardsByPlayArea() = war.rival.playArea.cards
 
+//,虽然修复了地标/发射塔错误识别,但是免疫会无视
 fun WarInfo.rivalCanHurt() = rivalCardsByPlayArea().canHurt()
 fun WarInfo.rivalCanHurtCount() = rivalCardsByPlayArea().canHurtNum()
 fun WarInfo.rivalSecretSize() = war.rival.secretArea.cards.size

@@ -21,7 +21,7 @@ class MinionNumWeightHandler : WeightHandler, RoundLifecycle {
     val maxCostGap = 2
     val gapCostWeight = -CostWeight
 
-    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
+    override fun cardWeightCompute(callCard: ComboCard, warManage: MyWarManage): Double {
         if (tooMach && callCard.card.cardType == CardTypeEnum.MINION) {
             val costGap = warManage.getCost() - callCard.cost()
             if (costGap >= maxCostGap) {

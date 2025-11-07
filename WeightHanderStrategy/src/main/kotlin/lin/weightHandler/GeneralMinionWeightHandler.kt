@@ -15,7 +15,7 @@ import lin.myLog
 class GeneralMinionWeightHandler : WeightHandler, DiscoverWeightHandler {
 
     private val cache  = hashMapOf<String,Double>()
-    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
+    override fun cardWeightCompute(callCard: ComboCard, warManage: MyWarManage): Double {
         val result = processPlayFull(callCard, warManage)
         return if (result == UnUseWeight) {
             result

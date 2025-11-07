@@ -59,7 +59,7 @@ class WeightHandlerDomain(val warManage: MyWarManage) : KoinComponent {
     private fun processWeight(weightResult: EndWeightResult) {
         weightResult.canUseCards.forEach { comboCard ->
             for (weightHandler in weightHandlers) {
-                val calWeight = weightHandler.cardWeightProcess(comboCard, warManage)
+                val calWeight = weightHandler.cardWeightCompute(comboCard, warManage)
                 if (calWeight != NotWeight) {
                     //不使用结束循环
                     if (calWeight == UnUseWeight) {

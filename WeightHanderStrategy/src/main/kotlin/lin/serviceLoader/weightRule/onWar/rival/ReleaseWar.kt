@@ -37,16 +37,27 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
     private fun processAll(): Double {
         val warStatus = cleanWarUtils.warStatus
         //溢出伤害太严重
-        var warCardGap = this.warCardGap + if (warStatus.excessDamageFactor() > 2 * ONE_FACTOR) -1 else 0
-        //高费有价值才值得清理
-        if (cleanWarUtils.worthTarget.any { it.cost > 2 }) warCardGap--
+        var warCardGap = this.warCardGap
+        //todo 虽然修改低攻清场问题,但是遇到buff类就有问题了
+        if (!warStatus.isAdv()) { //没优势缩减数量要求
+            warCardGap += if (warStatus.excessDamageFactor() >= 2 * ONE_FACTOR) -2
+            //高费有价值才值得清理
+            else if (cleanWarUtils.worthTarget.any { it.cost > 2 }) -1 else 0
+        }
         if (cleanWarUtils.rivalNumLessGap(warCardGap)) {
             return UnUseWeight
         }
+        //todo 实验性,有优势不清理
+        if (!warStatus.isAdv())
+            cleanWar(ALL_CLEAN)
+        if (cleanWarUtils.lessGap(warCardGap, ALL_CLEAN)) {
+            return UnUseWeight
+        }
+
+        //避免没优势时候没清场
         cleanWar(ALL_CLEAN)
-        if (cleanWarUtils.lessGap(warCardGap, ALL_CLEAN)) return UnUseWeight
         //伤害达不到标准就降低
-        return if (warStatus.isAdvByMeAtc()) groupWeight - unConditionWeight else groupWeight
+        return if (warStatus.isAdvByMeAtc()) groupWeight + unConditionWeight else groupWeight
     }
 
     /**
@@ -60,10 +71,15 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
         }
         cleanWar(damage)
 
-        if (cleanWarUtils.lessGap(warCardGap, damage)) return UnUseWeight
+        if (cleanWarUtils.lessGap(warCardGap, damage)) {
+            val warStatus = cleanWarUtils.warStatus
+            if (warStatus.isAdvByMeAtc())
+                return UnUseWeight
+        }
 
         //todo-future 配置字段不够,暂时使用代码定义配置
         var cutWeight = unConditionWeight * cleanWarUtils.unPassRate(damage)
+        //能接受的剩余血量
         val ableLessBlood = 3
         //存在值得清理
         var hasNotWorth = true

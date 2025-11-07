@@ -8,9 +8,10 @@ import lin.serviceLoader.weightRule.utils.war.isAdvByMeAtc
 import lin.warExt.my.base.resource
 import org.koin.core.component.KoinComponent
 
+
 class SoftCleanByResource : AbsWeightCondition(), KoinComponent {
     override fun description(): String {
-        return "包含血量加权,写死在代码里"
+        return "可接收"
     }
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {

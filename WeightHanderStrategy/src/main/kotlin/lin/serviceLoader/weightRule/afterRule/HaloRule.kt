@@ -6,6 +6,7 @@ import lin.domain.context.CostWeight
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 
 import lin.serviceLoader.weightRule.utils.war.isAdv
+import lin.serviceLoader.weightRule.utils.war.isAdvByMeAtc
 
 import org.koin.core.component.KoinComponent
 
@@ -17,6 +18,9 @@ import org.koin.core.component.KoinComponent
  */
 
 class HaloRule : AbsWeightCondition(), KoinComponent {
+    val middleWeight: Double by lazy {
+        (groupWeight / 2).coerceAtMost(4.0)
+    }
 
     /**
      * 没有判断手牌是否存在后续收益
@@ -24,6 +28,7 @@ class HaloRule : AbsWeightCondition(), KoinComponent {
     override fun calculateWeight(callCard:ComboCard,warInfo: WarInfo): Double {
         val warStatus = warInfo.warStatus
         if (warStatus.isAdv()) return groupWeight
+        if (warStatus.isAdvByMeAtc()) return middleWeight
         return unConditionWeight
     }
 

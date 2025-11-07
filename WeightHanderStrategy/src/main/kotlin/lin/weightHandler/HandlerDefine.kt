@@ -8,7 +8,7 @@ interface WeightHandler : Priority {
     /**
      * todo-future 这里设计问题,不应该用基本类型作为返回值
      */
-    fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double
+    fun cardWeightCompute(callCard: ComboCard, warManage: MyWarManage): Double
 
 
 }
@@ -25,7 +25,7 @@ interface Priority {
  * 1.融合在ConditionWeightHandler能快速发现,语义和扩展会有问题
  */
 interface WeightHandlerAfter : Priority {
-    fun afterCardWeightProcess(callCard: ComboCard, warManage: MyWarManage)
+    fun afterCardWeightCompute(callCard: ComboCard, warManage: MyWarManage)
 }
 interface InitHandler{
     /**

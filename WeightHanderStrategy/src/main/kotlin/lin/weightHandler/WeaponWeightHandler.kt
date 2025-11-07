@@ -11,7 +11,7 @@ import lin.warExt.my.base.hasWeapon
  * 武器
  */
 class WeaponWeightHandler : WeightHandler {
-    override fun cardWeightProcess(callCard: ComboCard, warManage: MyWarManage): Double {
+    override fun cardWeightCompute(callCard: ComboCard, warManage: MyWarManage): Double {
         if (callCard.card.cardType == CardTypeEnum.WEAPON && warManage.hasWeapon()) {
             return UnUseWeight
         }

@@ -1,16 +1,20 @@
-lin.serviceLoader.weightRule.hand.race.HandAreaRace
 lin.serviceLoader.weightRule.hand.HandLeaveCostByGroupId
 lin.serviceLoader.weightRule.hand.ChangeCardStrategy
-lin.serviceLoader.weightRule.hand.race.HandAreaRaceByAbleUse
 lin.serviceLoader.weightRule.hand.HandNumWeight
 lin.serviceLoader.weightRule.hand.DefHandNum
 lin.serviceLoader.weightRule.hand.HandNumMinion
 lin.serviceLoader.weightRule.hand.HandNumMinionByTaunt
 
+lin.serviceLoader.weightRule.hand.race.HandAreaRace
+lin.serviceLoader.weightRule.hand.race.HandAreaRaceByAbleUse
+
+lin.serviceLoader.weightRule.hand.combo.ChangeCardByAdv
+
 lin.serviceLoader.weightRule.onWar.OnWarByGroupId
 lin.serviceLoader.weightRule.onWar.buff.OnWarNum
 lin.serviceLoader.weightRule.onWar.buff.OnWarRaceNum
 lin.serviceLoader.weightRule.onWar.buff.PointDeathRattleCard
+
 
 
 lin.serviceLoader.weightRule.onWar.rival.DepNumRelWarByAll
@@ -21,6 +25,7 @@ lin.serviceLoader.weightRule.onWar.rival.RivalHasBloodByNum
 lin.serviceLoader.weightRule.onWar.rival.RivalHasBloodOrActByNum
 lin.serviceLoader.weightRule.onWar.rival.softClean.SoftCleanByResource
 lin.serviceLoader.weightRule.onWar.rival.softClean.ExcessDamageFactorByNum
+lin.serviceLoader.weightRule.onWar.rival.softClean.IsAdvByMeAtc
 
 
 

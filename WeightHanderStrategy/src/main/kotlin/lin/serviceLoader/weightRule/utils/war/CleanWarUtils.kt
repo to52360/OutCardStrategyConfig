@@ -15,14 +15,19 @@ import lin.warExt.my.twoLambda.minionHasCanAttack
 /**
  *
  */
-class CleanWarUtils(val warInfo: WarInfo, val warStatus: WarStatus) : RoundEnd {
+class CleanWarUtils(val warInfo: WarInfo) : RoundEnd {
     companion object {
         const val CLEAN_KEY = "cleanWar"
         const val RELOAD_RIVAL_KEY = "reLoadRival"
 
     }
 
-    //关键目标
+    //使用lazy解决循环依赖问题,ui加载报错问题
+    val warStatus: WarStatus by lazy {
+        warInfo.warStatus
+    }
+
+    //关键目标,全局光环会影响判断(代求证)
     var worthTarget: List<Card> = emptyList()
     /**
      * 辅助回收垃圾
@@ -31,7 +36,8 @@ class CleanWarUtils(val warInfo: WarInfo, val warStatus: WarStatus) : RoundEnd {
         worthTarget = emptyList()
         return true
     }
-    fun cleanOnce(damage: Int): Boolean {
+    fun
+            cleanOnce(damage: Int): Boolean {
         if (warInfo.roundExecuteOnce(CLEAN_KEY)) return false
         if (clean(damage)) {
             myLog.info { "解场之前清理随从" }
@@ -42,7 +48,7 @@ class CleanWarUtils(val warInfo: WarInfo, val warStatus: WarStatus) : RoundEnd {
     }
     private fun clean(damage: Int): Boolean {
         if (!warInfo.minionHasCanAttack()) return false //没有能够攻击的
-        if (damage == ALL_CLEAN) {
+        if (damage == ALL_CLEAN || warInfo.getPlayCards().any { it.isPoisonous }) {//没有适配,剧毒用通用的
             myLog.info { "战场清理全部" }
             warInfo.cleanPlayByRoundOnce()
         } else {
@@ -135,6 +141,7 @@ fun CleanWarUtils.hasWorthReduceNum(warCardGap: Int): Int {
     return warCardGap
 }
 
+//用于使用合适伤害,清理卡牌的修正权重
 fun CleanWarUtils.getExcessDamageFixWeight(damage: Int): Double {
     var fixWeight: Double
     val excessDamageWeight = 0.01 //避免清理威力更大的清场牌的修正权重

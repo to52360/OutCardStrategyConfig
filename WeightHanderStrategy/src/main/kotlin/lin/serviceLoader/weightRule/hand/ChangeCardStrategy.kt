@@ -9,33 +9,36 @@ import lin.domain.WarInfo
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
 import lin.serviceLoader.weightRule.ExtConfig
+import lin.serviceLoader.weightRule.onWar.rival.softClean.IsAdvByMeAtc
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
-import lin.serviceLoader.weightRule.utils.war.isAdvByMeAtc
 import lin.warExt.my.base.deckArea
 import lin.warExt.my.base.getHandCards
-import org.koin.core.component.KoinComponent
 
 /**
  * 更改手牌
+ * 使用继承,不知道为啥spi无法识别委托
  */
-class ChangeCardStrategy : AbsWeightCondition(), KoinComponent, ExtConfig {
+open class ChangeCardStrategy : AbsWeightCondition(), ExtConfig {
     override fun description(): String {
-        return "groupWeight作为真正的权重,unConditionWeight和powerWeight用来判断数量"
+        return " 变更手牌"
+    }
+
+    private val isAdvByMeAtc = IsAdvByMeAtc()
+
+    init {
+        isAdvByMeAtc.setUnCondWeight(NotWeight)
     }
 
 
     override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
 
-        //todo-future 存在魔数,没太大问题就这样了,(可以正则文本和复杂策略)
+        //todo-future 存在魔数,没太大问题就这样了,(可以正则卡牌文本以实现更为复杂策略)
         if (warInfo.getHandCards().size > 8) return UnUseWeight
+        //牌库没牌了
         if (warInfo.deckArea().size < 3) return UnUseWeight
         val handSize = warInfo.getHandCards().size
 
         return if (handSize < number) {
-            val warStatus = warInfo.warStatus
-            if (groupWeight > NotWeight && !warStatus.isAdvByMeAtc()) {
-                return NotWeight
-            }
             groupWeight
         } else {
             unConditionWeight

@@ -4,6 +4,7 @@ import lin.bean.ComboCard
 import lin.domain.WarInfo
 import lin.domain.context.CostWeight
 import lin.domain.context.NotWeight
+import lin.myLog
 import lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition
 import lin.serviceLoader.weightRule.utils.war.overLimitByDamage
 import lin.warExt.my.base.hero
@@ -29,10 +30,15 @@ class ExcessDamageByNum : AbsWeightCondition(), KoinComponent {
         val warStatus = warInfo.warStatus
         val excessDamage = warStatus.excessDamage
         //溢出太严重,没那个能力
-        if (warStatus.overLimitByDamage()) return groupWeight - extWeight
+        if (warStatus.overLimitByDamage()) {
+            myLog.info { "溢出代严重了,溢出伤害:$excessDamage" }
+        }
 
         //下一回合叫杀情况
-        if (blood <= number || excessDamage - warStatus.meSumAtc > blood) return groupWeight + extWeight
+        if (blood <= number || excessDamage - warStatus.meSumAtc > blood) {
+            myLog.info { "下一回合叫杀 damage:$excessDamage by blood:$blood " }
+            return groupWeight + extWeight
+        }
 
 
         //下下一回合会有危险

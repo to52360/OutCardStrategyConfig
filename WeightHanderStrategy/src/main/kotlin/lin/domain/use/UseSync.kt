@@ -1,5 +1,6 @@
 package lin.domain.use
 
+import lin.domain.context.FourAnimationTime
 import lin.domain.context.UseAnimationTime
 import lin.myLog
 import java.util.concurrent.atomic.AtomicInteger
@@ -15,6 +16,8 @@ class UseSync {
     fun tryWait() {
         if (completedCount.get() == baseNum) return
         myLog.info { "尝试等待发现动作" }
+        //todo 增加休眠时间看看效果
+        Thread.sleep(FourAnimationTime)
         var attempt = 0
         while (attempt < maxRetries) {
             Thread.sleep(waitInterval)
