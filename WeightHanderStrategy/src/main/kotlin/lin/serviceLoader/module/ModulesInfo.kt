@@ -1,5 +1,7 @@
 package lin.serviceLoader.module
 
+import org.koin.core.module.Module
+
 interface ModulesInfo {
-    fun loadModules()
+    fun loadModules(): Module
 }

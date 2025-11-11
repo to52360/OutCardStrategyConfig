@@ -10,7 +10,10 @@ import lin.domain.combo.ComboParse.Companion.CHANGE
 import lin.domain.combo.ComboParse.Companion.DEF
 import lin.domain.combo.ComboParse.Companion.FIRST
 import lin.domain.combo.ComboParse.Companion.LAST
-import lin.domain.strategy.*
+import lin.domain.strategy.DefFindStrategy
+import lin.domain.strategy.ExtCostStrategy
+import lin.domain.strategy.FindComboStrategy
+import lin.domain.strategy.FindPlanner
 import lin.domain.use.UseDomain
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
@@ -21,7 +24,6 @@ import lin.serviceLoader.parse.ParseCardRule
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.parse.ParseCombo
 import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
-import lin.serviceLoader.weightRule.utils.war.WarStatus
 import lin.utils.database.DefDBUrl
 import lin.utils.database.SqliteJdbcProvider
 import lin.utils.database.dao.CardInfoDao
@@ -29,6 +31,7 @@ import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.config.ComboInfoDao
 import lin.weightHandler.condition.config.GroupStrategyDao
 import lin.weightHandler.condition.config.WeightConditionDao
+import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.named
 import org.koin.core.module.dsl.singleOf
@@ -66,7 +69,7 @@ class ModulesLoad {
     }
     val configHandler = module {
         singleOf(::UseConfigHandler) bind ConfigHandler::class
-        single<ConfigDispatcher> { ConfigDispatcher(getAll()) }
+        single<ConfigDispatcher> { ConfigDispatcher(getAll(), getAll()) }
     }
 
     val utilsModule = module {
@@ -98,7 +101,7 @@ class ModulesLoad {
             modules(module { singleOf(::LifecycleRegisterImpl) bind LifecycleRegister::class })
             val extraModule = ServiceLoaderUtils.loadServices(ModulesInfo::class.java)
             extraModule.forEach {
-                it.loadModules()
+                loadKoinModules(it.loadModules())
             }
         }
 

@@ -1,19 +1,34 @@
 package lin.config
 
 import lin.bean.CardWeightInfo
+import lin.config.find.def.BindInfo
+
+import lin.config.find.def.WeightInfoFind
 import lin.config.handler.ConfigHandler
 import lin.myLog
+import org.koin.core.component.KoinComponent
 import kotlin.reflect.KClass
 
 /**
  * 分管配置,过度版(存放还是原来位置,逐渐分离)
  */
 class ConfigDispatcher(
-    handlers: List<ConfigHandler<*>>
-) {
+    handlers: List<ConfigHandler<*>>,
+    bindInfoFind: List<WeightInfoFind<*>>
+) : KoinComponent {
 
     private val handlerMap: Map<KClass<*>, ConfigHandler<*>> =
         handlers.associateBy { it.configType }
+
+    init {
+        val bindInfos: List<BindInfo> = getKoin().getAll()
+        bindInfos.forEach { bindInfo ->
+            processUniformList(bindInfo.cardConfigs, bindInfo.findKey)
+        }
+    }
+
+    private val bindInfoFindMap: Map<KClass<out Any>, WeightInfoFind<out Any>> =
+        bindInfoFind.associateBy { it.targetType }
 
     fun <T : CardConfig> getHandler(configType: KClass<T>): ConfigHandler<T>? {
         @Suppress("UNCHECKED_CAST")
@@ -47,5 +62,35 @@ class ConfigDispatcher(
             }
         }
     }
+
+    /**
+     *
+     */
+    private fun processUniformList(cardConfigs: List<CardConfig>, list: List<Any>) {
+        val groupedByType: Map<KClass<out Any>, List<Any>> = list.groupBy { it::class }
+        val cardWeightInfos = mutableListOf<CardWeightInfo>()
+        groupedByType.forEach { (kClass, items) ->
+            bindInfoFindMap[kClass]?.let {
+                @Suppress("UNCHECKED_CAST")
+                val handler = it as WeightInfoFind<Any>
+                items.forEach { item ->
+                    {
+                        val findResult = handler.process(item)
+                        if (findResult.isEmpty()) {
+                            myLog.warn { "key:${item} not find handler  " }
+                        } else {
+                            cardWeightInfos.addAll(findResult)
+                        }
+                    }
+                }
+            } ?: run {
+                myLog.warn { "不支持类型: $kClass" }
+            }
+        }
+        //todo-future 配置暂时还是放在一起,还没想好方案
+        dispatch(cardConfigs, cardWeightInfos)
+
+    }
+
 
 }
