@@ -160,3 +160,14 @@ fun CleanWarUtils.getExcessDamageFixWeight(damage: Int): Double {
 fun CleanWarUtils.isHasAvg(avg: Int = 2): Boolean {
     return avg * warStatus.rivalCards.size < warStatus.rivalCards.sumOf { it.atc }
 }
+fun CleanWarUtils.meAtcOverRivalTaunt(): Boolean {
+    val rivalBlood = warStatus.rivalCards.filter { it.isTaunt }
+    return if (rivalBlood.any { hasWorth(it) }) {
+        rivalBlood.filter { hasWorth(it) }.minByOrNull { it.blood() }?.let {
+            it.blood() < warStatus.meSumAtc
+        } ?: false
+    } else {
+        rivalBlood.sumOf { it.blood() } < warStatus.meSumAtc
+    }
+
+}

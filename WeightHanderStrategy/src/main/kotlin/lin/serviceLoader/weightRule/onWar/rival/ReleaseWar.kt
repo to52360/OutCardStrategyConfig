@@ -69,7 +69,8 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
         if (cleanWarUtils.rivalNumLessGap(warCardGap)) {
             return UnUseWeight
         }
-        cleanWar(damage)
+        if (cleanWarUtils.meAtcOverRivalTaunt())//再多条件换设计模式
+            cleanWar(damage)
 
         if (cleanWarUtils.lessGap(warCardGap, damage)) {
             val warStatus = cleanWarUtils.warStatus

@@ -2,4 +2,7 @@ package lin.config.find.def
 
 import lin.config.CardConfig
 
-data class BindInfo(val cardConfigs: List<CardConfig>, val findKey: List<Any>)
+/**
+ * 多个条件同一配置
+ */
+data class BindInfo(val findKey: List<Any>, val cardConfigs: List<CardConfig>)

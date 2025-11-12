@@ -1,7 +1,10 @@
 package lin.domain
 
 import club.xiaojiawei.hsscriptcardsdk.status.WAR
+import lin.bean.CardWeightInfo
 import lin.config.ConfigDispatcher
+import lin.config.find.def.WeightInfoFinder
+import lin.config.find.findBy
 import lin.config.handler.ConfigHandler
 import lin.config.handler.UseConfigHandler
 import lin.domain.combo.*
@@ -35,6 +38,7 @@ import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.named
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -69,6 +73,16 @@ class ModulesLoad {
     }
     val configHandler = module {
         singleOf(::UseConfigHandler) bind ConfigHandler::class
+        single<WeightInfoFinder<String>> {
+            val infoMap: Map<String, CardWeightInfo> = get(named("weightInfo"))
+            //根据cardId查找
+            findBy { cardId -> listOfNotNull(infoMap[cardId]) }
+        }
+        single<WeightInfoFinder<Double>> {
+            val infoMap = get<Map<String, CardWeightInfo>>(named("weightInfo")).values.groupBy { it.groupId }
+            //根据 groupId 查找
+            findBy { groupId -> infoMap[groupId] ?: emptyList() }
+        }
         single<ConfigDispatcher> { ConfigDispatcher(getAll(), getAll()) }
     }
 

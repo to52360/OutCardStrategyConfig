@@ -2,11 +2,9 @@ package lin.config.handler
 
 
 import lin.bean.CardWeightInfo
-import lin.config.BaseConfig
-
-import lin.config.CardConfig
-import lin.config.CardType
-import lin.config.UseConfig
+import lin.bean.MetadataKey
+import lin.bean.addSafe
+import lin.config.*
 import kotlin.reflect.KClass
 
 interface ConfigHandler<T : CardConfig> {
@@ -34,6 +32,19 @@ class UseConfigHandler : ConfigHandler<BaseConfig> {
                 is CardType -> {
                     cardWeightInfos.forEach { info ->
                         info.addCardType(config)
+                    }
+                }
+                is CardWeightConfigurer -> {
+                    cardWeightInfos.forEach { info ->
+                        config(info)
+                    }
+                }
+
+                is CardWeightContext<*> -> {
+                    cardWeightInfos.forEach {
+                        @Suppress("UNCHECKED_CAST")
+                        val key = config.key as MetadataKey<Any>
+                        it.cardContext.addSafe(key, config.value)
                     }
                 }
             }

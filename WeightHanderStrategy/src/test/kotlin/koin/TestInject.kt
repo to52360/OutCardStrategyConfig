@@ -1,6 +1,7 @@
 package koin
 
 import lin.config.ConfigDispatcher
+import lin.config.find.def.BindInfo
 import lin.config.handler.ConfigHandler
 import lin.config.handler.UseConfigHandler
 import org.koin.core.component.KoinComponent
@@ -28,7 +29,6 @@ class TestInject : KoinComponent {
         startKoin {
             modules(module {
                 singleOf(::UseConfigHandler) bind ConfigHandler::class
-                single<ConfigDispatcher> { ConfigDispatcher(getAll()) }
             })
         }
     }
@@ -36,6 +36,12 @@ class TestInject : KoinComponent {
     @AfterTest
     fun stop() {
         stopKoin()
+    }
+
+    @Test
+    fun test4() {
+        val bindInfo = getKoin().getAll<BindInfo>()
+        println(bindInfo)
     }
 
     @Test

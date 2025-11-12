@@ -131,7 +131,6 @@ class MyWarManage(override val war: War) : WarInfo, KoinComponent {
         infoMap = getCardInfos()
         loadKoinModules(module {
             single(named("weightInfo")) { infoMap }
-
             single { lifecycleRegisterImpl } bind LifecycleRegister::class
         })
 

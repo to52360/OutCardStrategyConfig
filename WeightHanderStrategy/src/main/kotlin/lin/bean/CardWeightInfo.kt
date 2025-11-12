@@ -133,7 +133,7 @@ fun <T> HashSet<T>?.addSafeToSet(item: T): HashSet<T> {
     return this?.apply { add(item) } ?: hashSetOf(item)
 }
 
-fun <T> CardContext?.addSafe(key: MetadataKey<T>, item: T): CardContext {
+fun <T : Any> CardContext?.addSafe(key: MetadataKey<T>, item: T): CardContext {
     val cardContext = this ?: CardContext()
     cardContext.putMetadata(key, item)
     return cardContext
@@ -142,8 +142,8 @@ fun <T> CardContext?.addSafe(key: MetadataKey<T>, item: T): CardContext {
 class CardContext {
     //元数据 用来存储
     private val metadata: MutableMap<MetadataKey<*>, Any> = hashMapOf()
-    fun <T> putMetadata(key: MetadataKey<T>, value: T) {
-        metadata[key] = value as Any
+    fun <T : Any> putMetadata(key: MetadataKey<T>, value: T) {
+        metadata[key] = value
     }
 
     @Suppress("UNCHECKED_CAST")

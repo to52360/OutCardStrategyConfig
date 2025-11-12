@@ -3,7 +3,7 @@ package lin.config
 import lin.bean.CardWeightInfo
 import lin.config.find.def.BindInfo
 
-import lin.config.find.def.WeightInfoFind
+import lin.config.find.def.WeightInfoFinder
 import lin.config.handler.ConfigHandler
 import lin.myLog
 import org.koin.core.component.KoinComponent
@@ -14,21 +14,19 @@ import kotlin.reflect.KClass
  */
 class ConfigDispatcher(
     handlers: List<ConfigHandler<*>>,
-    bindInfoFind: List<WeightInfoFind<*>>
+    bindInfoFind: List<WeightInfoFinder<*>>
 ) : KoinComponent {
 
     private val handlerMap: Map<KClass<*>, ConfigHandler<*>> =
         handlers.associateBy { it.configType }
-
+    private val bindInfoFindMap: Map<KClass<out Any>, WeightInfoFinder<out Any>> =
+        bindInfoFind.associateBy { it.targetType }
     init {
         val bindInfos: List<BindInfo> = getKoin().getAll()
         bindInfos.forEach { bindInfo ->
             processUniformList(bindInfo.cardConfigs, bindInfo.findKey)
         }
     }
-
-    private val bindInfoFindMap: Map<KClass<out Any>, WeightInfoFind<out Any>> =
-        bindInfoFind.associateBy { it.targetType }
 
     fun <T : CardConfig> getHandler(configType: KClass<T>): ConfigHandler<T>? {
         @Suppress("UNCHECKED_CAST")
@@ -72,7 +70,7 @@ class ConfigDispatcher(
         groupedByType.forEach { (kClass, items) ->
             bindInfoFindMap[kClass]?.let {
                 @Suppress("UNCHECKED_CAST")
-                val handler = it as WeightInfoFind<Any>
+                val handler = it as WeightInfoFinder<Any>
                 items.forEach { item ->
                     {
                         val findResult = handler.process(item)
