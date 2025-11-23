@@ -2,7 +2,6 @@ package lin.bean
 
 
 import club.xiaojiawei.hsscriptcardsdk.bean.Card
-import lin.domain.combo.ComboParse.Companion.LastUseGroupId
 import lin.domain.context.BaseWeight
 import lin.domain.context.NotWeight
 import lin.domain.context.UnUseWeight
@@ -47,12 +46,14 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
 
     val basePowerWeight = cardWeightInfo?.powerWeight ?: BaseWeight
 
+
     var useAfterStrategy: MutableList<UseAfterStrategy>? = cardWeightInfo?.useAfterStrategy
 
     var useBeforeStrategy: MutableList<UseBeforeStrategy>? = cardWeightInfo?.useBeforeStrategy
     //使用卡牌分组和排序
     var useGroupId: Int = cardWeightInfo?.useGroupId ?: DefUseGroupId
 
+    //同组优先级
     var useGroupOrder: Double = basePowerWeight
 
     // 出牌权重 可能作为权重优先级
@@ -107,9 +108,11 @@ class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
         extPowerWeight = UnUseWeight
     }
     fun isUnUse(): Boolean {
-        //todo-future 负权重要最后使用的临时方案
-        if (powerWeight < NotWeight && useGroupId == DefUseGroupId) useGroupId = LastUseGroupId + 1
-        return extPowerWeight == UnUseWeight
+        val offer = 1
+        //todo-future 负权重要最后使用的临时方案,但也引入存在多重语义问题
+        if (extPowerWeight == UnUseWeight) return true
+        if (powerWeight < NotWeight && useGroupId == DefUseGroupId) useGroupId = LastUseGroupId + offer
+        return false
     }
 
 

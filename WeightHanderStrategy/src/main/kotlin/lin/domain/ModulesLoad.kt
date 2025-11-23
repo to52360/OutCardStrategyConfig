@@ -73,16 +73,18 @@ class ModulesLoad {
     }
     val configHandler = module {
         singleOf(::UseConfigHandler) bind ConfigHandler::class
-        single<WeightInfoFinder<String>> {
+
+        single<WeightInfoFinder<String>>(named("finderByTypeString")) {
             val infoMap: Map<String, CardWeightInfo> = get(named("weightInfo"))
             //根据cardId查找
             findBy { cardId -> listOfNotNull(infoMap[cardId]) }
         }
-        single<WeightInfoFinder<Double>> {
+        single<WeightInfoFinder<Double>>(named("finderByTypeDouble")) {
             val infoMap = get<Map<String, CardWeightInfo>>(named("weightInfo")).values.groupBy { it.groupId }
             //根据 groupId 查找
             findBy { groupId -> infoMap[groupId] ?: emptyList() }
         }
+
         single<ConfigDispatcher> { ConfigDispatcher(getAll(), getAll()) }
     }
 

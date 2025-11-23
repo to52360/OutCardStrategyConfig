@@ -13,6 +13,7 @@ import lin.warExt.my.base.resource
 import lin.warExt.rival.rivalCardsByPlayArea
 
 /**
+ * todo-future 准备迁移到上下文,就不用管理生命周期了
  * 用于判断战场整体局势
  *
  */

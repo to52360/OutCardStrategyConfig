@@ -4,8 +4,19 @@ import lin.bean.ComboCard
 
 
 import lin.domain.WarInfo
+import lin.rule.IntentResult
+import lin.rule.RuleLevel
+
+/**
+ * 表达意图规则接口
+ */
+interface IntentRule {
+    val ruleLevel: RuleLevel
+    val ruleId: String
+    fun intentCmd(callCard: ComboCard, warInfo: WarInfo): IntentResult
+}
+
 interface WeightRule {
-    //
     fun id(): String
 
     /**

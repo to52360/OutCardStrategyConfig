@@ -72,6 +72,7 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>, val configDispatcher: Co
         bindWeightInfos.forEach { info ->
             info.setWeightRule(weightCondition)
         }
+        //绑定配置信息
         if (weightCondition is ExtConfig) {
             val cardConfigs = weightCondition.cardConfigs()
             configDispatcher.dispatch(cardConfigs, bindWeightInfos)
@@ -91,6 +92,7 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>, val configDispatcher: Co
         if (weightCondition is DepProcessor) {
             return weightCondition.processAndVerify(conditionGroup, weightGroupInfos)
         }
+
         return true
     }
 

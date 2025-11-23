@@ -5,6 +5,7 @@ import lin.myLog
 import lin.weightHandler.condition.bean.ConditionGroup
 
 /**
+ * 依赖具体数据
  * 注入依赖数据参考组,标记接口
  * 注入分组需要依赖权重表的信息具体数据
  * 从表weight_group配置
@@ -29,7 +30,7 @@ interface DepWeightInfo : DepProcessor {
 }
 
 /**
- * 依赖分组id
+ * 依赖分组key
  * 从表weight_group配置
  */
 interface DepByWeightGroupId : DepProcessor {

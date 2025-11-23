@@ -10,7 +10,7 @@ import org.koin.core.component.KoinComponent
 import kotlin.reflect.KClass
 
 /**
- * 分管配置,过度版(存放还是原来位置,逐渐分离)
+ * todo-future 分管配置,过度版(存放还是原来位置,逐渐分离)
  */
 class ConfigDispatcher(
     handlers: List<ConfigHandler<*>>,

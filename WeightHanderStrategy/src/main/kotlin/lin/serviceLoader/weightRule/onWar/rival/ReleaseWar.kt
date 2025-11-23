@@ -40,7 +40,8 @@ abstract class ReleaseWar(var warCardGap: Int) : CleanWar(CleanWarId) {
         var warCardGap = this.warCardGap
         //todo 虽然修改低攻清场问题,但是遇到buff类就有问题了
         if (!warStatus.isAdv()) { //没优势缩减数量要求
-            warCardGap += if (warStatus.excessDamageFactor() >= 2 * ONE_FACTOR) -2
+            //todo-future 这里减2,当血量太少会疯狂解场,可接受场攻受血量影响
+            warCardGap += if (warStatus.excessDamageFactor() >= 2 * ONE_FACTOR) -1
             //高费有价值才值得清理
             else if (cleanWarUtils.worthTarget.any { it.cost > 2 }) -1 else 0
         }

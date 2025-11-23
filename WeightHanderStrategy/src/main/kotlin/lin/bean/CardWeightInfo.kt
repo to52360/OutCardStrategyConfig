@@ -11,11 +11,16 @@ import lin.serviceLoader.weightRule.WeightRule
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
-const val DefUseGroupId = 10
+
 const val DefUseGroupOrder = 10.0
-const val ChangeGroupId = 2
-const val CleanWarId = 3
+
 const val COINGroupId = 1
+const val ChangeGroupId = 10
+const val CleanWarId = 15
+
+const val DefUseGroupId = 25
+const val LastUseGroupId = 30
+const val FirstUseGroupId = 20
 
 /**
  * 转化位置
@@ -75,9 +80,9 @@ data class CardWeightInfo(
 
     //使用相关
     private var _useAfterStrategy: MutableList<UseAfterStrategy>? = null
+    private var _useBeforeStrategy: MutableList<UseBeforeStrategy>? = null
     val useAfterStrategy: MutableList<UseAfterStrategy>?
         get() = _useAfterStrategy
-    private var _useBeforeStrategy: MutableList<UseBeforeStrategy>? = null
     val useBeforeStrategy: MutableList<UseBeforeStrategy>?
         get() = _useBeforeStrategy
 

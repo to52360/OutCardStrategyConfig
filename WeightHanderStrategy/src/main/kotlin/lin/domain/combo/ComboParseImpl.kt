@@ -1,11 +1,6 @@
 package lin.domain.combo
 
-import lin.bean.CardWeightInfo
-import lin.bean.Combo
-import lin.bean.ComboInfo
-import lin.bean.ComboRule
-import lin.domain.combo.ComboParse.Companion.FirstUseGroupId
-import lin.domain.combo.ComboParse.Companion.LastUseGroupId
+import lin.bean.*
 
 
 class LastUseCombo : ValidBindComboParse {

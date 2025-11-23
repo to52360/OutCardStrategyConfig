@@ -13,7 +13,7 @@ import lin.warExt.my.base.getPlayCards
 import lin.warExt.my.twoLambda.minionHasCanAttack
 
 /**
- *
+ *todo-future 准备迁移到上下文,就不用管理生命周期了
  */
 class CleanWarUtils(val warInfo: WarInfo) : RoundEnd {
     companion object {
