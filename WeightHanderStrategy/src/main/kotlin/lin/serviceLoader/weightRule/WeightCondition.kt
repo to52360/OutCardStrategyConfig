@@ -3,8 +3,6 @@ package lin.serviceLoader.weightRule
 import lin.bean.ComboCard
 import lin.config.CardConfig
 import lin.domain.WarInfo
-import lin.domain.context.NotWeight
-import lin.myLog
 
 /**
  * 加权条件
@@ -16,32 +14,20 @@ import lin.myLog
  * [ExtConfig]额外配置信息
  *
  */
-interface WeightCondition : WeightRule, GroupWeight {
+interface WeightCondition : WeightRule, RuleInfo {
     //唯一
     override fun id(): String {
-        return this.javaClass.simpleName
-    }
-    fun name(): String {
-        return this.javaClass.simpleName
+        return ruleId()
     }
 
-    fun description() = name()
 }
+
 
 /**
  * 更多意图,兼用旧体系用的接口,且不用写WeightRule接口的calculateWeight实现
  * todo-future 过度方案,先测试可行性
  */
-interface IntentRuleAsWeightRule : WeightRule, IntentRule {
-    @Deprecated("Stub for compatibility. Always returns NotWeight.", level = DeprecationLevel.HIDDEN)
-    override fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double {
-        myLog.warn { "用于解决兼容问题,不该调用该方法" }
-        return NotWeight
-    }
-
-    override val ruleId: String
-        get() = id()
-}
+interface IntentRuleInfo : RuleInfo, IntentRule
 
 interface ExtConfig {
     fun cardConfigs(): List<CardConfig>

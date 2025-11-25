@@ -35,6 +35,7 @@ class IntentRuleHandler {
 
     fun evaluateIntentRules(rules: List<IntentRule>, callCard: ComboCard, warInfo: MyWarManage): Double {
         var result = 0.0
+
         val grouped = rules.groupBy { it.ruleLevel }
             .toSortedMap(compareByDescending { it.value })
         //高等级启用信号,低等级停止信号变为跳过信号

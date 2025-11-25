@@ -12,7 +12,6 @@ import lin.rule.RuleLevel
  */
 interface IntentRule {
     val ruleLevel: RuleLevel
-    val ruleId: String
     fun intentCmd(callCard: ComboCard, warInfo: WarInfo): IntentResult
 }
 
@@ -25,6 +24,17 @@ interface WeightRule {
      * @param warInfo 战场信息
      */
     fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double
+}
+interface RuleInfo : GroupWeight {
+    fun ruleId(): String {
+        return this.javaClass.simpleName
+    }
+
+    fun name(): String {
+        return this.javaClass.simpleName
+    }
+
+    fun description() = name()
 }
 
 

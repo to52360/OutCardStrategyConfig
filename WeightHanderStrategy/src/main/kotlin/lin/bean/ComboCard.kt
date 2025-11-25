@@ -18,14 +18,8 @@ typealias ComboRule = (ComboCard) -> Double
  *
  */
 class ComboCard(val cardWeightInfo: CardWeightInfo? = null, val card: Card) {
-    //com相关
-    val weightRules = cardWeightInfo?.weightRules
+
     val combo = cardWeightInfo?.combos
-    val changeWeight: Double
-        get() = cardWeightInfo?.changeWeight ?: NotWeight
-
-
-
     //指定目标
     var pointCard: Card? = null
 

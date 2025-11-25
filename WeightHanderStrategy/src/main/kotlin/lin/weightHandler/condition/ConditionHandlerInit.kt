@@ -4,9 +4,7 @@ import lin.bean.CardWeightInfo
 import lin.config.ConfigDispatcher
 import lin.lifecycle.LifecycleRegister
 import lin.myLog
-import lin.serviceLoader.weightRule.DepProcessor
-import lin.serviceLoader.weightRule.ExtConfig
-import lin.serviceLoader.weightRule.WeightCondition
+import lin.serviceLoader.weightRule.*
 import lin.utils.serviceLoader.ServiceLoaderUtils
 import lin.weightHandler.condition.bean.ConditionGroup
 import org.koin.core.component.KoinComponent
@@ -17,12 +15,12 @@ import org.koin.core.component.get
  * [ConditionWeightHandler]
  */
 class ConditionHandlerInit(infos: List<CardWeightInfo>, val configDispatcher: ConfigDispatcher) : KoinComponent {
-    val groupCondition: HashMap<String, WeightCondition> = hashMapOf()
+    val groupCondition: HashMap<String, RuleInfo> = hashMapOf()
     val weightGroupInfos = infos.groupBy { it.groupId }
     val lifecycleRegister = get<LifecycleRegister>()
     init {
-        ServiceLoaderUtils.loadServices(WeightCondition::class.java).forEach {
-            groupCondition[it.id()] = it
+        ServiceLoaderUtils.loadServices(RuleInfo::class.java).forEach {
+            groupCondition[it.ruleId()] = it
         }
         myLog.info {
             "加载到的条件组id:${groupCondition.keys}"
@@ -67,37 +65,45 @@ class ConditionHandlerInit(infos: List<CardWeightInfo>, val configDispatcher: Co
         }
     }
 
-    private fun bind(weightCondition: WeightCondition, bindWeightInfos: List<CardWeightInfo>) {
+    private fun bind(ruleInfo: RuleInfo, bindWeightInfos: List<CardWeightInfo>) {
         //在卡牌数据冗余打出条件
-        bindWeightInfos.forEach { info ->
-            info.setWeightRule(weightCondition)
+        if (ruleInfo is WeightRule) {
+            bindWeightInfos.forEach { info ->
+                info.setWeightRule(ruleInfo)
+            }
         }
+        if (ruleInfo is IntentRule) {
+            bindWeightInfos.forEach { info ->
+                info.setIntentRule(ruleInfo)
+            }
+        }
+
         //绑定配置信息
-        if (weightCondition is ExtConfig) {
-            val cardConfigs = weightCondition.cardConfigs()
+        if (ruleInfo is ExtConfig) {
+            val cardConfigs = ruleInfo.cardConfigs()
             configDispatcher.dispatch(cardConfigs, bindWeightInfos)
         }
 
-        lifecycleRegister.register(weightCondition)
+        lifecycleRegister.register(ruleInfo)
 
 
     }
 
-    private fun processDep(weightCondition: WeightCondition, conditionGroup: ConditionGroup): Boolean {
+    private fun processDep(ruleInfo: RuleInfo, conditionGroup: ConditionGroup): Boolean {
         //组权重处理
-        weightCondition.groupWeight = conditionGroup.groupWeight
-        weightCondition.setUnCondWeight(conditionGroup.unConditionWeight)
-        weightCondition.setNum(conditionGroup.num ?: 0)
+        ruleInfo.groupWeight = conditionGroup.groupWeight
+        ruleInfo.setUnCondWeight(conditionGroup.unConditionWeight)
+        ruleInfo.setNum(conditionGroup.num ?: 0)
 
-        if (weightCondition is DepProcessor) {
-            return weightCondition.processAndVerify(conditionGroup, weightGroupInfos)
+        if (ruleInfo is DepProcessor) {
+            return ruleInfo.processAndVerify(conditionGroup, weightGroupInfos)
         }
 
         return true
     }
 
     //都是通过ServerLoader加载没有可能获取不到
-    private fun WeightCondition.copy(): WeightCondition {
+    private fun RuleInfo.copy(): RuleInfo {
         val clazz = this::class.java
         //都是通过ServerLoader加载没有可能获取不到
         val primaryConstructor = clazz.getConstructor()

@@ -3,6 +3,8 @@ package lin.weightHandler.condition
 
 import lin.bean.CardWeightInfo
 import lin.bean.ComboCard
+import lin.bean.cardExt.base.intentRule
+import lin.bean.cardExt.base.weightRules
 import lin.config.ConfigDispatcher
 import lin.domain.MyWarManage
 import lin.domain.context.NotWeight
@@ -37,18 +39,12 @@ class ConditionWeightHandler : WeightHandler, InitHandler, KoinComponent {
     override fun priority() = 5
     override fun cardWeightCompute(callCard: ComboCard, warManage: MyWarManage): Double {
         var calWeight = NotWeight
-        callCard.weightRules?.let { weightRules ->
-            if (weightRules.any { it is IntentRule }) {
-                val (intentConditions, otherRules) = weightRules.partitionIsInstance<IntentRule, WeightRule>()
-                calWeight += otherRules.processRule(callCard, warManage)
-                if (calWeight == UnUseWeight) {
-                    return calWeight
-                }
-                calWeight += intentConditions.processIntent(callCard, warManage)
-            } else {
-                calWeight = weightRules.processRule(callCard, warManage)
-            }
+        val weight = callCard.weightRules()?.processRule(callCard, warManage)
+        if (weight == UnUseWeight) {
+            return weight
         }
+        weight?.let { calWeight += it }
+        callCard.intentRule()?.processIntent(callCard, warManage)
         return calWeight
     }
 

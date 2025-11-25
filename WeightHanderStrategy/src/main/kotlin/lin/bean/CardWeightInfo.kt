@@ -7,6 +7,7 @@ import lin.domain.use.UseAfterStrategy
 import lin.domain.use.UseBeforeStrategy
 import lin.domain.use.UseStrategy
 import lin.lifecycle.LifecycleRegister
+import lin.serviceLoader.weightRule.IntentRule
 import lin.serviceLoader.weightRule.WeightRule
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -71,10 +72,15 @@ data class CardWeightInfo(
     fun setWeightRule(weightRule: WeightRule) {
         _weightRules = _weightRules.addSafe(weightRule)
     }
-    fun clearWeightRule(){
-        val lifecycleRegister = get<LifecycleRegister>()
-        lifecycleRegister.logouts(weightRules)
-        _weightRules = null
+    private var _intentRules: MutableList<IntentRule>? = null
+
+    //todo-future 应该移到ConditionHandler,为了一点性能增加复杂性不可取
+    val intentRules: List<IntentRule>
+        get() = _intentRules ?: emptyList()
+
+    //只是简单的添加
+    fun setIntentRule(intentRule: IntentRule) {
+        _intentRules = _intentRules.addSafe(intentRule)
     }
 
 
