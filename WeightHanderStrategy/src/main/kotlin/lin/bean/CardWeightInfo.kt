@@ -7,6 +7,7 @@ import lin.domain.use.UseAfterStrategy
 import lin.domain.use.UseBeforeStrategy
 import lin.domain.use.UseStrategy
 import lin.lifecycle.LifecycleRegister
+import lin.rule.RuleLevel
 import lin.serviceLoader.weightRule.IntentRule
 import lin.serviceLoader.weightRule.WeightRule
 import org.koin.core.component.KoinComponent
@@ -30,6 +31,7 @@ const val FirstUseGroupId = 20
  * @param powerWeight 检测优先级
  *
  * todo-future (三合一了)信息太多可以拆分.集合类的变量应该添加处理上下文(操作日志和处理器之间的通信)
+ *
  */
 data class CardWeightInfo(
     val cardId: String,
@@ -72,15 +74,21 @@ data class CardWeightInfo(
     fun setWeightRule(weightRule: WeightRule) {
         _weightRules = _weightRules.addSafe(weightRule)
     }
-    private var _intentRules: MutableList<IntentRule>? = null
+    fun setWeightRules(weightRules: MutableList<WeightRule>) {
+        _weightRules?.addAll(weightRules) ?: run {
+            _weightRules = weightRules
+        }
+    }
+
+    private var _intentRuleMap: Map<RuleLevel, List<IntentRule>>? = null
 
     //todo-future 应该移到ConditionHandler,为了一点性能增加复杂性不可取
-    val intentRules: List<IntentRule>
-        get() = _intentRules ?: emptyList()
+    val intentRuleMap: Map<RuleLevel, List<IntentRule>>
+        get() = _intentRuleMap ?: emptyMap()
 
     //只是简单的添加
-    fun setIntentRule(intentRule: IntentRule) {
-        _intentRules = _intentRules.addSafe(intentRule)
+    fun setIntentRuleMap(intentRuleMap: Map<RuleLevel, List<IntentRule>>) {
+        _intentRuleMap = intentRuleMap
     }
 
 

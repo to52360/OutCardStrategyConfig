@@ -9,6 +9,10 @@ import kotlin.reflect.KClass
 
 interface ConfigHandler<T : CardConfig> {
     val configType: KClass<out T>
+
+    /**
+     * todo-future cardWeightInfos 强耦合 有新的需求再一起改
+     */
     fun processConfig(cardConfigs: List<T>, cardWeightInfos: List<CardWeightInfo>)
 }
 
@@ -34,7 +38,7 @@ class UseConfigHandler : ConfigHandler<BaseConfig> {
                         info.addCardType(config)
                     }
                 }
-                is CardWeightConfigurer -> {
+                is CardWeightConfigurer -> { //通用修改,存在问题,但是避免太多类结构问题
                     cardWeightInfos.forEach { info ->
                         config(info)
                     }
@@ -47,6 +51,21 @@ class UseConfigHandler : ConfigHandler<BaseConfig> {
                         it.cardContext.addSafe(key, config.value)
                     }
                 }
+                is Rule -> {
+                    when (config) {
+                        is RuleMap -> cardWeightInfos.forEach { info ->
+                            info.setIntentRuleMap(config.ruleMap)
+                        }
+
+                        is Rules -> cardWeightInfos.forEach { info ->
+                            //还是复制一个
+                            info.setWeightRules(config.rules.toMutableList())
+                        }
+
+                    }
+
+                }
+
             }
         }
     }

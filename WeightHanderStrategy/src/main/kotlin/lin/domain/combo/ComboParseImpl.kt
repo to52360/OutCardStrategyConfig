@@ -29,7 +29,9 @@ class FirstUseCombo : ValidBindComboParse {
 
 }
 
-
+/**
+ *同组加权
+ */
 open class ComboImpl : ValidDepComboParse, ComboPredicateByGroup {
     override fun processBindCombo(
         cardWeightInfos: List<CardWeightInfo>,

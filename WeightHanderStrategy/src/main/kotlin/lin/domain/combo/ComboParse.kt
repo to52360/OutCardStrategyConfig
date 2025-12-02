@@ -19,6 +19,9 @@ interface ComboParse {
     fun parse(cardGroupInfos: Map<Double, List<CardWeightInfo>>, comboInfo: ComboInfo)
 }
 
+/**
+ * 验证数据绑定的数据是否存在
+ */
 interface ValidBindComboParse : ComboParse, ValidExistWeightInfo {
     override fun parse(cardGroupInfos: Map<Double, List<CardWeightInfo>>, comboInfo: ComboInfo) {
         val validResult = valid(cardGroupInfos, comboInfo.bindId)
@@ -64,6 +67,9 @@ interface ValidDepComboParse : ValidBindComboParse {
     }
 }
 
+/**
+ * combo依赖分组
+ */
 interface ComboPredicateByGroup {
     fun predicateByGroup(comboInfo: ComboInfo): ComboRule {
         val comboRule: ComboRule = { comboCards ->

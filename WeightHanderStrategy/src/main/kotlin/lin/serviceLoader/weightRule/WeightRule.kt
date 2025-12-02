@@ -10,14 +10,18 @@ import lin.rule.RuleLevel
 /**
  * 表达意图规则接口
  */
-interface IntentRule {
+interface IntentRule : RuleId {
     val ruleLevel: RuleLevel
     fun intentCmd(callCard: ComboCard, warInfo: WarInfo): IntentResult
 }
 
-interface WeightRule {
-    fun id(): String
+interface RuleId {
+    fun id(): String {
+        return this.javaClass.simpleName
+    }
+}
 
+interface WeightRule : RuleId {
     /**
      * 根据战场
      * @param callCard 需要处理的的卡牌,todo-future 要不要去掉 这里传入是为了处理完权重信息一起处理combo组情景,
@@ -25,10 +29,8 @@ interface WeightRule {
      */
     fun calculateWeight(callCard: ComboCard, warInfo: WarInfo): Double
 }
-interface RuleInfo : GroupWeight {
-    fun ruleId(): String {
-        return this.javaClass.simpleName
-    }
+
+interface RuleInfo : GroupWeight, RuleId {
 
     fun name(): String {
         return this.javaClass.simpleName

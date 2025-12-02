@@ -20,10 +20,10 @@ import lin.domain.strategy.FindPlanner
 import lin.domain.use.UseDomain
 import lin.lifecycle.LifecycleRegister
 import lin.lifecycle.LifecycleRegisterImpl
+import lin.rule.RuleInfoRegister
 import lin.serviceLoader.findCombo.SkillFindStrategy
 import lin.serviceLoader.module.ModulesInfo
 import lin.serviceLoader.parse.LieRenParse
-import lin.serviceLoader.parse.ParseCardRule
 import lin.serviceLoader.parse.ParseCardWeightInfo
 import lin.serviceLoader.parse.ParseCombo
 import lin.serviceLoader.weightRule.utils.war.CleanWarUtils
@@ -51,7 +51,7 @@ class ModulesLoad {
         singleOf(::WeightConditionDao)
     }
     val parseCardWeightInfoModule = module {
-        singleOf(::ParseCardRule) bind ParseCardWeightInfo::class
+
         singleOf(::ParseCombo) bind ParseCardWeightInfo::class
 
         //todo-future 暂挂
@@ -86,6 +86,10 @@ class ModulesLoad {
         }
 
         single<ConfigDispatcher> { ConfigDispatcher(getAll(), getAll()) }
+        single<RuleInfoRegister> {
+            val infos = get<Map<String, CardWeightInfo>>(named("weightInfo")).values
+            RuleInfoRegister(infos, get())
+        }
     }
 
     val utilsModule = module {

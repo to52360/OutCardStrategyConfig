@@ -14,13 +14,7 @@ import lin.domain.WarInfo
  * [ExtConfig]额外配置信息
  *
  */
-interface WeightCondition : WeightRule, RuleInfo {
-    //唯一
-    override fun id(): String {
-        return ruleId()
-    }
-
-}
+interface WeightCondition : WeightRule, RuleInfo
 
 
 /**
@@ -30,6 +24,10 @@ interface WeightCondition : WeightRule, RuleInfo {
 interface IntentRuleInfo : RuleInfo, IntentRule
 
 interface ExtConfig {
+    /**
+     * 其他地方也需要
+     *
+     */
     fun cardConfigs(): List<CardConfig>
 }
 

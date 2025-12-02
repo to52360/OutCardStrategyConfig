@@ -10,7 +10,7 @@ import lin.domain.context.CostWeight
  * 生成位置
  * [lin.weightHandler.condition.config.GroupStrategyDao.getAll]
  * 设置位置
- * [lin.weightHandler.condition.ConditionHandlerInit.processDep]
+ * [lin.rule.RuleInfoRegister.processDep]
  *
  * 存储位置
  * [lin.serviceLoader.weightRule.utils.abs.AbsWeightCondition]

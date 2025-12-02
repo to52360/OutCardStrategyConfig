@@ -20,7 +20,7 @@ fun ComboCard.isCardType(cardType: CardType): Boolean {
 
 //combo相关
 fun ComboCard.weightRules() = cardWeightInfo?.weightRules
-fun ComboCard.intentRule() = cardWeightInfo?.intentRules
+fun ComboCard.intentRuleMap() = cardWeightInfo?.intentRuleMap
 
 fun ComboCard.changeWeight(): Double = cardWeightInfo?.changeWeight ?: NotWeight
 
